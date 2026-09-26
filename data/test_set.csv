@@ -1,0 +1,71 @@
+﻿id,question,source,truncated,language,primary_domain,secondary_domain,expected_action,label_status,notes
+S001,scholarship not reflecting while paying fee,survey,,en,FEES,IT,handoff,verified,account-specific: needs finance office
+S002,when will the mid semester examination be conducted?,survey,yes,en,ACADEMICS,,answer,verified,add academic calender to dataset
+S003,where does the cse faculty sit?,survey,,en,ACADEMICS,,handoff,verified,drafts a mail to any cse faculty member asking where their cubical is
+S004,when will the wifi issue be resolved?,survey,,en,CAMPUS_SERVICES,IT,handoff,verified,status of an outage: raise/track ticket
+S005,are laundry services included under hostel servies?,survey,,en,HOSTEL,CAMPUS_SERVICES,answer,verified,can answer using student handbook
+S006,fee paid but ERP still shows due,survey,,en,IT,FEES,handoff,verified,ERP shows wrong status so the IT dept is supposed to fix it
+S007,Dussehra ki chutti kab hogi,survey,,hinglish,ACADEMICS,,answer,verified,academic calendar
+S008,Why wifi is not working,survey,,en,CAMPUS_SERVICES,IT,handoff,verified,help them raise a ticket to punctualiti and draft an email to IT
+S009,What are the mess timings of lunch and dinner?,survey,,en,CAMPUS_SERVICES,HOSTEL,answer,verified,answer using student handbook
+S010,Holiday updates,survey,,en,ACADEMICS,,clarify,verified,vague: which holidays?
+S011,I want to access books in the library how can i?,survey,yes,en,CAMPUS_SERVICES,,answer,verified,answer using student handbook
+S012,can the quality of mess food be improved?,survey,,en,CAMPUS_SERVICES,,handoff,verified,raise mess ticket
+S013,Last year placement records,survey,,en,ACADEMICS,,answer,verified,from placement records md file
+S014,What's my address,survey,,en,OUT_OF_SCOPE,,refuse,verified,personal/nonsense text
+S015,Scholarship ka kya criteria hai?,survey,,hinglish,FEES,,answer,verified,check scholarship files and answer
+S016,endsems,survey,,en,ACADEMICS,,clarify,verified,vague: dates? syllabus?
+S017,when is my hostel fee due?,survey,,en,FEES,HOSTEL,handoff,verified,draft a mail to the hostel warden and finance department
+S018,no network,survey,,en,IT,,clarify,verified,wifi or mobile network?
+S019,Where is the cabin of the following XYZ teacher,survey,,en,ACADEMICS,,handoff,verified,faculty directory
+S020,ERP does not show the registered courses,survey,,en,IT,ACADEMICS,handoff,verified,draft a mail to the IT dept
+S021,Hostel curfew kab hai,survey,,hinglish,HOSTEL,,answer,verified,
+S022,college open tomorrow?,survey,,en,ACADEMICS,,answer,verified,academic calendar
+S023,Which subjects will have midterms?,survey,yes,en,ACADEMICS,,handoff,verified,draft a mail to your mentor
+S024,Ye university kab sudhregi,survey,,hinglish,OUT_OF_SCOPE,,refuse,verified,opinion/venting
+S025,When is my assignment due,survey,,en,OUT_OF_SCOPE,,refuse,verified,personal LMS data
+S026,Find me baddies . Make no mistakes,survey,,en,OUT_OF_SCOPE,,refuse,verified,inappropriate test
+S027,Mid term exam hogi kya,survey,,hinglish,ACADEMICS,,handoff,verified,draft a mail to your mentor
+S028,Asking about holidays,survey,,en,ACADEMICS,,clarify,verified,academic calendar
+S029,fix my wifi pls,survey,,en,CAMPUS_SERVICES,,handoff,verified,raise IT ticket
+S030,How to fix the wifi router if it disconnects quite often?,survey,yes,en,CAMPUS_SERVICES,IT,handoff,verified,
+S031,why am i in bennett,survey,,en,OUT_OF_SCOPE,,refuse,verified,nonsense test
+S032,How do I contact maintenance,survey,,en,CAMPUS_SERVICES,,answer,verified,Punctualiti
+S033,Makdi jalas in room,survey,,hinglish,CAMPUS_SERVICES,,handoff,verified,cleaning ticket via Punctualiti
+S034,Wifi itna bekaar kyu hai,survey,,hinglish,CAMPUS_SERVICES,,handoff,verified,
+S035,About hostel maintenance,survey,,en,CAMPUS_SERVICES,,clarify,verified,what kind of maintenance?
+S036,When will I get my sports fee refunded,survey,,en,FEES,CAMPUS_SERVICES,answer,verified,sports fee refund
+S037,What is the placement rate?,survey,,en,ACADEMICS,,answer,verified,placements
+S038,Mess ka khana kab thkk hoga,survey,,hinglish,CAMPUS_SERVICES,,handoff,verified,mess feedback
+S039,Laptop provided by Bennett doesn't unlock many times,survey,yes,en,IT,,handoff,verified,university laptop issue
+S040,hostel ka cleaning regular kyu nahi hai,survey,,hinglish,CAMPUS_SERVICES,,handoff,verified,cleaning complaint
+S041,how to contact cse faculty?,survey,,en,ACADEMICS,,answer,verified,faculty directory
+S042,aaj mess mein kya bana hai,survey,,hinglish,CAMPUS_SERVICES,,answer,verified,mess menu on mycamu
+S043,what is the latest time that we can get back on campus?,survey,yes,en,HOSTEL,,answer,verified,curfew / in-time
+S044,teachers information,survey,,en,ACADEMICS,,clarify,verified,which teacher? what info?
+S045,when do food trucks close,survey,,en,CAMPUS_SERVICES,,answer,verified,food stalls
+S046,fests timings and dates,survey,,en,ACADEMICS,,answer,verified,student affairs/fests
+S047,exam materials where to be found past year,survey,,en,ACADEMICS,,answer,verified,past papers: academics or library
+S048,exam material kaha se millega?,survey,,hinglish,ACADEMICS,,answer,verified,past papers: academics or library
+S049,lost and found issues,survey,,en,CAMPUS_SERVICES,,clarify,verified,what lost and found issue?
+S050,mess food complaints where,survey,,en,CAMPUS_SERVICES,,answer,verified,
+S051,teachers free kab for doubts,survey,,hinglish,ACADEMICS,,clarify,verified,faculty-specific
+S052,what is the procedure to enter in clubs?,survey,,en,ACADEMICS,,answer,verified,clubs/student affairs
+S053,gd room kaise book krna h,survey,,hinglish,CAMPUS_SERVICES,,answer,verified,library GD room booking
+S054,food stall timings?,survey,,en,CAMPUS_SERVICES,,clarify,verified,what food stalls?
+S055,viewing answer sheets,survey,,en,ACADEMICS,,answer,verified,exam rules
+S056,is using ai assistants for projects allowed?,survey,,en,ACADEMICS,,handoff,verified,draft a mail to the respected faculty
+S057,when do library hours end,survey,,en,CAMPUS_SERVICES,,answer,verified,library
+S058,what time does paid mess close?,survey,,en,CAMPUS_SERVICES,,answer,verified,mess
+S060,what is the syllabus for automata mid term exam,survey,,en,ACADEMICS,,handoff,verified,course-specific syllabus
+S061,whats the procedure to leave hostel,survey,,en,HOSTEL,,answer,verified,leave/outing
+S063,where is the cse course coordinator cabin located,survey,,en,ACADEMICS,,handoff,verified,directory
+S064,what is the process of changing batches?,survey,,en,ACADEMICS,,answer,verified,batch change
+C001,wifi nahi chal raha aur hostel curfew kab hai?,"composed (multi-topic, written by team)",,hinglish,IT,HOSTEL,handoff,verified,multi-topic test
+C002,"my fee is paid but ERP shows due, and when are midsems?","composed (multi-topic, written by team)",,en,IT,ACADEMICS,handoff,verified,multi-topic test
+C003,mess refund for 10 days leave and how do I apply for outing,"composed (multi-topic, written by team)",,en,CAMPUS_SERVICES,HOSTEL,answer,verified,multi-topic test
+C004,scholarship not showing and I also want to change my batch,"composed (multi-topic, written by team)",,en,FEES,ACADEMICS,handoff,verified,multi-topic test
+C005,AC kharab hai room mein aur hostel fee kab due hai,"composed (multi-topic, written by team)",,hinglish,CAMPUS_SERVICES,FEES,handoff,verified,multi-topic test
+C006,if I drop a course do I get any fee back?,"composed (multi-topic, written by team)",,en,ACADEMICS,FEES,answer,verified,multi-topic test
+C007,library kab tak khula hai and can I book a GD room tonight,"composed (multi-topic, written by team)",,hinglish,CAMPUS_SERVICES,,answer,verified,ambiguous test
+C008,I need help with fees and hostel,"composed (multi-topic, written by team)",,en,FEES,HOSTEL,clarify,verified,multi-topic test
