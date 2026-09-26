@@ -1,207 +1,207 @@
 id,seed_id,variant_type,question,source,language,primary_domain,secondary_domain,expected_action,label_status,notes
-SIM-S001-P,S001,paraphrase,my scholarship amount isn't deducted when I go to pay the fees,simulated (Claude),en,FEES,IT,handoff,draft,labels inherited from seed
-SIM-S001-L,S001,language_switch,fees pay karte waqt scholarship show nahi ho rahi,simulated (Claude),hinglish,FEES,IT,handoff,draft,labels inherited from seed
-SIM-S001-T,S001,typo_sms,scholrship not showing in fee payment pls help,simulated (Claude),en,FEES,IT,handoff,draft,labels inherited from seed
-SIM-S002-P,S002,paraphrase,what are the dates for the mid-sem exams this term?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S002-L,S002,language_switch,mid sem exams kab se start honge?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S002-V,S002,vaguer,exam dates?,simulated (Claude),en,ACADEMICS,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S003-P,S003,paraphrase,where are the CSE professors' cabins?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S003-L,S003,language_switch,CSE ke teachers kaha baithte hai?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S003-T,S003,typo_sms,whr do cse faculty sit,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S004-P,S004,paraphrase,any update on when the wifi problem will be fixed?,simulated (Claude),en,CAMPUS_SERVICES,IT,handoff,draft,labels inherited from seed
-SIM-S004-L,S004,language_switch,wifi ka issue kab tak theek hoga?,simulated (Claude),hinglish,CAMPUS_SERVICES,IT,handoff,draft,labels inherited from seed
-SIM-S004-T,S004,typo_sms,wen will wifi be fixed,simulated (Claude),en,CAMPUS_SERVICES,IT,handoff,draft,labels inherited from seed
-SIM-S005-P,S005,paraphrase,is laundry part of the hostel facilities?,simulated (Claude),en,HOSTEL,CAMPUS_SERVICES,answer,draft,labels inherited from seed
-SIM-S005-L,S005,language_switch,kya laundry hostel services mein include hai?,simulated (Claude),hinglish,HOSTEL,CAMPUS_SERVICES,answer,draft,labels inherited from seed
-SIM-S006-P,S006,paraphrase,I already paid the fees but the ERP says I still owe money,simulated (Claude),en,IT,FEES,handoff,draft,labels inherited from seed
-SIM-S006-L,S006,language_switch,fees bhar di phir bhi ERP pe due dikha raha hai,simulated (Claude),hinglish,IT,FEES,handoff,draft,labels inherited from seed
-SIM-S006-T,S006,typo_sms,paid fee erp still showin due??,simulated (Claude),en,IT,FEES,handoff,draft,labels inherited from seed
-SIM-S007-P,S007,paraphrase,Dussehra holidays kab se hai?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S007-L,S007,language_switch,When are the Dussehra holidays?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S007-T,S007,typo_sms,dusshera chuti kb h,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S008-P,S008,paraphrase,"the wifi isn't working, what's going on?",simulated (Claude),en,IT,CAMPUS_SERVICES,handoff,draft,labels inherited from seed
-SIM-S008-L,S008,language_switch,wifi kaam kyu nahi kar raha?,simulated (Claude),hinglish,IT,CAMPUS_SERVICES,handoff,draft,labels inherited from seed
-SIM-S008-T,S008,typo_sms,y wifi not wrking,simulated (Claude),en,IT,CAMPUS_SERVICES,handoff,draft,labels inherited from seed
-SIM-S009-P,S009,paraphrase,at what time is lunch and dinner served in the mess?,simulated (Claude),en,CAMPUS_SERVICES,HOSTEL,answer,draft,labels inherited from seed
-SIM-S009-L,S009,language_switch,mess mein lunch aur dinner kitne baje milta hai?,simulated (Claude),hinglish,CAMPUS_SERVICES,HOSTEL,answer,draft,labels inherited from seed
-SIM-S009-V,S009,vaguer,mess?,simulated (Claude),en,CAMPUS_SERVICES,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S010-P,S010,paraphrase,any news about holidays?,simulated (Claude),en,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S010-L,S010,language_switch,chhutti ka kya update hai?,simulated (Claude),hinglish,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S011-P,S011,paraphrase,how do I borrow books from the library?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S011-L,S011,language_switch,library se books kaise issue karu?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S011-T,S011,typo_sms,how to get libary books,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S012-P,S012,paraphrase,is there any way the mess food can get better?,simulated (Claude),en,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S012-L,S012,language_switch,mess ka khana better ho sakta hai kya?,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S013-P,S013,paraphrase,placement stats from last year?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S013-L,S013,language_switch,pichle saal ke placement records dikhao,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S013-T,S013,typo_sms,last yr placemnt record,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S014-P,S014,paraphrase,tell me where I live,simulated (Claude),en,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S014-L,S014,language_switch,mera address kya hai?,simulated (Claude),hinglish,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S015-P,S015,paraphrase,scholarship milne ke liye kya eligibility hai?,simulated (Claude),hinglish,FEES,,answer,draft,labels inherited from seed
-SIM-S015-L,S015,language_switch,What are the eligibility criteria for scholarships?,simulated (Claude),en,FEES,,answer,draft,labels inherited from seed
-SIM-S015-T,S015,typo_sms,scholarship criteria kya h,simulated (Claude),hinglish,FEES,,answer,draft,labels inherited from seed
-SIM-S015-V,S015,vaguer,scholarship,simulated (Claude),hinglish,FEES,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S016-P,S016,paraphrase,end sems??,simulated (Claude),en,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S016-L,S016,language_switch,endsem ke baare mein batao,simulated (Claude),hinglish,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S017-P,S017,paraphrase,by when do I have to pay my hostel fee?,simulated (Claude),en,FEES,HOSTEL,handoff,draft,labels inherited from seed
-SIM-S017-L,S017,language_switch,mera hostel fee kab due hai?,simulated (Claude),hinglish,FEES,HOSTEL,handoff,draft,labels inherited from seed
-SIM-S018-P,S018,paraphrase,network not there,simulated (Claude),en,IT,,clarify,draft,labels inherited from seed
-SIM-S018-L,S018,language_switch,network nahi aa raha,simulated (Claude),hinglish,IT,,clarify,draft,labels inherited from seed
-SIM-S019-P,S019,paraphrase,can you tell me where Professor XYZ's office is?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S019-L,S019,language_switch,XYZ sir ka cabin kaha hai?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S019-T,S019,typo_sms,xyz teacher cabin where,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S020-P,S020,paraphrase,my registered courses are missing on the ERP,simulated (Claude),en,IT,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-S020-L,S020,language_switch,ERP pe mere registered courses nahi dikh rahe,simulated (Claude),hinglish,IT,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-S020-T,S020,typo_sms,erp not showing my courses,simulated (Claude),en,IT,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-S021-P,S021,paraphrase,hostel mein wapas aane ka time kya hai?,simulated (Claude),hinglish,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S021-L,S021,language_switch,What time is the hostel curfew?,simulated (Claude),en,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S021-T,S021,typo_sms,hostel curfew kb h,simulated (Claude),hinglish,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S022-P,S022,paraphrase,is the university open tomorrow?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S022-L,S022,language_switch,kal college khula hai kya?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S022-T,S022,typo_sms,clg open tmrw?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S023-P,S023,paraphrase,which courses have a mid-term exam this semester?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S023-L,S023,language_switch,kaunse subjects ke midterms honge?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S024-P,S024,paraphrase,ye college kab theek hoga yaar,simulated (Claude),hinglish,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S024-L,S024,language_switch,when will this university ever improve,simulated (Claude),en,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S025-P,S025,paraphrase,what's the deadline for my assignment?,simulated (Claude),en,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S025-L,S025,language_switch,mera assignment kab submit karna hai?,simulated (Claude),hinglish,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S026-P,S026,paraphrase,find me some hot people on campus,simulated (Claude),en,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S026-L,S026,language_switch,mujhe baddies dhoondh ke do,simulated (Claude),hinglish,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S027-P,S027,paraphrase,kya midterm exams hone wale hai?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S027-L,S027,language_switch,Will there be a mid term exam?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S027-T,S027,typo_sms,midterm hoga kya,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S028-P,S028,paraphrase,question about holidays,simulated (Claude),en,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S028-L,S028,language_switch,holidays ke baare mein puchna tha,simulated (Claude),hinglish,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S029-P,S029,paraphrase,please fix my wifi,simulated (Claude),en,IT,,handoff,draft,labels inherited from seed
-SIM-S029-L,S029,language_switch,mera wifi theek kar do please,simulated (Claude),hinglish,IT,,handoff,draft,labels inherited from seed
-SIM-S029-T,S029,typo_sms,fx my wify plz,simulated (Claude),en,IT,,handoff,draft,labels inherited from seed
-SIM-S030-P,S030,paraphrase,"the wifi router keeps disconnecting, how do I fix it?",simulated (Claude),en,CAMPUS_SERVICES,IT,handoff,draft,labels inherited from seed
-SIM-S030-L,S030,language_switch,"wifi router baar baar disconnect hota hai, kaise theek karu?",simulated (Claude),hinglish,CAMPUS_SERVICES,IT,handoff,draft,labels inherited from seed
-SIM-S031-P,S031,paraphrase,why did I even join bennett,simulated (Claude),en,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S031-L,S031,language_switch,main bennett mein kyu hoon,simulated (Claude),hinglish,OUT_OF_SCOPE,,refuse,draft,labels inherited from seed
-SIM-S032-P,S032,paraphrase,what's the way to reach the maintenance team?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S032-L,S032,language_switch,maintenance walo se contact kaise karu?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S032-T,S032,typo_sms,maintainance contact how,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S033-P,S033,paraphrase,room mein bahut makdi ke jaale hai,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S033-L,S033,language_switch,there are cobwebs all over my room,simulated (Claude),en,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S033-T,S033,typo_sms,makdi jaale room me,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S034-P,S034,paraphrase,wifi itna slow kyu hai yaar,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S034-L,S034,language_switch,why is the wifi so bad,simulated (Claude),en,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S035-P,S035,paraphrase,regarding hostel maintenance,simulated (Claude),en,CAMPUS_SERVICES,,clarify,draft,labels inherited from seed
-SIM-S035-L,S035,language_switch,hostel maintenance ke baare mein,simulated (Claude),hinglish,CAMPUS_SERVICES,,clarify,draft,labels inherited from seed
-SIM-S036-P,S036,paraphrase,when does the sports fee refund come through?,simulated (Claude),en,FEES,CAMPUS_SERVICES,answer,draft,labels inherited from seed
-SIM-S036-L,S036,language_switch,sports fee ka refund kab milega?,simulated (Claude),hinglish,FEES,CAMPUS_SERVICES,answer,draft,labels inherited from seed
-SIM-S036-T,S036,typo_sms,sports fee refund when,simulated (Claude),en,FEES,CAMPUS_SERVICES,answer,draft,labels inherited from seed
-SIM-S037-P,S037,paraphrase,what percentage of students get placed?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S037-L,S037,language_switch,placement rate kitna hai?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S037-V,S037,vaguer,placements,simulated (Claude),en,ACADEMICS,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S038-P,S038,paraphrase,mess ka food kab improve hoga,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S038-L,S038,language_switch,when will the mess food get better?,simulated (Claude),en,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S038-T,S038,typo_sms,mess khana kb thik hoga,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S039-P,S039,paraphrase,my Bennett-issued laptop often won't unlock,simulated (Claude),en,IT,,handoff,draft,labels inherited from seed
-SIM-S039-L,S039,language_switch,Bennett wala laptop baar baar unlock nahi hota,simulated (Claude),hinglish,IT,,handoff,draft,labels inherited from seed
-SIM-S039-T,S039,typo_sms,bennett laptop not unlocking often,simulated (Claude),en,IT,,handoff,draft,labels inherited from seed
-SIM-S040-P,S040,paraphrase,hostel mein safai roz kyu nahi hoti,simulated (Claude),hinglish,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S040-L,S040,language_switch,why isn't the hostel cleaned regularly?,simulated (Claude),en,CAMPUS_SERVICES,,handoff,draft,labels inherited from seed
-SIM-S040-V,S040,vaguer,cleaning,simulated (Claude),hinglish,CAMPUS_SERVICES,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S041-P,S041,paraphrase,how can I reach the CSE faculty members?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S041-L,S041,language_switch,CSE faculty se contact kaise karu?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S041-T,S041,typo_sms,cse faculty contact??,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S042-P,S042,paraphrase,aaj mess ka menu kya hai,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S042-L,S042,language_switch,what's on the mess menu today?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S042-T,S042,typo_sms,aaj mess me kya h,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S043-P,S043,paraphrase,till what time can we return to campus at night?,simulated (Claude),en,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S043-L,S043,language_switch,raat ko campus mein kitne baje tak wapas aa sakte hai?,simulated (Claude),hinglish,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S043-T,S043,typo_sms,latest time to come back campus?,simulated (Claude),en,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S044-P,S044,paraphrase,info about teachers,simulated (Claude),en,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S044-L,S044,language_switch,teachers ki information chahiye,simulated (Claude),hinglish,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S045-P,S045,paraphrase,what time do the food trucks shut?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S045-L,S045,language_switch,food trucks kitne baje band hote hai?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S045-T,S045,typo_sms,food truck closing time,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S046-P,S046,paraphrase,when are the college fests and at what time?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S046-L,S046,language_switch,fest kab hai aur timings kya hai?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S046-V,S046,vaguer,fest,simulated (Claude),en,ACADEMICS,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S047-P,S047,paraphrase,where can I find previous year question papers?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S047-L,S047,language_switch,past year papers kaha milenge?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S047-T,S047,typo_sms,past yr exam papers where,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S048-P,S048,paraphrase,exam ka study material kaha milega?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S048-L,S048,language_switch,Where do I get exam study material?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S049-P,S049,paraphrase,lost and found problem,simulated (Claude),en,CAMPUS_SERVICES,,clarify,draft,labels inherited from seed
-SIM-S049-L,S049,language_switch,lost and found ka issue hai,simulated (Claude),hinglish,CAMPUS_SERVICES,,clarify,draft,labels inherited from seed
-SIM-S050-P,S050,paraphrase,where do I complain about the mess food?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S050-L,S050,language_switch,mess ke khane ki complaint kaha karu?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S050-T,S050,typo_sms,mess complain where,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S051-P,S051,paraphrase,teachers doubts ke liye kab milte hai,simulated (Claude),hinglish,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S051-L,S051,language_switch,when are teachers available for doubts?,simulated (Claude),en,ACADEMICS,,clarify,draft,labels inherited from seed
-SIM-S052-P,S052,paraphrase,how do I join a club?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S052-L,S052,language_switch,clubs mein kaise join kare?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S052-T,S052,typo_sms,how 2 join clubs,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S053-P,S053,paraphrase,group discussion room booking kaise hoti hai,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S053-L,S053,language_switch,how do I book a GD room?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S053-T,S053,typo_sms,gd rm book kese,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S054-P,S054,paraphrase,timings of the food stalls?,simulated (Claude),en,CAMPUS_SERVICES,,clarify,draft,labels inherited from seed
-SIM-S054-L,S054,language_switch,food stalls kab khulte hai?,simulated (Claude),hinglish,CAMPUS_SERVICES,,clarify,draft,labels inherited from seed
-SIM-S055-P,S055,paraphrase,can I see my evaluated answer sheet?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S055-L,S055,language_switch,answer sheet dekhne ka process kya hai?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S056-P,S056,paraphrase,am I allowed to use ChatGPT for my project?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S056-L,S056,language_switch,project ke liye AI tools use kar sakte hai kya?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S056-T,S056,typo_sms,ai allowed for projects?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S057-P,S057,paraphrase,what time does the library close?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S057-L,S057,language_switch,library kitne baje band hoti hai?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S057-T,S057,typo_sms,libary closing time,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S058-P,S058,paraphrase,closing time of the paid mess?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S058-L,S058,language_switch,paid mess kitne baje band hota hai?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-S058-V,S058,vaguer,paid mess,simulated (Claude),en,CAMPUS_SERVICES,,clarify,draft,vaguer: label set to clarify by rule
-SIM-S060-P,S060,paraphrase,what topics come in the automata midsem?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S060-L,S060,language_switch,automata ke mid term ka syllabus kya hai?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S060-T,S060,typo_sms,automata midterm syllabus?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S061-P,S061,paraphrase,how do I get permission to go out of the hostel?,simulated (Claude),en,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S061-L,S061,language_switch,hostel se bahar jaane ka process kya hai?,simulated (Claude),hinglish,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S061-T,S061,typo_sms,procedure leave hostel?,simulated (Claude),en,HOSTEL,,answer,draft,labels inherited from seed
-SIM-S063-P,S063,paraphrase,where can I find the CSE course coordinator's office?,simulated (Claude),en,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S063-L,S063,language_switch,CSE course coordinator ka cabin kaha hai?,simulated (Claude),hinglish,ACADEMICS,,handoff,draft,labels inherited from seed
-SIM-S064-P,S064,paraphrase,how can I switch to a different batch?,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S064-L,S064,language_switch,batch change karne ka process kya hai?,simulated (Claude),hinglish,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S064-T,S064,typo_sms,batch change process,simulated (Claude),en,ACADEMICS,,answer,draft,labels inherited from seed
-SIM-S064-V,S064,vaguer,batch,simulated (Claude),en,ACADEMICS,,clarify,draft,vaguer: label set to clarify by rule
-SIM-C001-P,C001,paraphrase,wifi band hai aur hostel ka curfew time kya hai?,simulated (Claude),hinglish,IT,HOSTEL,handoff,draft,labels inherited from seed
-SIM-C001-L,C001,language_switch,wifi is not working and what time is the hostel curfew?,simulated (Claude),en,IT,HOSTEL,handoff,draft,labels inherited from seed
-SIM-C002-P,C002,paraphrase,"ERP still shows fees pending even though I paid, also what are the midsem dates?",simulated (Claude),en,FEES,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-C002-L,C002,language_switch,"fees bhar di par ERP due dikha raha hai, aur midsem kab hai?",simulated (Claude),hinglish,FEES,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-C003-P,C003,paraphrase,"can I get a mess refund for being away 10 days, and what's the outing application process?",simulated (Claude),en,CAMPUS_SERVICES,HOSTEL,answer,draft,labels inherited from seed
-SIM-C003-L,C003,language_switch,10 din ki leave ka mess refund milega kya aur outing ke liye apply kaise kare?,simulated (Claude),hinglish,CAMPUS_SERVICES,HOSTEL,answer,draft,labels inherited from seed
-SIM-C004-P,C004,paraphrase,"my scholarship isn't reflecting, plus I want to switch batches",simulated (Claude),en,FEES,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-C004-L,C004,language_switch,scholarship nahi dikh rahi aur mujhe batch bhi change karna hai,simulated (Claude),hinglish,FEES,ACADEMICS,handoff,draft,labels inherited from seed
-SIM-C005-P,C005,paraphrase,room ka AC kaam nahi kar raha aur hostel fees ki last date kya hai,simulated (Claude),hinglish,CAMPUS_SERVICES,FEES,handoff,draft,labels inherited from seed
-SIM-C005-L,C005,language_switch,the AC in my room is broken and when is the hostel fee due?,simulated (Claude),en,CAMPUS_SERVICES,FEES,handoff,draft,labels inherited from seed
-SIM-C006-P,C006,paraphrase,will I get a refund if I drop one of my courses?,simulated (Claude),en,ACADEMICS,FEES,answer,draft,labels inherited from seed
-SIM-C006-L,C006,language_switch,course drop karne pe fees wapas milti hai kya?,simulated (Claude),hinglish,ACADEMICS,FEES,answer,draft,labels inherited from seed
-SIM-C007-P,C007,paraphrase,library kitne baje tak open hai aur aaj raat GD room mil sakta hai?,simulated (Claude),hinglish,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-C007-L,C007,language_switch,how late is the library open and can I book a GD room tonight?,simulated (Claude),en,CAMPUS_SERVICES,,answer,draft,labels inherited from seed
-SIM-C008-P,C008,paraphrase,need some help regarding fees and hostel stuff,simulated (Claude),en,FEES,HOSTEL,clarify,draft,labels inherited from seed
-SIM-C008-L,C008,language_switch,fees aur hostel ke baare mein help chahiye,simulated (Claude),hinglish,FEES,HOSTEL,clarify,draft,labels inherited from seed
-SIM-M01,S057+S021,merge,what time does the library close and what's the hostel curfew?,simulated (Claude),en,CAMPUS_SERVICES,HOSTEL,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M02,S029+S036,merge,"fix my wifi please, also when will my sports fee refund come?",simulated (Claude),en,IT,FEES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M03,S007+S042,merge,Dussehra ki chutti kab hai aur aaj mess mein kya bana hai?,simulated (Claude),hinglish,ACADEMICS,CAMPUS_SERVICES,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M04,S033+S061,merge,"there are cobwebs in my room, and how do I apply to leave the hostel for the weekend?",simulated (Claude),en,CAMPUS_SERVICES,HOSTEL,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M05,S015+S052,merge,scholarship ka criteria kya hai aur clubs kaise join kare?,simulated (Claude),hinglish,FEES,ACADEMICS,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M06,S039+S060,merge,my college laptop won't unlock and I need the automata midterm syllabus,simulated (Claude),en,IT,ACADEMICS,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M07,S045+S043,merge,when do the food trucks close and till what time can we come back to campus?,simulated (Claude),en,CAMPUS_SERVICES,HOSTEL,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M08,S064+S017,merge,how do I change my batch and when is my hostel fee due?,simulated (Claude),en,ACADEMICS,FEES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M09,S020+S053,merge,ERP pe courses nahi dikh rahe aur GD room kaise book kare?,simulated (Claude),hinglish,IT,CAMPUS_SERVICES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M10,S050+S041,merge,where do I complain about mess food and how do I contact CSE faculty?,simulated (Claude),en,CAMPUS_SERVICES,ACADEMICS,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M11,S005+S013,merge,is laundry included in hostel services and can I see last year's placement records?,simulated (Claude),en,HOSTEL,ACADEMICS,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M12,S008+S022,merge,wifi kyu nahi chal raha and is college open tomorrow?,simulated (Claude),hinglish,IT,ACADEMICS,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M13,S006+S009,merge,"ERP shows my fee as due even after paying, and what are the mess dinner timings?",simulated (Claude),en,IT,CAMPUS_SERVICES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M14,S036+S011,merge,sports fee refund kab milega aur library se book kaise issue karu?,simulated (Claude),hinglish,FEES,CAMPUS_SERVICES,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M15,S001+S002,merge,"scholarship not reflecting in fee payment, also when are midsems?",simulated (Claude),en,FEES,ACADEMICS,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M16,S032+S023,merge,how do I contact maintenance and which subjects have midterms?,simulated (Claude),en,CAMPUS_SERVICES,ACADEMICS,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M17,S029+S043,merge,wifi theek karo please aur raat ko campus wapas aane ka last time kya hai?,simulated (Claude),hinglish,IT,HOSTEL,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M18,S012+S056,merge,"mess food needs to improve, and are AI tools allowed in projects?",simulated (Claude),en,CAMPUS_SERVICES,ACADEMICS,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M19,S061+S036,merge,how to take leave from hostel and when do I get my sports fee back,simulated (Claude),en,HOSTEL,FEES,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M20,S047+S057,merge,past year papers kaha milenge aur library kab band hoti hai?,simulated (Claude),hinglish,ACADEMICS,CAMPUS_SERVICES,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M21,S030+S015,merge,the wifi router keeps dropping and what are the scholarship criteria?,simulated (Claude),en,CAMPUS_SERVICES,FEES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M22,S019+S058,merge,where is professor XYZ's cabin and what time does the paid mess close?,simulated (Claude),en,ACADEMICS,CAMPUS_SERVICES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M23,S021+S038,merge,hostel curfew kya hai aur mess ka khana kab sudhrega?,simulated (Claude),hinglish,HOSTEL,CAMPUS_SERVICES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M24,S039+S017,merge,laptop not unlocking and when is my hostel fee due,simulated (Claude),en,IT,FEES,handoff,draft,primary = first topic's domain; action = handoff > clarify > answer
-SIM-M25,S046+S045,merge,when is the fest and are the food trucks open late that day?,simulated (Claude),en,ACADEMICS,CAMPUS_SERVICES,answer,draft,primary = first topic's domain; action = handoff > clarify > answer
+SIM-S001-P,S001,paraphrase,my scholarship amount isn't deducted when I go to pay the fees,"simulated (Claude draft, team verified)",en,FEES,IT,handoff,verified,labels inherited from seed
+SIM-S001-L,S001,language_switch,fees pay karte waqt scholarship show nahi ho rahi,"simulated (Claude draft, team verified)",hinglish,FEES,IT,handoff,verified,labels inherited from seed
+SIM-S001-T,S001,typo_sms,scholrship not showing in fee payment pls help,"simulated (Claude draft, team verified)",en,FEES,IT,handoff,verified,labels inherited from seed
+SIM-S002-P,S002,paraphrase,what are the dates for the mid-sem exams this term?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S002-L,S002,language_switch,mid sem exams kab se start honge?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S002-V,S002,vaguer,exam dates?,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S003-P,S003,paraphrase,where are the CSE professors' cabins?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S003-L,S003,language_switch,CSE ke teachers kaha baithte hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S003-T,S003,typo_sms,whr do cse faculty sit,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S004-P,S004,paraphrase,any update on when the wifi problem will be fixed?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,IT,handoff,verified,labels inherited from seed
+SIM-S004-L,S004,language_switch,wifi ka issue kab tak theek hoga?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,IT,handoff,verified,labels inherited from seed
+SIM-S004-T,S004,typo_sms,wen will wifi be fixed,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,IT,handoff,verified,labels inherited from seed
+SIM-S005-P,S005,paraphrase,is laundry part of the hostel facilities?,"simulated (Claude draft, team verified)",en,HOSTEL,CAMPUS_SERVICES,answer,verified,labels inherited from seed
+SIM-S005-L,S005,language_switch,kya laundry hostel services mein include hai?,"simulated (Claude draft, team verified)",hinglish,HOSTEL,CAMPUS_SERVICES,answer,verified,labels inherited from seed
+SIM-S006-P,S006,paraphrase,I already paid the fees but the ERP says I still owe money,"simulated (Claude draft, team verified)",en,IT,FEES,handoff,verified,labels inherited from seed
+SIM-S006-L,S006,language_switch,fees bhar di phir bhi ERP pe due dikha raha hai,"simulated (Claude draft, team verified)",hinglish,IT,FEES,handoff,verified,labels inherited from seed
+SIM-S006-T,S006,typo_sms,paid fee erp still showin due??,"simulated (Claude draft, team verified)",en,IT,FEES,handoff,verified,labels inherited from seed
+SIM-S007-P,S007,paraphrase,Dussehra holidays kab se hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S007-L,S007,language_switch,When are the Dussehra holidays?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S007-T,S007,typo_sms,dusshera chuti kb h,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S008-P,S008,paraphrase,"the wifi isn't working, what's going on?","simulated (Claude draft, team verified)",en,IT,CAMPUS_SERVICES,handoff,verified,labels inherited from seed
+SIM-S008-L,S008,language_switch,wifi kaam kyu nahi kar raha?,"simulated (Claude draft, team verified)",hinglish,IT,CAMPUS_SERVICES,handoff,verified,labels inherited from seed
+SIM-S008-T,S008,typo_sms,y wifi not wrking,"simulated (Claude draft, team verified)",en,IT,CAMPUS_SERVICES,handoff,verified,labels inherited from seed
+SIM-S009-P,S009,paraphrase,at what time is lunch and dinner served in the mess?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,HOSTEL,answer,verified,labels inherited from seed
+SIM-S009-L,S009,language_switch,mess mein lunch aur dinner kitne baje milta hai?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,HOSTEL,answer,verified,labels inherited from seed
+SIM-S009-V,S009,vaguer,mess?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S010-P,S010,paraphrase,any news about holidays?,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S010-L,S010,language_switch,chhutti ka kya update hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S011-P,S011,paraphrase,how do I borrow books from the library?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S011-L,S011,language_switch,library se books kaise issue karu?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S011-T,S011,typo_sms,how to get libary books,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S012-P,S012,paraphrase,is there any way the mess food can get better?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S012-L,S012,language_switch,mess ka khana better ho sakta hai kya?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S013-P,S013,paraphrase,placement stats from last year?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S013-L,S013,language_switch,pichle saal ke placement records dikhao,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S013-T,S013,typo_sms,last yr placemnt record,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S014-P,S014,paraphrase,tell me where I live,"simulated (Claude draft, team verified)",en,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S014-L,S014,language_switch,mera address kya hai?,"simulated (Claude draft, team verified)",hinglish,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S015-P,S015,paraphrase,scholarship milne ke liye kya eligibility hai?,"simulated (Claude draft, team verified)",hinglish,FEES,,answer,verified,labels inherited from seed
+SIM-S015-L,S015,language_switch,What are the eligibility criteria for scholarships?,"simulated (Claude draft, team verified)",en,FEES,,answer,verified,labels inherited from seed
+SIM-S015-T,S015,typo_sms,scholarship criteria kya h,"simulated (Claude draft, team verified)",hinglish,FEES,,answer,verified,labels inherited from seed
+SIM-S015-V,S015,vaguer,scholarship,"simulated (Claude draft, team verified)",hinglish,FEES,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S016-P,S016,paraphrase,end sems??,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S016-L,S016,language_switch,endsem ke baare mein batao,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S017-P,S017,paraphrase,by when do I have to pay my hostel fee?,"simulated (Claude draft, team verified)",en,FEES,HOSTEL,handoff,verified,labels inherited from seed
+SIM-S017-L,S017,language_switch,mera hostel fee kab due hai?,"simulated (Claude draft, team verified)",hinglish,FEES,HOSTEL,handoff,verified,labels inherited from seed
+SIM-S018-P,S018,paraphrase,network not there,"simulated (Claude draft, team verified)",en,IT,,clarify,verified,labels inherited from seed
+SIM-S018-L,S018,language_switch,network nahi aa raha,"simulated (Claude draft, team verified)",hinglish,IT,,clarify,verified,labels inherited from seed
+SIM-S019-P,S019,paraphrase,can you tell me where Professor XYZ's office is?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S019-L,S019,language_switch,XYZ sir ka cabin kaha hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S019-T,S019,typo_sms,xyz teacher cabin where,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S020-P,S020,paraphrase,my registered courses are missing on the ERP,"simulated (Claude draft, team verified)",en,IT,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-S020-L,S020,language_switch,ERP pe mere registered courses nahi dikh rahe,"simulated (Claude draft, team verified)",hinglish,IT,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-S020-T,S020,typo_sms,erp not showing my courses,"simulated (Claude draft, team verified)",en,IT,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-S021-P,S021,paraphrase,hostel mein wapas aane ka time kya hai?,"simulated (Claude draft, team verified)",hinglish,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S021-L,S021,language_switch,What time is the hostel curfew?,"simulated (Claude draft, team verified)",en,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S021-T,S021,typo_sms,hostel curfew kb h,"simulated (Claude draft, team verified)",hinglish,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S022-P,S022,paraphrase,is the university open tomorrow?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S022-L,S022,language_switch,kal college khula hai kya?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S022-T,S022,typo_sms,clg open tmrw?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S023-P,S023,paraphrase,which courses have a mid-term exam this semester?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S023-L,S023,language_switch,kaunse subjects ke midterms honge?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S024-P,S024,paraphrase,ye college kab theek hoga yaar,"simulated (Claude draft, team verified)",hinglish,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S024-L,S024,language_switch,when will this university ever improve,"simulated (Claude draft, team verified)",en,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S025-P,S025,paraphrase,what's the deadline for my assignment?,"simulated (Claude draft, team verified)",en,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S025-L,S025,language_switch,mera assignment kab submit karna hai?,"simulated (Claude draft, team verified)",hinglish,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S026-P,S026,paraphrase,find me some hot people on campus,"simulated (Claude draft, team verified)",en,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S026-L,S026,language_switch,mujhe baddies dhoondh ke do,"simulated (Claude draft, team verified)",hinglish,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S027-P,S027,paraphrase,kya midterm exams hone wale hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S027-L,S027,language_switch,Will there be a mid term exam?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S027-T,S027,typo_sms,midterm hoga kya,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S028-P,S028,paraphrase,question about holidays,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S028-L,S028,language_switch,holidays ke baare mein puchna tha,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S029-P,S029,paraphrase,please fix my wifi,"simulated (Claude draft, team verified)",en,IT,,handoff,verified,labels inherited from seed
+SIM-S029-L,S029,language_switch,mera wifi theek kar do please,"simulated (Claude draft, team verified)",hinglish,IT,,handoff,verified,labels inherited from seed
+SIM-S029-T,S029,typo_sms,fx my wify plz,"simulated (Claude draft, team verified)",en,IT,,handoff,verified,labels inherited from seed
+SIM-S030-P,S030,paraphrase,"the wifi router keeps disconnecting, how do I fix it?","simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,IT,handoff,verified,labels inherited from seed
+SIM-S030-L,S030,language_switch,"wifi router baar baar disconnect hota hai, kaise theek karu?","simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,IT,handoff,verified,labels inherited from seed
+SIM-S031-P,S031,paraphrase,why did I even join bennett,"simulated (Claude draft, team verified)",en,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S031-L,S031,language_switch,main bennett mein kyu hoon,"simulated (Claude draft, team verified)",hinglish,OUT_OF_SCOPE,,refuse,verified,labels inherited from seed
+SIM-S032-P,S032,paraphrase,what's the way to reach the maintenance team?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S032-L,S032,language_switch,maintenance walo se contact kaise karu?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S032-T,S032,typo_sms,maintainance contact how,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S033-P,S033,paraphrase,room mein bahut makdi ke jaale hai,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S033-L,S033,language_switch,there are cobwebs all over my room,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S033-T,S033,typo_sms,makdi jaale room me,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S034-P,S034,paraphrase,wifi itna slow kyu hai yaar,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S034-L,S034,language_switch,why is the wifi so bad,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S035-P,S035,paraphrase,regarding hostel maintenance,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,clarify,verified,labels inherited from seed
+SIM-S035-L,S035,language_switch,hostel maintenance ke baare mein,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,clarify,verified,labels inherited from seed
+SIM-S036-P,S036,paraphrase,when does the sports fee refund come through?,"simulated (Claude draft, team verified)",en,FEES,CAMPUS_SERVICES,answer,verified,labels inherited from seed
+SIM-S036-L,S036,language_switch,sports fee ka refund kab milega?,"simulated (Claude draft, team verified)",hinglish,FEES,CAMPUS_SERVICES,answer,verified,labels inherited from seed
+SIM-S036-T,S036,typo_sms,sports fee refund when,"simulated (Claude draft, team verified)",en,FEES,CAMPUS_SERVICES,answer,verified,labels inherited from seed
+SIM-S037-P,S037,paraphrase,what percentage of students get placed?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S037-L,S037,language_switch,placement rate kitna hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S037-V,S037,vaguer,placements,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S038-P,S038,paraphrase,mess ka food kab improve hoga,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S038-L,S038,language_switch,when will the mess food get better?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S038-T,S038,typo_sms,mess khana kb thik hoga,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S039-P,S039,paraphrase,my Bennett-issued laptop often won't unlock,"simulated (Claude draft, team verified)",en,IT,,handoff,verified,labels inherited from seed
+SIM-S039-L,S039,language_switch,Bennett wala laptop baar baar unlock nahi hota,"simulated (Claude draft, team verified)",hinglish,IT,,handoff,verified,labels inherited from seed
+SIM-S039-T,S039,typo_sms,bennett laptop not unlocking often,"simulated (Claude draft, team verified)",en,IT,,handoff,verified,labels inherited from seed
+SIM-S040-P,S040,paraphrase,hostel mein safai roz kyu nahi hoti,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S040-L,S040,language_switch,why isn't the hostel cleaned regularly?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,handoff,verified,labels inherited from seed
+SIM-S040-V,S040,vaguer,cleaning,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S041-P,S041,paraphrase,how can I reach the CSE faculty members?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S041-L,S041,language_switch,CSE faculty se contact kaise karu?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S041-T,S041,typo_sms,cse faculty contact??,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S042-P,S042,paraphrase,aaj mess ka menu kya hai,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S042-L,S042,language_switch,what's on the mess menu today?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S042-T,S042,typo_sms,aaj mess me kya h,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S043-P,S043,paraphrase,till what time can we return to campus at night?,"simulated (Claude draft, team verified)",en,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S043-L,S043,language_switch,raat ko campus mein kitne baje tak wapas aa sakte hai?,"simulated (Claude draft, team verified)",hinglish,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S043-T,S043,typo_sms,latest time to come back campus?,"simulated (Claude draft, team verified)",en,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S044-P,S044,paraphrase,info about teachers,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S044-L,S044,language_switch,teachers ki information chahiye,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S045-P,S045,paraphrase,what time do the food trucks shut?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S045-L,S045,language_switch,food trucks kitne baje band hote hai?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S045-T,S045,typo_sms,food truck closing time,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S046-P,S046,paraphrase,when are the college fests and at what time?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S046-L,S046,language_switch,fest kab hai aur timings kya hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S046-V,S046,vaguer,fest,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S047-P,S047,paraphrase,where can I find previous year question papers?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S047-L,S047,language_switch,past year papers kaha milenge?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S047-T,S047,typo_sms,past yr exam papers where,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S048-P,S048,paraphrase,exam ka study material kaha milega?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S048-L,S048,language_switch,Where do I get exam study material?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S049-P,S049,paraphrase,lost and found problem,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,clarify,verified,labels inherited from seed
+SIM-S049-L,S049,language_switch,lost and found ka issue hai,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,clarify,verified,labels inherited from seed
+SIM-S050-P,S050,paraphrase,where do I complain about the mess food?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S050-L,S050,language_switch,mess ke khane ki complaint kaha karu?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S050-T,S050,typo_sms,mess complain where,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S051-P,S051,paraphrase,teachers doubts ke liye kab milte hai,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S051-L,S051,language_switch,when are teachers available for doubts?,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,labels inherited from seed
+SIM-S052-P,S052,paraphrase,how do I join a club?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S052-L,S052,language_switch,clubs mein kaise join kare?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S052-T,S052,typo_sms,how 2 join clubs,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S053-P,S053,paraphrase,group discussion room booking kaise hoti hai,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S053-L,S053,language_switch,how do I book a GD room?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S053-T,S053,typo_sms,gd rm book kese,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S054-P,S054,paraphrase,timings of the food stalls?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,clarify,verified,labels inherited from seed
+SIM-S054-L,S054,language_switch,food stalls kab khulte hai?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,clarify,verified,labels inherited from seed
+SIM-S055-P,S055,paraphrase,can I see my evaluated answer sheet?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S055-L,S055,language_switch,answer sheet dekhne ka process kya hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S056-P,S056,paraphrase,am I allowed to use ChatGPT for my project?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S056-L,S056,language_switch,project ke liye AI tools use kar sakte hai kya?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S056-T,S056,typo_sms,ai allowed for projects?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S057-P,S057,paraphrase,what time does the library close?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S057-L,S057,language_switch,library kitne baje band hoti hai?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S057-T,S057,typo_sms,libary closing time,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S058-P,S058,paraphrase,closing time of the paid mess?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S058-L,S058,language_switch,paid mess kitne baje band hota hai?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-S058-V,S058,vaguer,paid mess,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,clarify,verified,vaguer: label set to clarify by rule
+SIM-S060-P,S060,paraphrase,what topics come in the automata midsem?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S060-L,S060,language_switch,automata ke mid term ka syllabus kya hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S060-T,S060,typo_sms,automata midterm syllabus?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S061-P,S061,paraphrase,how do I get permission to go out of the hostel?,"simulated (Claude draft, team verified)",en,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S061-L,S061,language_switch,hostel se bahar jaane ka process kya hai?,"simulated (Claude draft, team verified)",hinglish,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S061-T,S061,typo_sms,procedure leave hostel?,"simulated (Claude draft, team verified)",en,HOSTEL,,answer,verified,labels inherited from seed
+SIM-S063-P,S063,paraphrase,where can I find the CSE course coordinator's office?,"simulated (Claude draft, team verified)",en,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S063-L,S063,language_switch,CSE course coordinator ka cabin kaha hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,handoff,verified,labels inherited from seed
+SIM-S064-P,S064,paraphrase,how can I switch to a different batch?,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S064-L,S064,language_switch,batch change karne ka process kya hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S064-T,S064,typo_sms,batch change process,"simulated (Claude draft, team verified)",en,ACADEMICS,,answer,verified,labels inherited from seed
+SIM-S064-V,S064,vaguer,batch,"simulated (Claude draft, team verified)",en,ACADEMICS,,clarify,verified,vaguer: label set to clarify by rule
+SIM-C001-P,C001,paraphrase,wifi band hai aur hostel ka curfew time kya hai?,"simulated (Claude draft, team verified)",hinglish,IT,HOSTEL,handoff,verified,labels inherited from seed
+SIM-C001-L,C001,language_switch,wifi is not working and what time is the hostel curfew?,"simulated (Claude draft, team verified)",en,IT,HOSTEL,handoff,verified,labels inherited from seed
+SIM-C002-P,C002,paraphrase,"ERP still shows fees pending even though I paid, also what are the midsem dates?","simulated (Claude draft, team verified)",en,FEES,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-C002-L,C002,language_switch,"fees bhar di par ERP due dikha raha hai, aur midsem kab hai?","simulated (Claude draft, team verified)",hinglish,FEES,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-C003-P,C003,paraphrase,"can I get a mess refund for being away 10 days, and what's the outing application process?","simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,HOSTEL,answer,verified,labels inherited from seed
+SIM-C003-L,C003,language_switch,10 din ki leave ka mess refund milega kya aur outing ke liye apply kaise kare?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,HOSTEL,answer,verified,labels inherited from seed
+SIM-C004-P,C004,paraphrase,"my scholarship isn't reflecting, plus I want to switch batches","simulated (Claude draft, team verified)",en,FEES,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-C004-L,C004,language_switch,scholarship nahi dikh rahi aur mujhe batch bhi change karna hai,"simulated (Claude draft, team verified)",hinglish,FEES,ACADEMICS,handoff,verified,labels inherited from seed
+SIM-C005-P,C005,paraphrase,room ka AC kaam nahi kar raha aur hostel fees ki last date kya hai,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,FEES,handoff,verified,labels inherited from seed
+SIM-C005-L,C005,language_switch,the AC in my room is broken and when is the hostel fee due?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,FEES,handoff,verified,labels inherited from seed
+SIM-C006-P,C006,paraphrase,will I get a refund if I drop one of my courses?,"simulated (Claude draft, team verified)",en,ACADEMICS,FEES,answer,verified,labels inherited from seed
+SIM-C006-L,C006,language_switch,course drop karne pe fees wapas milti hai kya?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,FEES,answer,verified,labels inherited from seed
+SIM-C007-P,C007,paraphrase,library kitne baje tak open hai aur aaj raat GD room mil sakta hai?,"simulated (Claude draft, team verified)",hinglish,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-C007-L,C007,language_switch,how late is the library open and can I book a GD room tonight?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,,answer,verified,labels inherited from seed
+SIM-C008-P,C008,paraphrase,need some help regarding fees and hostel stuff,"simulated (Claude draft, team verified)",en,FEES,HOSTEL,clarify,verified,labels inherited from seed
+SIM-C008-L,C008,language_switch,fees aur hostel ke baare mein help chahiye,"simulated (Claude draft, team verified)",hinglish,FEES,HOSTEL,clarify,verified,labels inherited from seed
+SIM-M01,S057+S021,merge,what time does the library close and what's the hostel curfew?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,HOSTEL,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M02,S029+S036,merge,"fix my wifi please, also when will my sports fee refund come?","simulated (Claude draft, team verified)",en,IT,FEES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M03,S007+S042,merge,Dussehra ki chutti kab hai aur aaj mess mein kya bana hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,CAMPUS_SERVICES,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M04,S033+S061,merge,"there are cobwebs in my room, and how do I apply to leave the hostel for the weekend?","simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,HOSTEL,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M05,S015+S052,merge,scholarship ka criteria kya hai aur clubs kaise join kare?,"simulated (Claude draft, team verified)",hinglish,FEES,ACADEMICS,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M06,S039+S060,merge,my college laptop won't unlock and I need the automata midterm syllabus,"simulated (Claude draft, team verified)",en,IT,ACADEMICS,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M07,S045+S043,merge,when do the food trucks close and till what time can we come back to campus?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,HOSTEL,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M08,S064+S017,merge,how do I change my batch and when is my hostel fee due?,"simulated (Claude draft, team verified)",en,ACADEMICS,FEES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M09,S020+S053,merge,ERP pe courses nahi dikh rahe aur GD room kaise book kare?,"simulated (Claude draft, team verified)",hinglish,IT,CAMPUS_SERVICES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M10,S050+S041,merge,where do I complain about mess food and how do I contact CSE faculty?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,ACADEMICS,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M11,S005+S013,merge,is laundry included in hostel services and can I see last year's placement records?,"simulated (Claude draft, team verified)",en,HOSTEL,ACADEMICS,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M12,S008+S022,merge,wifi kyu nahi chal raha and is college open tomorrow?,"simulated (Claude draft, team verified)",hinglish,IT,ACADEMICS,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M13,S006+S009,merge,"ERP shows my fee as due even after paying, and what are the mess dinner timings?","simulated (Claude draft, team verified)",en,IT,CAMPUS_SERVICES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M14,S036+S011,merge,sports fee refund kab milega aur library se book kaise issue karu?,"simulated (Claude draft, team verified)",hinglish,FEES,CAMPUS_SERVICES,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M15,S001+S002,merge,"scholarship not reflecting in fee payment, also when are midsems?","simulated (Claude draft, team verified)",en,FEES,ACADEMICS,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M16,S032+S023,merge,how do I contact maintenance and which subjects have midterms?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,ACADEMICS,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M17,S029+S043,merge,wifi theek karo please aur raat ko campus wapas aane ka last time kya hai?,"simulated (Claude draft, team verified)",hinglish,IT,HOSTEL,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M18,S012+S056,merge,"mess food needs to improve, and are AI tools allowed in projects?","simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,ACADEMICS,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M19,S061+S036,merge,how to take leave from hostel and when do I get my sports fee back,"simulated (Claude draft, team verified)",en,HOSTEL,FEES,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M20,S047+S057,merge,past year papers kaha milenge aur library kab band hoti hai?,"simulated (Claude draft, team verified)",hinglish,ACADEMICS,CAMPUS_SERVICES,answer,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M21,S030+S015,merge,the wifi router keeps dropping and what are the scholarship criteria?,"simulated (Claude draft, team verified)",en,CAMPUS_SERVICES,FEES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M22,S019+S058,merge,where is professor XYZ's cabin and what time does the paid mess close?,"simulated (Claude draft, team verified)",en,ACADEMICS,CAMPUS_SERVICES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M23,S021+S038,merge,hostel curfew kya hai aur mess ka khana kab sudhrega?,"simulated (Claude draft, team verified)",hinglish,HOSTEL,CAMPUS_SERVICES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M24,S039+S017,merge,laptop not unlocking and when is my hostel fee due,"simulated (Claude draft, team verified)",en,IT,FEES,handoff,verified,primary = first topic's domain; action = handoff > clarify > answer
+SIM-M25,S046+S045,merge,when is the fest and are the food trucks open late that day?,"simulated (Claude draft, team verified)",en,ACADEMICS,CAMPUS_SERVICES,answer,verified,primary = first topic's domain; action = handoff > clarify > answer

@@ -1,33 +1,33 @@
 id,question,source,truncated,language,primary_domain,secondary_domain,expected_action,label_status,notes
-D001,what time does the library open on Sundays?,"composed (Claude draft, verified by team)",,en,CAMPUS_SERVICES,,answer,verified,library timings
-D002,hostel mein guests kitne baje tak allowed hai,"composed (Claude draft, verified by team)",,hinglish,HOSTEL,,answer,verified,hostel rules
-D003,what is the hostel fee for a triple sharing room?,"composed (Claude draft, verified by team)",,en,FEES,HOSTEL,answer,verified,"fee structure, not 'my' fee"
-D004,how do I apply for a semester break for medical reasons,"composed (Claude draft, verified by team)",,en,ACADEMICS,,answer,verified,registrar rule
-D005,metro station ke liye shuttle kab chalti hai,"composed (Claude draft, verified by team)",,hinglish,CAMPUS_SERVICES,,answer,verified,transport
-D006,how do I join the coding club,"composed (Claude draft, verified by team)",,en,ACADEMICS,,answer,verified,clubs sit in ACADEMICS (team convention)
-D007,outlook password reset kaise kare,"composed (Claude draft, verified by team)",,hinglish,IT,,answer,verified,
-D008,the geyser in my bathroom is not working,"composed (Claude draft, verified by team)",,en,CAMPUS_SERVICES,,handoff,verified,Punctualiti ticket
-D009,ERP shows me absent for a class I attended,"composed (Claude draft, verified by team)",,en,ACADEMICS,IT,handoff,verified,BOUNDARY: attendance is marked by faculty; team to confirm vs S006 ERP rule
-D010,the extra hostel fee I paid hasn't been refunded yet,"composed (Claude draft, verified by team)",,en,FEES,HOSTEL,handoff,verified,account-specific
-D011,wifi keeps disconnecting in my hostel room,"composed (Claude draft, verified by team)",,en,IT,CAMPUS_SERVICES,handoff,verified,"BOUNDARY: wifi rule, see README"
-D012,I need my provisional degree certificate urgently,"composed (Claude draft, verified by team)",,en,ACADEMICS,,handoff,verified,registrar
-D013,mera room change request 2 weeks se pending hai,"composed (Claude draft, verified by team)",,hinglish,HOSTEL,,handoff,verified,status of own request
-D014,"college laptop ki screen crack ho gayi, repair kaise hoga","composed (Claude draft, verified by team)",,hinglish,IT,,handoff,verified,university laptop
-D015,when is the quiz for my DBMS section,"composed (Claude draft, verified by team)",,en,ACADEMICS,,handoff,verified,course-specific: mail faculty
-D016,exams,"composed (Claude draft, verified by team)",,en,ACADEMICS,,clarify,verified,"vague: dates, syllabus, results?"
-D017,fees,"composed (Claude draft, verified by team)",,en,FEES,,clarify,verified,vague
-D018,room problem,"composed (Claude draft, verified by team)",,en,CAMPUS_SERVICES,HOSTEL,clarify,verified,maintenance or room change?
-D019,timings?,"composed (Claude draft, verified by team)",,en,CAMPUS_SERVICES,,clarify,verified,domain is a guess; score action only
-D020,help with registration,"composed (Claude draft, verified by team)",,en,ACADEMICS,,clarify,verified,course or hostel registration?
-D021,internet,"composed (Claude draft, verified by team)",,en,IT,,clarify,verified,vague
-D022,can you write my lab record,"composed (Claude draft, verified by team)",,en,OUT_OF_SCOPE,,refuse,verified,academic dishonesty
-D023,rate my outfit,"composed (Claude draft, verified by team)",,en,OUT_OF_SCOPE,,refuse,verified,not campus
-D024,bhai ek shayari suna,"composed (Claude draft, verified by team)",,hinglish,OUT_OF_SCOPE,,refuse,verified,not campus
-D025,what is my CGPA,"composed (Claude draft, verified by team)",,en,OUT_OF_SCOPE,,refuse,verified,"personal record, same rule as S025"
-D026,AC not working and when is the fee deadline,"composed (Claude draft, verified by team)",,en,CAMPUS_SERVICES,FEES,handoff,verified,multi-topic
-D027,curfew kya hai aur gym kab khulta hai,"composed (Claude draft, verified by team)",,hinglish,HOSTEL,CAMPUS_SERVICES,answer,verified,multi-topic
-D028,how do I change my room and also my elective,"composed (Claude draft, verified by team)",,en,HOSTEL,ACADEMICS,answer,verified,multi-topic
-D029,ERP not opening and I have to pay fees today,"composed (Claude draft, verified by team)",,en,IT,FEES,handoff,verified,multi-topic
-D030,library timings and bus to Greater Noida,"composed (Claude draft, verified by team)",,en,CAMPUS_SERVICES,,answer,verified,"two topics, one domain"
-D031,wifi aur mess dono bekaar hai,"composed (Claude draft, verified by team)",,hinglish,IT,CAMPUS_SERVICES,handoff,verified,multi-topic complaint
-D032,I need help with my scholarship and my attendance,"composed (Claude draft, verified by team)",,en,FEES,ACADEMICS,clarify,verified,"multi-topic, vague"
+D001,what time does the library open on Sundays?,"composed (team draft, team verified)",,en,CAMPUS_SERVICES,,answer,verified,library timings
+D002,hostel mein guests kitne baje tak allowed hai,"composed (team draft, team verified)",,hinglish,HOSTEL,,answer,verified,hostel rules
+D003,what is the hostel fee for a triple sharing room?,"composed (team draft, team verified)",,en,FEES,HOSTEL,answer,verified,"fee structure, not 'my' fee"
+D004,how do I apply for a semester break for medical reasons,"composed (team draft, team verified)",,en,ACADEMICS,,answer,verified,registrar rule
+D005,metro station ke liye shuttle kab chalti hai,"composed (team draft, team verified)",,hinglish,CAMPUS_SERVICES,,answer,verified,transport
+D006,how do I join the coding club,"composed (team draft, team verified)",,en,ACADEMICS,,answer,verified,clubs sit in ACADEMICS (team convention)
+D007,outlook password reset kaise kare,"composed (team draft, team verified)",,hinglish,IT,,answer,verified,
+D008,the geyser in my bathroom is not working,"composed (team draft, team verified)",,en,CAMPUS_SERVICES,,handoff,verified,Punctualiti ticket
+D009,ERP shows me absent for a class I attended,"composed (team draft, team verified)",,en,ACADEMICS,IT,handoff,verified,BOUNDARY: attendance is marked by faculty; team to confirm vs S006 ERP rule
+D010,the extra hostel fee I paid hasn't been refunded yet,"composed (team draft, team verified)",,en,FEES,HOSTEL,handoff,verified,account-specific
+D011,wifi keeps disconnecting in my hostel room,"composed (team draft, team verified)",,en,IT,CAMPUS_SERVICES,handoff,verified,"BOUNDARY: wifi rule, see README"
+D012,I need my provisional degree certificate urgently,"composed (team draft, team verified)",,en,ACADEMICS,,handoff,verified,registrar
+D013,mera room change request 2 weeks se pending hai,"composed (team draft, team verified)",,hinglish,HOSTEL,,handoff,verified,status of own request
+D014,"college laptop ki screen crack ho gayi, repair kaise hoga","composed (team draft, team verified)",,hinglish,IT,,handoff,verified,university laptop
+D015,when is the quiz for my DBMS section,"composed (team draft, team verified)",,en,ACADEMICS,,handoff,verified,course-specific: mail faculty
+D016,exams,"composed (team draft, team verified)",,en,ACADEMICS,,clarify,verified,"vague: dates, syllabus, results?"
+D017,fees,"composed (team draft, team verified)",,en,FEES,,clarify,verified,vague
+D018,room problem,"composed (team draft, team verified)",,en,CAMPUS_SERVICES,HOSTEL,clarify,verified,maintenance or room change?
+D019,timings?,"composed (team draft, team verified)",,en,CAMPUS_SERVICES,,clarify,verified,domain is a guess; score action only
+D020,help with registration,"composed (team draft, team verified)",,en,ACADEMICS,,clarify,verified,course or hostel registration?
+D021,internet,"composed (team draft, team verified)",,en,IT,,clarify,verified,vague
+D022,can you write my lab record,"composed (team draft, team verified)",,en,OUT_OF_SCOPE,,refuse,verified,academic dishonesty
+D023,rate my outfit,"composed (team draft, team verified)",,en,OUT_OF_SCOPE,,refuse,verified,not campus
+D024,bhai ek shayari suna,"composed (team draft, team verified)",,hinglish,OUT_OF_SCOPE,,refuse,verified,not campus
+D025,what is my CGPA,"composed (team draft, team verified)",,en,OUT_OF_SCOPE,,refuse,verified,"personal record, same rule as S025"
+D026,AC not working and when is the fee deadline,"composed (team draft, team verified)",,en,CAMPUS_SERVICES,FEES,handoff,verified,multi-topic
+D027,curfew kya hai aur gym kab khulta hai,"composed (team draft, team verified)",,hinglish,HOSTEL,CAMPUS_SERVICES,answer,verified,multi-topic
+D028,how do I change my room and also my elective,"composed (team draft, team verified)",,en,HOSTEL,ACADEMICS,answer,verified,multi-topic
+D029,ERP not opening and I have to pay fees today,"composed (team draft, team verified)",,en,IT,FEES,handoff,verified,multi-topic
+D030,library timings and bus to Greater Noida,"composed (team draft, team verified)",,en,CAMPUS_SERVICES,,answer,verified,"two topics, one domain"
+D031,wifi aur mess dono bekaar hai,"composed (team draft, team verified)",,hinglish,IT,CAMPUS_SERVICES,handoff,verified,multi-topic complaint
+D032,I need help with my scholarship and my attendance,"composed (team draft, team verified)",,en,FEES,ACADEMICS,clarify,verified,"multi-topic, vague"
