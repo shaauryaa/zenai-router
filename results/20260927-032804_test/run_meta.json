@@ -1,0 +1,72 @@
+{
+ "run_id": "20260927-032804_test",
+ "set": "test",
+ "limit": null,
+ "baselines": true,
+ "started": "2026-09-27T03:28:04",
+ "git": {
+  "commit": "d6ef09562293a0c8b78736ecfceafffcc9f04f1c",
+  "dirty": true
+ },
+ "config": {
+  "provider": {
+   "name": "gemini",
+   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+   "chat_model": "gemini-3.5-flash-lite",
+   "embed_model": "gemini-embedding-2",
+   "api_key_env": "GEMINI_API_KEY",
+   "temperature": 0,
+   "reasoning_effort": "minimal",
+   "embed_batch_size": 64,
+   "chat_requests_per_minute": 14,
+   "chat_requests_per_day": 500,
+   "embed_requests_per_minute": 90,
+   "embed_requests_per_day": 1000
+  },
+  "knn": {
+   "k": 7
+  },
+  "confidence": {
+   "w_agree": 0.5,
+   "w_share": 0.5
+  },
+  "thresholds": {
+   "t_high": 0.7,
+   "t_low": 0.4,
+   "tuned_on": "dev_set.csv sha256:394a8dbcbd549192af97684b9b8de14426220e628e8783cdfb107d2fb49393e7",
+   "frozen": true
+  }
+ },
+ "config_sha256": "c91fa669b8e271c65a1370045bd1981b44edbb821d41bbaaaad7cbe0e72a89a9",
+ "data_sha256": {
+  "dev_set.csv": "394a8dbcbd549192af97684b9b8de14426220e628e8783cdfb107d2fb49393e7",
+  "examples.jsonl": "a00d30e519c63bfeef679af01787d77e49f7ef96354d095c84b52983d166920b",
+  "simulated_synced.csv": "02754bfe81bef5bece8d0b2d33c6cde8f0002b84f034bb21ee9df2f28f8f4a59",
+  "simulated_v1.csv": "9b1eaa3cdd0669e4d0975261eefe7666501f206bdde843429d16c202ecdd8bce",
+  "test_set.csv": "ea058f6a1fc97557ea355bab52d04cbd01da36feb29a3deb2737ae75b0fe96ec"
+ },
+ "label_status": {
+  "verified": 70
+ },
+ "examples_label_status": {
+  "verified": 72
+ },
+ "leakage": {
+  "exact": 0,
+  "near": 0
+ },
+ "provider": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "calls_made": 141,
+ "cache_hits": 135,
+ "duration_s": 280.7,
+ "rows_done": 70,
+ "status": "complete"
+}
