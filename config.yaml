@@ -19,4 +19,4 @@ provider:
 # Keep the provider block generic (base_url, models, key env) so Azure OpenAI can be dropped in later.
 knn: {k: 7}
 confidence: {w_agree: 0.5, w_share: 0.5}
-thresholds: {t_high: 0.7, t_low: 0.4, tuned_on: null, frozen: false}
+thresholds: {t_high: 0.7, t_low: 0.4, tuned_on: "dev_set.csv sha256:394a8dbcbd549192af97684b9b8de14426220e628e8783cdfb107d2fb49393e7", frozen: true}

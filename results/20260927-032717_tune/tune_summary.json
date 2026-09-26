@@ -1,0 +1,260 @@
+{
+ "source_run": "20260927-025532_dev",
+ "dev_set_sha256": "394a8dbcbd549192af97684b9b8de14426220e628e8783cdfb107d2fb49393e7",
+ "settings_tried": 345,
+ "objective": "max action_accuracy; tie-break max auto_route_precision, then min clarify_rate, then smallest change from current config",
+ "current_config": {
+  "confidence": {
+   "w_agree": 0.5,
+   "w_share": 0.5
+  },
+  "thresholds": {
+   "t_high": 0.7,
+   "t_low": 0.4,
+   "tuned_on": null,
+   "frozen": false
+  },
+  "action_accuracy": {
+   "value": 0.78125,
+   "k": 25,
+   "n": 32,
+   "ci_low": 0.6124466920955516,
+   "ci_high": 0.8897630306846815
+  },
+  "auto_route_precision": {
+   "value": 0.9444444444444444,
+   "k": 17,
+   "n": 18,
+   "ci_low": 0.7424220019799247,
+   "ci_high": 0.9901250641690756
+  },
+  "auto_route_coverage": {
+   "value": 0.5625,
+   "k": 18,
+   "n": 32,
+   "ci_low": 0.3932530203122613,
+   "ci_high": 0.7183491403055682
+  },
+  "clarify_rate": {
+   "value": 0.1875,
+   "k": 6,
+   "n": 32,
+   "ci_low": 0.08889423936162782,
+   "ci_high": 0.3530949575492244
+  },
+  "routing_accuracy": {
+   "value": 0.92,
+   "k": 23,
+   "n": 25,
+   "ci_low": 0.7503348787704218,
+   "ci_high": 0.977780066308908
+  }
+ },
+ "top5": [
+  {
+   "w_agree": 0.5,
+   "w_share": 0.5,
+   "t_high": 0.7,
+   "t_low": 0.4,
+   "action_accuracy": {
+    "value": 0.78125,
+    "k": 25,
+    "n": 32,
+    "ci_low": 0.6124466920955516,
+    "ci_high": 0.8897630306846815
+   },
+   "auto_route_precision": {
+    "value": 0.9444444444444444,
+    "k": 17,
+    "n": 18,
+    "ci_low": 0.7424220019799247,
+    "ci_high": 0.9901250641690756
+   },
+   "auto_route_coverage": {
+    "value": 0.5625,
+    "k": 18,
+    "n": 32,
+    "ci_low": 0.3932530203122613,
+    "ci_high": 0.7183491403055682
+   },
+   "clarify_rate": {
+    "value": 0.1875,
+    "k": 6,
+    "n": 32,
+    "ci_low": 0.08889423936162782,
+    "ci_high": 0.3530949575492244
+   },
+   "routing_accuracy": {
+    "value": 0.92,
+    "k": 23,
+    "n": 25,
+    "ci_low": 0.7503348787704218,
+    "ci_high": 0.977780066308908
+   }
+  },
+  {
+   "w_agree": 0.5,
+   "w_share": 0.5,
+   "t_high": 0.65,
+   "t_low": 0.4,
+   "action_accuracy": {
+    "value": 0.78125,
+    "k": 25,
+    "n": 32,
+    "ci_low": 0.6124466920955516,
+    "ci_high": 0.8897630306846815
+   },
+   "auto_route_precision": {
+    "value": 0.9444444444444444,
+    "k": 17,
+    "n": 18,
+    "ci_low": 0.7424220019799247,
+    "ci_high": 0.9901250641690756
+   },
+   "auto_route_coverage": {
+    "value": 0.5625,
+    "k": 18,
+    "n": 32,
+    "ci_low": 0.3932530203122613,
+    "ci_high": 0.7183491403055682
+   },
+   "clarify_rate": {
+    "value": 0.1875,
+    "k": 6,
+    "n": 32,
+    "ci_low": 0.08889423936162782,
+    "ci_high": 0.3530949575492244
+   },
+   "routing_accuracy": {
+    "value": 0.92,
+    "k": 23,
+    "n": 25,
+    "ci_low": 0.7503348787704218,
+    "ci_high": 0.977780066308908
+   }
+  },
+  {
+   "w_agree": 0.5,
+   "w_share": 0.5,
+   "t_high": 0.7,
+   "t_low": 0.35,
+   "action_accuracy": {
+    "value": 0.78125,
+    "k": 25,
+    "n": 32,
+    "ci_low": 0.6124466920955516,
+    "ci_high": 0.8897630306846815
+   },
+   "auto_route_precision": {
+    "value": 0.9444444444444444,
+    "k": 17,
+    "n": 18,
+    "ci_low": 0.7424220019799247,
+    "ci_high": 0.9901250641690756
+   },
+   "auto_route_coverage": {
+    "value": 0.5625,
+    "k": 18,
+    "n": 32,
+    "ci_low": 0.3932530203122613,
+    "ci_high": 0.7183491403055682
+   },
+   "clarify_rate": {
+    "value": 0.1875,
+    "k": 6,
+    "n": 32,
+    "ci_low": 0.08889423936162782,
+    "ci_high": 0.3530949575492244
+   },
+   "routing_accuracy": {
+    "value": 0.92,
+    "k": 23,
+    "n": 25,
+    "ci_low": 0.7503348787704218,
+    "ci_high": 0.977780066308908
+   }
+  },
+  {
+   "w_agree": 0.5,
+   "w_share": 0.5,
+   "t_high": 0.7,
+   "t_low": 0.45,
+   "action_accuracy": {
+    "value": 0.78125,
+    "k": 25,
+    "n": 32,
+    "ci_low": 0.6124466920955516,
+    "ci_high": 0.8897630306846815
+   },
+   "auto_route_precision": {
+    "value": 0.9444444444444444,
+    "k": 17,
+    "n": 18,
+    "ci_low": 0.7424220019799247,
+    "ci_high": 0.9901250641690756
+   },
+   "auto_route_coverage": {
+    "value": 0.5625,
+    "k": 18,
+    "n": 32,
+    "ci_low": 0.3932530203122613,
+    "ci_high": 0.7183491403055682
+   },
+   "clarify_rate": {
+    "value": 0.1875,
+    "k": 6,
+    "n": 32,
+    "ci_low": 0.08889423936162782,
+    "ci_high": 0.3530949575492244
+   },
+   "routing_accuracy": {
+    "value": 0.92,
+    "k": 23,
+    "n": 25,
+    "ci_low": 0.7503348787704218,
+    "ci_high": 0.977780066308908
+   }
+  },
+  {
+   "w_agree": 0.5,
+   "w_share": 0.5,
+   "t_high": 0.6,
+   "t_low": 0.4,
+   "action_accuracy": {
+    "value": 0.78125,
+    "k": 25,
+    "n": 32,
+    "ci_low": 0.6124466920955516,
+    "ci_high": 0.8897630306846815
+   },
+   "auto_route_precision": {
+    "value": 0.9444444444444444,
+    "k": 17,
+    "n": 18,
+    "ci_low": 0.7424220019799247,
+    "ci_high": 0.9901250641690756
+   },
+   "auto_route_coverage": {
+    "value": 0.5625,
+    "k": 18,
+    "n": 32,
+    "ci_low": 0.3932530203122613,
+    "ci_high": 0.7183491403055682
+   },
+   "clarify_rate": {
+    "value": 0.1875,
+    "k": 6,
+    "n": 32,
+    "ci_low": 0.08889423936162782,
+    "ci_high": 0.3530949575492244
+   },
+   "routing_accuracy": {
+    "value": 0.92,
+    "k": 23,
+    "n": 25,
+    "ci_low": 0.7503348787704218,
+    "ci_high": 0.977780066308908
+   }
+  }
+ ]
+}
