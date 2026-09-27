@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZEN AI Router demo</title>
+<style>
+  :root {
+    --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f0efec;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --line: rgba(11, 11, 11, 0.10); --track: #e1e0d9;
+    --blue: #2a78d6; --blue-soft: #cde2fb;
+    --good: #0ca30c; --warning: #fab219; --critical: #d03b3b;
+    --user-bubble: #184f95; --user-ink: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --line: rgba(255, 255, 255, 0.10); --track: #2c2c2a;
+      --blue: #3987e5; --blue-soft: #184f95;
+      --user-bubble: #256abf;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 0; }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+  header p { margin: 4px 0 0; color: var(--ink-2); }
+
+  .samples { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; align-items: center; }
+  .samples span { color: var(--muted); font-size: 13px; margin-right: 2px; }
+  .sample {
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer;
+  }
+  .sample:hover { border-color: var(--blue); }
+
+  #log { display: flex; flex-direction: column; gap: 20px; padding: 16px 0 24px; }
+  .empty { color: var(--muted); text-align: center; padding: 40px 0; }
+  .user {
+    align-self: flex-end; max-width: 80%; background: var(--user-bubble); color: var(--user-ink);
+    padding: 9px 14px; border-radius: 16px 16px 4px 16px; overflow-wrap: anywhere;
+  }
+  .result { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .summary { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; color: var(--ink-2); font-size: 13px; }
+  .summary b { color: var(--ink); font-weight: 600; }
+  .topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
+  .topic { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--page); }
+  .topic-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .domain { font-weight: 650; font-size: 15px; letter-spacing: 0.01em; }
+  .quote { color: var(--ink-2); font-size: 13px; margin: 4px 0 10px; overflow-wrap: anywhere; }
+
+  .action {
+    display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px 2px 8px;
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+    background: var(--surface-2); color: var(--ink); white-space: nowrap;
+  }
+  .action i { width: 16px; height: 16px; border-radius: 50%; display: inline-grid; place-items: center;
+    font-style: normal; font-size: 11px; color: #fff; }
+  .action.answer i { background: var(--good); }
+  .action.clarify i { background: var(--warning); color: #0b0b0b; }
+  .action.handoff i { background: var(--blue); }
+  .action.refuse i { background: var(--critical); }
+
+  .conf { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+  .bar { position: relative; height: 8px; background: var(--track); border-radius: 4px; }
+  .bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--blue); border-radius: 4px; }
+  .bar .tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink-2); border-radius: 1px; }
+  .conf-num { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px; min-width: 2.6em; text-align: right; }
+  .conf-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .reason { font-size: 13px; margin: 10px 0 0; }
+
+  details { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  summary { cursor: pointer; color: var(--blue); font-size: 13px; font-weight: 600; }
+  .why { font-size: 13px; color: var(--ink-2); margin-top: 8px; display: grid; gap: 6px; }
+  .why b { color: var(--ink); font-weight: 600; }
+  .nbrs { margin: 2px 0 0; padding-left: 18px; }
+  .nbrs li { margin: 3px 0; }
+  .nbrs .meta { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  .error { color: var(--critical); background: var(--surface); border: 1px solid var(--critical);
+    border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+  .pending { color: var(--muted); font-size: 14px; }
+
+  form {
+    position: sticky; bottom: 0; background: var(--page); padding: 12px 0 14px;
+    display: flex; gap: 8px; border-top: 1px solid var(--line);
+  }
+  input[type=text] {
+    flex: 1; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  input[type=text]:focus { outline: 2px solid var(--blue); outline-offset: 0; }
+  button.send {
+    font: inherit; font-weight: 600; padding: 0 18px; border-radius: 12px; border: 0;
+    background: var(--blue); color: #fff; cursor: pointer;
+  }
+  button.send:disabled { opacity: 0.5; cursor: default; }
+  footer { color: var(--muted); font-size: 12px; padding: 10px 0 20px; line-height: 1.6; }
+  footer code { font-size: 12px; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ZEN AI Router</h1>
+    <p>One front door for campus questions. Type a message in English or Hinglish: the router splits it into topics,
+      picks the office for each and decides whether to answer, clarify, hand off or refuse. It routes; it does not answer.</p>
+  </header>
+
+  <div class="samples" id="samples"><span>Try a sample:</span></div>
+
+  <main id="log"><div class="empty" id="empty">Your routed messages will appear here.</div></main>
+
+  <form id="form" autocomplete="off">
+    <input type="text" id="msg" placeholder="e.g. my ERP login is not working and when is the fee deadline?" maxlength="1000" required>
+    <button class="send" id="send" type="submit">Route</button>
+  </form>
+
+  <footer id="footer">Loading model details…</footer>
+</div>
+
+<script>
+const ACTION_ICON = { answer: "✓", clarify: "?", handoff: "→", refuse: "✕" };
+const ACTION_HELP = {
+  answer: "answer from an official document",
+  clarify: "ask the student a follow-up question",
+  handoff: "send to a person in this office",
+  refuse: "out of scope for the campus helpdesk",
+};
+let thresholds = { t_high: 0.7, t_low: 0.4 };
+
+// Build DOM with text nodes only, so message text can never be interpreted as HTML.
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v;
+    else if (k === "style") node.style.cssText = v;
+    else node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) {
+    if (c === null || c === undefined || c === false) continue;
+    node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return node;
+}
+
+function actionLabel(action) {
+  return el("span", { class: `action ${action}`, title: ACTION_HELP[action] || "" },
+            el("i", { "aria-hidden": "true" }, ACTION_ICON[action] || "•"), action);
+}
+
+function confidenceBar(conf) {
+  const pct = Math.max(0, Math.min(1, conf)) * 100;
+  const tick = (t, name) => el("span", { class: "tick", style: `left: calc(${t * 100}% - 1px)`, title: `${name} ${t}` });
+  return el("div", {},
+    el("div", { class: "conf" },
+      el("div", { class: "bar", role: "meter", "aria-valuemin": "0", "aria-valuemax": "1", "aria-valuenow": conf.toFixed(2),
+                  "aria-label": "confidence" },
+        el("span", { class: "fill", style: `width: ${pct}%` }),
+        tick(thresholds.t_low, "t_low"), tick(thresholds.t_high, "t_high")),
+      el("span", { class: "conf-num" }, conf.toFixed(2))),
+    el("div", { class: "conf-label" }, `confidence (ticks: t_low ${thresholds.t_low}, t_high ${thresholds.t_high})`));
+}
+
+function splitReason(reason) {
+  const i = reason.indexOf("; LLM: ");
+  return i < 0 ? { rule: reason, llm: "" } : { rule: reason.slice(0, i), llm: reason.slice(i + 7) };
+}
+
+function topicCard(t, exampleTexts) {
+  const { rule, llm } = splitReason(t.reason);
+  const k = t.neighbours.length;
+  const votes = {};
+  for (const n of t.neighbours) votes[n.domain] = (votes[n.domain] || 0) + 1;
+  const voteText = Object.entries(votes).sort((a, b) => b[1] - a[1]).map(([d, c]) => `${d} ${c}`).join(", ");
+  const llmVotes = t.llm_domain ? (votes[t.llm_domain] || 0) : 0;
+
+  return el("div", { class: "topic" },
+    el("div", { class: "topic-head" },
+      el("span", { class: "domain" }, t.llm_domain || "NO DOMAIN"),
+      actionLabel(t.action)),
+    el("div", { class: "quote" }, `“${t.text}”`),
+    confidenceBar(t.confidence),
+    el("p", { class: "reason" }, llm || rule),
+    el("details", {},
+      el("summary", {}, "Why?"),
+      el("div", { class: "why" },
+        el("div", {}, el("b", {}, "LLM choice: "), `${t.llm_domain || "none"} · request type ${t.request_type || "none"}`),
+        el("div", {}, el("b", {}, "kNN vote: "),
+           `${t.knn_domain} wins (${voteText}); ${llmVotes} of ${k} neighbours back the LLM's choice ` +
+           `(share ${t.knn_share.toFixed(2)}) · signals ${t.agree ? "agree" : "disagree"}`),
+        el("div", {}, el("b", {}, "Rule applied: "), rule),
+        el("div", {}, el("b", {}, "3 nearest examples:"),
+          el("ol", { class: "nbrs" }, t.neighbours.slice(0, 3).map(n =>
+            el("li", {}, `“${exampleTexts[n.id] || n.id}” `,
+               el("span", { class: "meta" }, `${n.domain} · similarity ${n.similarity.toFixed(2)} · ${n.id}`))))))));
+}
+
+function resultCard(r) {
+  const parts = [
+    el("span", {}, "Message → ", actionLabel(r.action)),
+    el("span", {}, "primary ", el("b", {}, r.primary_domain || "none")),
+  ];
+  if (r.secondary_domain) parts.push(el("span", {}, "secondary ", el("b", {}, r.secondary_domain)));
+  parts.push(el("span", {}, r.auto_routed ? "auto-routed" : "not auto-routed"));
+  parts.push(el("span", {}, `${r.topics.length} topic${r.topics.length === 1 ? "" : "s"} · ${Math.round(r.latency_ms)} ms`));
+  return el("div", { class: "result" },
+    el("div", { class: "summary" }, parts),
+    el("div", { class: "topics" }, r.topics.map(t => topicCard(t, r.example_texts || {}))));
+}
+
+async function send(message) {
+  message = message.trim();
+  if (!message) return;
+  const log = document.getElementById("log");
+  document.getElementById("empty")?.remove();
+  const button = document.getElementById("send");
+  button.disabled = true;
+  log.append(el("div", { class: "user" }, message));
+  const pending = el("div", { class: "pending" }, "Routing…");
+  log.append(pending);
+  pending.scrollIntoView({ behavior: "smooth", block: "end" });
+  try {
+    const res = await fetch("/route", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail));
+    pending.replaceWith(resultCard(body));
+  } catch (err) {
+    pending.replaceWith(el("div", { class: "error" }, `Could not route this message: ${err.message}`));
+  } finally {
+    button.disabled = false;
+    log.lastElementChild.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+}
+
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const input = document.getElementById("msg");
+  send(input.value);
+  input.value = "";
+  input.focus();
+});
+
+// Shareable demo links: /?q=<message> routes that message on load.
+const initial = new URLSearchParams(location.search).get("q");
+if (initial) send(initial);
+
+fetch("/samples").then(r => r.json()).then(samples => {
+  const box = document.getElementById("samples");
+  for (const s of samples) {
+    box.append(el("button", { class: "sample", type: "button", title: `dev set ${s.id}` }, s.question));
+    box.lastChild.addEventListener("click", () => send(s.question));
+  }
+});
+
+fetch("/health").then(r => r.json()).then(h => {
+  thresholds = h.thresholds;
+  const w = h.confidence_weights;
+  const tuned = h.thresholds.frozen
+    ? `frozen, tuned on ${String(h.thresholds.tuned_on).replace(/(sha256:\w{12})\w+/, "$1…")}`
+    : "NOT frozen (placeholders)";
+  document.getElementById("footer").replaceChildren(
+    "Model ", el("code", {}, h.model), " · embeddings ", el("code", {}, h.embed_model),
+    ` · kNN k = ${h.knn_k} · confidence = ${w.w_agree} × agree + ${w.w_share} × kNN share`,
+    el("br"),
+    `Thresholds: t_high ${h.thresholds.t_high}, t_low ${h.thresholds.t_low} (${tuned}). `,
+    "Evaluation results and known limits: see results/ in the repository.");
+}).catch(() => { document.getElementById("footer").textContent = "Could not load model details."; });
+</script>
+</body>
+</html>

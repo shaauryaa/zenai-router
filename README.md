@@ -88,10 +88,22 @@ python -m venv .venv
 pip install -r requirements.txt
 cp .env.example .env              # then set GEMINI_API_KEY=...
 
-python -m zenai.route "wifi nahi chal raha aur hostel curfew kab hai?"
+python -m zenai.route "wifi aur mess dono bekaar hai"
 python -m zenai.route --json "fees"
 pytest
 ```
+
+## Web demo
+
+```bash
+uvicorn zenai.api:app --reload    # then open http://127.0.0.1:8000
+```
+
+Type a message (or click a sample from the dev set). Each topic appears as a card with its office, a
+confidence bar marked with the frozen thresholds, the action, a one-line reason, and a "Why?" panel showing
+the LLM's choice, the nearest-neighbour vote and the 3 closest example questions. The footer shows the model
+and thresholds the demo is running. `/?q=<message>` routes a message on page load, for shareable links.
+API: `POST /route {"message": "..."}`, `GET /health`, `GET /samples`.
 
 ## Evaluation workflow
 
