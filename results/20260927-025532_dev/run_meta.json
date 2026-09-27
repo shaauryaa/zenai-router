@@ -1,0 +1,72 @@
+{
+ "run_id": "20260927-025532_dev",
+ "set": "dev",
+ "limit": null,
+ "baselines": true,
+ "started": "2026-09-27T02:55:32",
+ "git": {
+  "commit": "b0ee9a6d4634bfaf8e97d34e18c2067f17894b97",
+  "dirty": true
+ },
+ "config": {
+  "provider": {
+   "name": "gemini",
+   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+   "chat_model": "gemini-3.5-flash-lite",
+   "embed_model": "gemini-embedding-2",
+   "api_key_env": "GEMINI_API_KEY",
+   "temperature": 0,
+   "reasoning_effort": "minimal",
+   "embed_batch_size": 64,
+   "chat_requests_per_minute": 14,
+   "chat_requests_per_day": 500,
+   "embed_requests_per_minute": 90,
+   "embed_requests_per_day": 1000
+  },
+  "knn": {
+   "k": 7
+  },
+  "confidence": {
+   "w_agree": 0.5,
+   "w_share": 0.5
+  },
+  "thresholds": {
+   "t_high": 0.7,
+   "t_low": 0.4,
+   "tuned_on": null,
+   "frozen": false
+  }
+ },
+ "config_sha256": "5eca55bc5023a58b4ccafbc74f3ef93b6260e1c57a267a4a3b0624f3622e24da",
+ "data_sha256": {
+  "dev_set.csv": "25fd6f4104728c01b142fb58f89d02206d9a29e4437c2931d436848ad7be0514",
+  "examples.jsonl": "16e1e1c62a6a35ec2878ef8c1e88f24879856bfba43740dfcc169cfafc9b6b6d",
+  "simulated_synced.csv": "2504fccff176b0462c9c102780eca9f18e7dee552616e579fbe4cdc65cd3d5e5",
+  "simulated_v1.csv": "c5ce7ca11a2209fcb7a79f5584d2b3d594b4613191e637a3b1d9bf8be64d0125",
+  "test_set.csv": "ea058f6a1fc97557ea355bab52d04cbd01da36feb29a3deb2737ae75b0fe96ec"
+ },
+ "label_status": {
+  "draft": 32
+ },
+ "examples_label_status": {
+  "draft": 72
+ },
+ "leakage": {
+  "exact": 0,
+  "near": 0
+ },
+ "provider": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "calls_made": 0,
+ "cache_hits": 175,
+ "duration_s": 0.7,
+ "rows_done": 32,
+ "status": "complete"
+}

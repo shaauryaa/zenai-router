@@ -1,0 +1,210 @@
+"""Write scorecard.md, scorecard.json, charts and errors.csv into a run folder. Every number comes from metrics."""
+import json
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import pandas as pd  # noqa: E402
+from matplotlib.colors import LinearSegmentedColormap  # noqa: E402
+
+# Chart palette: light slide surface, one blue hue (sequential ramp for the heatmap, single series for bars).
+SURFACE, INK, INK_2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e1e0d9"
+BLUE = "#2a78d6"
+BLUES = LinearSegmentedColormap.from_list("blues", [SURFACE, "#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"])
+
+SET_NOUN = {"dev": "dev questions", "test": "test questions", "simulated": "simulated variants"}
+SOURCE_NOUN = {"survey": "real student questions (survey)"}
+
+
+def pct(v) -> str:
+    return "n/a" if v is None else f"{v * 100:.0f}%"
+
+
+def fmt_rate(r: dict) -> str:
+    if r is None or r["n"] == 0:
+        return "n/a (n = 0)"
+    return f"{pct(r['value'])} (95% CI {r['ci_low'] * 100:.0f}-{r['ci_high'] * 100:.0f}%), n = {r['n']}"
+
+
+def describe_rows(set_name: str, rows: pd.DataFrame) -> str:
+    """'25 real student questions' style description of the rows behind a metric."""
+    if set_name == "simulated":
+        return f"{len(rows)} simulated variants"
+    counts = rows["source"].value_counts()
+    if set_name == "test" and list(counts.index) == ["survey"]:
+        return f"{len(rows)} real student questions"
+    parts = ", ".join(f"{c} {SOURCE_NOUN.get(s, s)}" for s, c in counts.items())
+    return f"{len(rows)} {SET_NOUN[set_name]} ({parts})"
+
+
+def rate_table(title_col: str, items: dict, metric_names=("routing_accuracy", "action_accuracy")) -> list[str]:
+    lines = [f"| {title_col} | " + " | ".join(m.replace("_", " ") for m in metric_names) + " |",
+             "|---|" + "---|" * len(metric_names)]
+    for key, ms in items.items():
+        lines.append(f"| {key} | " + " | ".join(fmt_rate(ms[m]) for m in metric_names) + " |")
+    return lines
+
+
+def known_limits(set_name: str, preds: pd.DataFrame, m: dict, meta: dict) -> list[str]:
+    per_domain = preds[preds["label_action"] != "clarify"]["label_primary"].value_counts()
+    small = ", ".join(f"{d} {n}" for d, n in per_domain.sort_values().items() if n < 10) or "none"
+    th = meta["config"]["thresholds"]
+    lines = [
+        f"- Small n: per-domain routing counts below 10: {small}. Per-domain intervals are wide; "
+        "differences between domains are mostly not significant.",
+        f"- Labels were written by our team (label_status in this set: {meta['label_status']}). "
+        "They are one team's judgement, not an independent gold standard.",
+        "- The kNN examples (examples.jsonl) and the dev set were drafted by the team "
+        + ("and verified by the team" if set(meta["examples_label_status"]) == {"verified"}
+           else "(review still pending)")
+        + f"; examples label_status: {meta['examples_label_status']}.",
+    ]
+    if set_name == "simulated":
+        lines.append("- The simulated set was drafted by an LLM (Claude) from test seeds and verified by the team; "
+                     "its labels are re-derived from the current seed labels by rule (evaluation/sync_simulated.py).")
+    if set_name == "test" and (preds["source"] != "survey").any():
+        n_team = int((preds["source"] != "survey").sum())
+        lines.append(f"- {n_team} of {len(preds)} test questions were written by the team, not students.")
+    if set_name == "dev":
+        lines.append("- The dev set is used for tuning, so dev numbers are optimistic once thresholds are tuned. "
+                     "Do not quote dev numbers as the router's accuracy.")
+    if not th.get("frozen"):
+        lines.append(f"- Thresholds are placeholders (t_high {th['t_high']}, t_low {th['t_low']}, "
+                     f"tuned_on: {th.get('tuned_on')}, frozen: false).")
+    if meta.get("limit"):
+        lines.append(f"- Limited run: only the first {meta['limit']} rows were evaluated.")
+    lines.append(f"- One model ({meta['provider'].get('chat_model')}) at temperature 0; results come from cached "
+                 "replies, so a re-run reproduces them exactly but a different model or prompt would not.")
+    return lines
+
+
+def scorecard_md(set_name: str, preds: pd.DataFrame, m: dict, baselines: dict | None, meta: dict) -> str:
+    routing_rows = preds[preds["label_action"] != "clarify"]
+    ra = m["routing_accuracy"]
+    headline = (f"Routing accuracy: {pct(ra['value'])} (95% CI {ra['ci_low'] * 100:.0f}-{ra['ci_high'] * 100:.0f}%), "
+                f"n = {describe_rows(set_name, routing_rows)}") if ra["n"] else "Routing accuracy: n/a (n = 0)"
+    commit = meta["git"]["commit"][:10] + (" (uncommitted changes)" if meta["git"]["dirty"] else "")
+    L = [f"# ZEN AI Router scorecard: {set_name} set", "",
+         f"Run `{meta['run_id']}` | model `{meta['provider'].get('chat_model')}` | commit `{commit}` | "
+         f"config `{meta['config_sha256'][:12]}`", "",
+         f"**{headline}**", "",
+         f"- Routing accuracy, either office (primary or secondary label counts): {fmt_rate(m['routing_accuracy_either_office'])}",
+         f"- Action accuracy (answer / clarify / handoff / refuse): {fmt_rate(m['action_accuracy'])}",
+         f"- Multi-topic recall (both labelled offices found): {fmt_rate(m['multi_topic_recall'])}",
+         f"- Auto-route precision: {fmt_rate(m['auto_route_precision'])}; "
+         f"auto-route coverage: {fmt_rate(m['auto_route_coverage'])}",
+         f"- Clarify rate: {fmt_rate(m['clarify_rate'])}",
+         f"- Fallback handoff rate (low confidence or unparseable LLM reply): {fmt_rate(m['fallback_handoff_rate'])}",
+         f"- Refuse recall on OUT_OF_SCOPE rows: {fmt_rate(m['refuse_recall'])}", "",
+         "Routing accuracy and calibration exclude rows labelled clarify (no single correct office). "
+         "Intervals are 95% Wilson score intervals.", ""]
+    if baselines:
+        L += ["## Baselines (same rows)", "", "| method | routing accuracy | action accuracy |", "|---|---|---|"]
+        for name, b in baselines.items():
+            L.append(f"| {name} | {fmt_rate(b['routing_accuracy'])} | "
+                     f"{fmt_rate(b['action_accuracy']) if b['action_accuracy'] else 'not defined'} |")
+        L += ["", "keyword: keyword lists written from the domain descriptions only. knn_only: nearest-example vote "
+              "on the whole message. llm_only: LLM domain, action from request type alone. combined: the router.", ""]
+    titles = {"label_primary": "labelled primary domain", "language": "language", "source": "source",
+              "variant_type": "variant type"}
+    L += ["## Breakdowns", ""]
+    for col, items in m["breakdowns"].items():
+        L += [f"### By {titles[col]}", ""] + rate_table(titles[col], items) + [""]
+    L += ["## Calibration (routing accuracy by confidence band)", "", "| confidence band | routing accuracy |", "|---|---|"]
+    L += [f"| {b['band']} | {fmt_rate(b)} |" for b in m["calibration"]]
+    c = m["confusion"]
+    L += ["", "## Confusion matrix (rows: labelled, columns: predicted primary domain)", "",
+          "| labelled \\ predicted | " + " | ".join(c["predicted"]) + " |", "|---|" + "---|" * len(c["predicted"])]
+    L += [f"| {lab} | " + " | ".join(str(v) for v in row) + " |" for lab, row in zip(c["labelled"], c["matrix"])]
+    L += ["", "## Known limits", ""] + known_limits(set_name, preds, m, meta) + [""]
+    return "\n".join(L)
+
+
+def _style(ax) -> None:
+    ax.set_facecolor(SURFACE)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color(GRID)
+    ax.tick_params(colors=INK_2, labelsize=13)
+
+
+def confusion_png(m: dict, set_name: str, path: Path) -> None:
+    c = m["confusion"]
+    matrix = c["matrix"]
+    vmax = max(max(r) for r in matrix) or 1
+    fig, ax = plt.subplots(figsize=(11, 8.5), facecolor=SURFACE)
+    ax.imshow(matrix, cmap=BLUES, vmin=0, vmax=vmax)
+    for i, row in enumerate(matrix):
+        for j, v in enumerate(row):
+            ax.text(j, i, str(v), ha="center", va="center", fontsize=16,
+                    color=("#ffffff" if v > vmax * 0.55 else INK) if v else GRID)
+    ax.set_xticks(range(len(c["predicted"])), c["predicted"], rotation=30, ha="right")
+    ax.set_yticks(range(len(c["labelled"])), c["labelled"])
+    ax.set_xlabel("Predicted primary domain", fontsize=14, color=INK)
+    ax.set_ylabel("Labelled primary domain", fontsize=14, color=INK)
+    n = sum(map(sum, matrix))
+    ax.set_title(f"Labelled vs predicted domain ({set_name} set, n = {n})", fontsize=17, color=INK, loc="left", pad=14)
+    ax.tick_params(colors=INK_2, labelsize=13, length=0)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def bands_png(m: dict, set_name: str, path: Path) -> None:
+    bands = m["calibration"]
+    fig, ax = plt.subplots(figsize=(10, 6.5), facecolor=SURFACE)
+    _style(ax)
+    xs = range(len(bands))
+    for x, b in zip(xs, bands):
+        if b["n"] == 0:
+            ax.text(x, 3, "no rows", ha="center", va="bottom", fontsize=14, color=INK_2)
+            continue
+        v = b["value"] * 100
+        ax.bar(x, v, width=0.55, color=BLUE, zorder=2)
+        ax.errorbar(x, v, yerr=[[v - b["ci_low"] * 100], [b["ci_high"] * 100 - v]],
+                    color=INK_2, capsize=8, linewidth=1.5, zorder=3)
+        ax.text(x, b["ci_high"] * 100 + 2, f"{v:.0f}%  (n = {b['n']})", ha="center", va="bottom",
+                fontsize=14, color=INK)
+    ax.set_xticks(list(xs), [f"confidence {b['band']}" for b in bands])
+    ax.set_ylim(0, 115)
+    ax.set_yticks(range(0, 101, 20), [f"{t}%" for t in range(0, 101, 20)])
+    ax.yaxis.grid(True, color=GRID, linewidth=1, zorder=0)
+    ax.set_ylabel("Routing accuracy", fontsize=14, color=INK)
+    ax.set_title(f"Routing accuracy by confidence band ({set_name} set, 95% Wilson intervals)",
+                 fontsize=16, color=INK, loc="left", pad=14)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def errors_frame(preds: pd.DataFrame) -> pd.DataFrame:
+    wrong_domain = (preds["label_action"] != "clarify") & ~preds["routing_correct"]
+    wrong = preds[wrong_domain | ~preds["action_correct"]].copy()
+
+    def reason(r) -> str:
+        parts = []
+        if r["label_action"] != "clarify" and not r["routing_correct"]:
+            parts.append(f"domain: labelled {r['label_primary']}, predicted {r['pred_primary'] or 'NONE'}")
+        if not r["action_correct"]:
+            parts.append(f"action: labelled {r['label_action']}, predicted {r['pred_action']}")
+        return "; ".join(parts)
+
+    wrong.insert(2, "error", [reason(r) for _, r in wrong.iterrows()])
+    wrong["signals"] = wrong["signals_topics"].map(lambda t: json.dumps(t, ensure_ascii=False))
+    return wrong
+
+
+def write(run_dir: Path, set_name: str, preds: pd.DataFrame, m: dict, baselines: dict | None, meta: dict) -> None:
+    (run_dir / "scorecard.md").write_text(scorecard_md(set_name, preds, m, baselines, meta), encoding="utf-8")
+    (run_dir / "scorecard.json").write_text(json.dumps({"set": set_name, "run_id": meta["run_id"], "metrics": m,
+                                                        "baselines": baselines}, indent=1), encoding="utf-8")
+    confusion_png(m, set_name, run_dir / "confusion_matrix.png")
+    bands_png(m, set_name, run_dir / "confidence_bands.png")
+    cols = ["id", "question", "error", "label_primary", "label_secondary", "label_action", "pred_primary",
+            "pred_secondary", "pred_action", "confidence", "auto_routed", "topic_reasons", "signals"]
+    errors_frame(preds)[cols].to_csv(run_dir / "errors.csv", index=False, encoding="utf-8")

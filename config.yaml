@@ -1,0 +1,22 @@
+provider:
+  name: gemini
+  base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+  chat_model: gemini-3.5-flash-lite
+  embed_model: gemini-embedding-2
+  api_key_env: GEMINI_API_KEY
+  temperature: 0
+  # Gemini 3.x cannot fully disable thinking; "minimal" is the lowest level (per Google's OpenAI-compat docs).
+  # Set to null to use the model default. The level actually sent is recorded in run metadata.
+  reasoning_effort: minimal
+  embed_batch_size: 64
+  # Free-tier quotas. Embeddings: 100 RPM / 1,000 RPD (confirmed).
+  # Chat: gemini-3.5-flash-lite 15 RPM / 250K TPM / 500 RPD (from AI Studio). (gemini-3.8-flash: 5 RPM / 20 RPD.)
+  # RPM is set just under the limit; the provider must stop (not retry) once a daily cap is reached.
+  chat_requests_per_minute: 14
+  chat_requests_per_day: 500
+  embed_requests_per_minute: 90
+  embed_requests_per_day: 1000
+# Keep the provider block generic (base_url, models, key env) so Azure OpenAI can be dropped in later.
+knn: {k: 7}
+confidence: {w_agree: 0.5, w_share: 0.5}
+thresholds: {t_high: 0.7, t_low: 0.4, tuned_on: "dev_set.csv sha256:394a8dbcbd549192af97684b9b8de14426220e628e8783cdfb107d2fb49393e7", frozen: true}

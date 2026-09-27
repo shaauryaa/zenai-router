@@ -1,0 +1,10 @@
+openai==3.19.2
+pydantic==2.13.5
+PyYAML==6.0.3
+python-dotenv==1.2.3
+numpy==2.4.6
+pandas==3.0.6
+matplotlib==3.11.2
+pytest==9.1.1
+fastapi==0.141.1
+uvicorn==0.54.0
