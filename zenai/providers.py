@@ -114,13 +114,40 @@ def _retry_after_seconds(err: openai.APIStatusError) -> float:
     return float(m.group(1)) if m else 0.0
 
 
+def resolve_provider_cfg(cfg: dict, env: Any = None) -> dict:
+    """The provider block to use: LLM_PROVIDER from .env overrides config.yaml provider.name.
+
+    config.yaml keeps the default provider in `provider` and the others in `providers.<name>`. A cfg with no
+    `providers` section (tests, v1 runs) is used as is. For Azure the model names are deployment names, and
+    AZURE_CHAT_DEPLOYMENT / AZURE_EMBED_DEPLOYMENT in .env override the ones in config.yaml.
+    """
+    env = os.environ if env is None else env
+    default, others = cfg["provider"], cfg.get("providers") or {}
+    wanted = (env.get("LLM_PROVIDER") or "").strip().lower() or default["name"]
+    if not others or wanted == default["name"]:
+        p = default
+    elif wanted in others:
+        p = {"name": wanted, **others[wanted]}
+    else:
+        raise ProviderError(f"LLM_PROVIDER={wanted!r} is not configured; choose one of "
+                            f"{', '.join([default['name'], *others])}")
+    if p["name"] == "azure":
+        p = dict(p)
+        for key, var in (("chat_model", "AZURE_CHAT_DEPLOYMENT"), ("embed_model", "AZURE_EMBED_DEPLOYMENT")):
+            if env.get(var):
+                p[key] = env[var]
+    return p
+
+
 class Provider:
-    """OpenAI-compatible client (Gemini by default) with disk cache, throttling and retries."""
+    """Chat and embedding client for Gemini (OpenAI-compatible endpoint) or Azure OpenAI, with disk cache,
+    throttling and retries. The provider is chosen by resolve_provider_cfg()."""
 
     def __init__(self, cfg: dict, cache_dir: Path | None = None, client: Any = None,
                  sleep: Callable[[float], None] = time.sleep):
-        p = cfg["provider"]
+        p = resolve_provider_cfg(cfg)
         self.name = p["name"]
+        self.embed_dim = p.get("embed_dim")  # when set, every embedding must have this length
         self.chat_model = p["chat_model"]
         self.embed_model = p["embed_model"]
         self.temperature = p.get("temperature", 0)
@@ -142,7 +169,14 @@ class Provider:
             key = os.environ.get(p["api_key_env"])
             if not key:
                 raise ProviderError(f"{p['api_key_env']} is not set; add it to .env")
-            client = openai.OpenAI(base_url=p["base_url"], api_key=key, max_retries=0)
+            if self.name == "azure":
+                endpoint = os.environ.get(p["endpoint_env"])
+                if not endpoint:
+                    raise ProviderError(f"{p['endpoint_env']} is not set; add it to .env")
+                client = openai.AzureOpenAI(azure_endpoint=endpoint, api_key=key,
+                                            api_version=p["api_version"], max_retries=0)
+            else:
+                client = openai.OpenAI(base_url=p["base_url"], api_key=key, max_retries=0)
         self.client = client
 
         self.calls_made = 0
@@ -212,10 +246,26 @@ class Provider:
         self._cache_put(key, {"content": content, "sent": sent})
         return extract_json(content)
 
-    def _chat_network(self, messages: list[dict]) -> tuple[str, dict]:
+    def chat_text(self, messages: list[dict]) -> str:
+        """Send a chat request and return the reply as plain text (used for grounded answers and drafts).
+        Cached like chat_json; the cache key has no response_format, so the two never collide."""
+        payload = {"model": self.chat_model, "messages": messages, "temperature": self.temperature,
+                   "reasoning_effort": self.reasoning_effort}
+        key = self._key(payload)
+        hit = self._cache_get(key)
+        if hit is not None:
+            self.cache_hits += 1
+            return hit["content"]
+        content, sent = self._chat_network(messages, want_json=False)
+        self._cache_put(key, {"content": content, "sent": sent})
+        return content
+
+    def _chat_network(self, messages: list[dict], want_json: bool = True) -> tuple[str, dict]:
         while True:
             kwargs: dict[str, Any] = {"model": self.chat_model, "temperature": self.temperature}
-            if self.json_mode:
+            if not want_json:
+                kwargs["messages"] = messages
+            elif self.json_mode:
                 kwargs["response_format"] = {"type": "json_object"}
                 kwargs["messages"] = messages
             else:
@@ -229,7 +279,7 @@ class Provider:
                 if self.effort_active and ("reasoning" in msg or "thinking" in msg):
                     self.effort_active = False
                     continue
-                if self.json_mode and ("response_format" in msg or "json" in msg):
+                if want_json and self.json_mode and ("response_format" in msg or "json" in msg):
                     self.json_mode = False
                     continue
                 raise
@@ -244,6 +294,7 @@ class Provider:
             hit = self._cache_get(self._key({"model": self.embed_model, "input": text}))
             if hit is not None:
                 self.cache_hits += 1
+                self._check_dim(hit["embedding"])
                 out[i] = hit["embedding"]
             else:
                 missing.setdefault(text, []).append(i)
@@ -256,27 +307,54 @@ class Provider:
             # Gemini omits index 0 (protobuf drops zero values), so a missing index means 0.
             for text, item in zip(batch, sorted(resp.data, key=lambda d: d.index or 0)):
                 vec = list(item.embedding)
+                self._check_dim(vec)
                 self._cache_put(self._key({"model": self.embed_model, "input": text}), {"embedding": vec})
                 for i in missing[text]:
                     out[i] = vec
         return out  # type: ignore[return-value]
 
+    def _check_dim(self, vec: list[float]) -> None:
+        if self.embed_dim is not None and len(vec) != self.embed_dim:
+            raise ProviderError(f"{self.name} embedding model {self.embed_model!r} returned {len(vec)} dimensions "
+                                f"but config expects {self.embed_dim}; fix embed_dim or the deployment")
+
+    def check_embed_dim(self) -> int:
+        """Embed one fixed text (cached after the first run) and fail loudly if its length is not embed_dim."""
+        [vec] = self.embed(["embedding dimension check"])
+        self._check_dim(vec)
+        return len(vec)
+
     def metadata(self) -> dict:
-        return {"provider": self.name, "chat_model": self.chat_model, "embed_model": self.embed_model,
+        meta = {"provider": self.name, "chat_model": self.chat_model, "embed_model": self.embed_model,
                 "temperature": self.temperature,
                 "reasoning_effort_requested": self.reasoning_effort,
                 "reasoning_effort_sent": self.reasoning_effort if self.effort_active else None,
                 "json_mode": "response_format" if self.json_mode else "prompt_instruction"}
+        if self.embed_dim is not None:
+            meta["embed_dim"] = self.embed_dim
+        return meta
 
     def stats(self) -> dict:
         return {"calls_made": self.calls_made, "cache_hits": self.cache_hits}
+
+
+def make_provider(cfg: dict, **kwargs) -> Provider:
+    """Provider for application startup (server, v2): builds it, then verifies the embedding size when
+    config sets embed_dim. v1 and the evaluation build Provider directly, so they make no extra call."""
+    provider = Provider(cfg, **kwargs)
+    if provider.embed_dim is not None:
+        provider.check_embed_dim()
+    return provider
 
 
 class FakeProvider:
     """Deterministic stand-in for tests: no network and no disk.
 
     chat replies come from `chat_replies` (consumed in order) or `chat_fn(messages)`; each may be a dict
-    or a raw string. Embeddings are hashed bag-of-words vectors, so texts sharing words are similar.
+    or a raw string. Plain-text replies (chat_text) come from `text_replies` or `text_fn(messages)`.
+    Embeddings are hashed bag-of-words vectors, so texts sharing words are similar. Requests are recorded in
+    `chat_requests` / `text_requests` / `embed_requests`. With `embed_dim` set, embed() checks the vector
+    length like the real Provider (a dim that differs from embed_dim raises ProviderError).
     """
 
     name = "fake"
@@ -284,11 +362,18 @@ class FakeProvider:
     embed_model = "fake-embed"
 
     def __init__(self, chat_replies: list[dict | str] | None = None,
-                 chat_fn: Callable[[list[dict]], dict | str] | None = None, dim: int = 64):
+                 chat_fn: Callable[[list[dict]], dict | str] | None = None, dim: int = 64,
+                 text_replies: list[str] | None = None, text_fn: Callable[[list[dict]], str] | None = None,
+                 embed_dim: int | None = None):
         self.chat_replies = list(chat_replies or [])
         self.chat_fn = chat_fn
+        self.text_replies = list(text_replies or [])
+        self.text_fn = text_fn
         self.dim = dim
+        self.embed_dim = embed_dim
         self.chat_requests: list[list[dict]] = []
+        self.text_requests: list[list[dict]] = []
+        self.embed_requests: list[list[str]] = []
         self.calls_made = 0
         self.cache_hits = 0
 
@@ -298,8 +383,21 @@ class FakeProvider:
         reply = self.chat_fn(messages) if self.chat_fn else self.chat_replies.pop(0)
         return reply if isinstance(reply, dict) else extract_json(reply)
 
+    def chat_text(self, messages: list[dict]) -> str:
+        self.calls_made += 1
+        self.text_requests.append(messages)
+        return self.text_fn(messages) if self.text_fn else self.text_replies.pop(0)
+
+    def check_embed_dim(self) -> int:
+        [vec] = self.embed(["embedding dimension check"])
+        return len(vec)
+
     def embed(self, texts: list[str]) -> list[list[float]]:
         self.calls_made += 1
+        self.embed_requests.append(list(texts))
+        if self.embed_dim is not None and self.dim != self.embed_dim:
+            raise ProviderError(f"fake embedding model returned {self.dim} dimensions "
+                                f"but config expects {self.embed_dim}")
         vecs = []
         for text in texts:
             v = np.zeros(self.dim)

@@ -1,0 +1,88 @@
+# Offices and knowledge folders. POLICY.md is the source of truth for who owns what; this file is the
+# machine-readable form of it. Loaded by zenai/offices.py.
+
+# Knowledge folders: kb/<FOLDER>/ holds the documents. There is no kb/HELPDESK.
+folders:
+  IT: {handoff_office: IT}
+  FINANCE: {handoff_office: FINANCE}
+  ACADEMICS: {handoff_office: ACADEMICS}
+  COURSE_SPECIFIC:
+    handoff_office: ACADEMICS
+    note: The handoff draft is addressed to the course faculty, and delivered through the ACADEMICS queue.
+  HOSTEL: {handoff_office: HOSTEL}
+  CAMPUS_SERVICES: {handoff_office: CAMPUS_SERVICES}
+  EMPLOYEES: {handoff_office: EMPLOYEES}
+  STUDENT_SUPPORT: {handoff_office: STUDENT_SUPPORT}
+
+# Offices receive handoffs. Demo mailboxes come from config/mailbox_map.yaml.
+# handoff_channel: email (a drafted email the student approves) or punctualiti (a ticket the student files
+# in the Punctualiti app and then pastes the ticket number back).
+# required_fields: details the handoff needs per intent. Missing ones are listed in the handoff as missing_fields.
+offices:
+  IT:
+    display_name: IT Office
+    handoff_channel: email
+    required_fields:
+      fix_or_complaint: [account_or_system, issue]
+      record_request: [account_or_system, issue]
+      no_owner: [issue]
+  FINANCE:
+    display_name: Finance Office
+    handoff_channel: email
+    required_fields:
+      fix_or_complaint: [enrollment_no, issue]
+      record_request: [enrollment_no, payment_reference, issue]
+      no_owner: [issue]
+  ACADEMICS:
+    display_name: Academics Office
+    handoff_channel: email
+    required_fields:
+      fix_or_complaint: [enrollment_no, issue]
+      record_request: [enrollment_no, document_or_record]
+      course_specific: [course_code, question]  # draft addressed to the course faculty
+      no_owner: [issue]
+  HOSTEL:
+    display_name: Hostel Wardens
+    handoff_channel: email
+    required_fields:
+      fix_or_complaint: [hostel_block, room_no, issue]
+      record_request: [hostel_block, room_no, issue]
+      no_owner: [issue]
+  CAMPUS_SERVICES:
+    display_name: Campus Services (Punctualiti)
+    handoff_channel: punctualiti
+    required_fields:
+      fix_or_complaint: [location, category, description]
+      record_request: [location, description]
+      no_owner: [description]
+    # TODO: placeholder list. The real categories come from the blank Punctualiti form screenshot.
+    punctualiti_categories:
+      - Electrical
+      - Plumbing
+      - Air conditioning
+      - Network or wifi
+      - Cleaning
+      - Furniture
+      - Other
+  EMPLOYEES:
+    display_name: HR Office
+    handoff_channel: email
+    required_fields:
+      fix_or_complaint: [issue]
+      record_request: [issue]
+      no_owner: [issue]
+  STUDENT_SUPPORT:
+    display_name: Student Support
+    handoff_channel: email
+    required_fields:
+      safety: []  # never delay a safety handoff to collect details
+      fix_or_complaint: [issue]
+      no_owner: [issue]
+  HELPDESK:
+    display_name: General Queries Desk
+    handoff_channel: email
+    # No folder and no documents. Receives no_owner handoffs and not_found handoffs ZEN AI cannot answer.
+    # Its demo mailbox is the +helpdesk plus-address like every other office.
+    required_fields:
+      no_owner: [issue]
+      not_found: [question]

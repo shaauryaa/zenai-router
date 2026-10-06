@@ -16,7 +16,46 @@ provider:
   chat_requests_per_day: 500
   embed_requests_per_minute: 90
   embed_requests_per_day: 1000
-# Keep the provider block generic (base_url, models, key env) so Azure OpenAI can be dropped in later.
+# `provider` above is the default (v1 results were made with it). LLM_PROVIDER in .env overrides it by name
+# (gemini | azure), so a machine can switch without editing this file. Other providers live under `providers`.
+providers:
+  azure:
+    # Model names are Azure deployment names; AZURE_CHAT_DEPLOYMENT / AZURE_EMBED_DEPLOYMENT in .env override them.
+    # gpt-4.1-mini and embed (1536 dimensions) were verified against the team's Azure resource on 2026-10-06.
+    endpoint_env: AZURE_OPENAI_ENDPOINT
+    api_key_env: AZURE_OPENAI_KEY
+    api_version: "2024-10-21"
+    chat_model: gpt-4.1-mini
+    embed_model: embed
+    embed_dim: 1536  # checked on every embedding; make_provider() also verifies it once at startup
+    temperature: 0
+    reasoning_effort: null  # gpt-4.1 has no reasoning effort setting
+    embed_batch_size: 64
+    # Pay-as-you-go: no free-tier daily cap. Set a number to cap spend; null means no daily cap.
+    chat_requests_per_minute: 60
+    chat_requests_per_day: null
+    embed_requests_per_minute: 120
+    embed_requests_per_day: null
+# Knowledge base (retrieval/). KB chunks and KB queries are always embedded with the `azure` provider above
+# (deployment `embed`, 1536 dimensions), whatever LLM_PROVIDER says: the Azure AI Search vector field is
+# 1536-dimensional and both sides must use the same model. The router and kNN keep their own provider and vectors.
+kb:
+  retriever: local  # azure | local; RETRIEVER in .env overrides
+  chunk: {target_tokens: 400, overlap_tokens: 60, min_chars: 15}  # tokens are estimated as characters / 4
+  search:
+    default_k: 8
+    candidates: 50  # per ranker, before fusion
+    rrf_k: 60
+    # Student abbreviation -> words the documents use. Added to the keyword query only.
+    aliases: {cse: computer science engineering, ece: electronics communications engineering}
+  local_dir: .cache/kb_local
+  azure_search:  # the existing index; its schema is never created or changed by this project
+    endpoint_env: AZURE_SEARCH_ENDPOINT
+    key_env: AZURE_SEARCH_ADMIN_KEY
+    index: zenai-kb  # SEARCH_INDEX in .env overrides
+    vector_field: content_vector
+    storage_limit_mb: 45  # stop uploading before the 50 MB free-tier limit
+    upload_batch: 100
 knn: {k: 7}
 confidence: {w_agree: 0.5, w_share: 0.5}
 thresholds: {t_high: 0.7, t_low: 0.4, tuned_on: "dev_set.csv sha256:394a8dbcbd549192af97684b9b8de14426220e628e8783cdfb107d2fb49393e7", frozen: true}

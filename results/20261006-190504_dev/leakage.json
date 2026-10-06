@@ -1,0 +1,8 @@
+{
+ "exact": [],
+ "near": [],
+ "train_texts": 104,
+ "test_texts": 276,
+ "warn_at": 0.85,
+ "passed": true
+}
