@@ -1,0 +1,16 @@
+# Demo mailboxes. Addresses are built at load time from DEMO_GMAIL (in .env) with a plus tag, for example
+# DEMO_GMAIL=name@gmail.com + tag "it" gives name+it@gmail.com. The Gmail address is never written in git.
+offices:
+  IT: it
+  FINANCE: finance
+  ACADEMICS: academics
+  HOSTEL: hostel
+  CAMPUS_SERVICES: services
+  EMPLOYEES: employees
+  STUDENT_SUPPORT: studentsupport
+  HELPDESK: helpdesk
+
+# Demo students (no real student data).
+students:
+  student1: student1
+  student2: student2
