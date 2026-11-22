@@ -6,7 +6,7 @@ ZEN AI Helpdesk answers a student's question **only from the official documents*
 with the document, page and link, and when it cannot answer it **hands off**: it drafts a short email to the right
 office for the student to send.
 
-**Prototype:** [PROTOTYPE_LINK]
+**Prototype:** https://zenai-campusdesk.streamlit.app/
 
 **Team:** [TEAM]
 
