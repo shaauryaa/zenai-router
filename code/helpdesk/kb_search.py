@@ -41,9 +41,10 @@ why will with would you your yours yourself yourselves
 kya hai hain kaise kab kahan mujhe mera meri ka ki ke ko se me mein aur nahi karna karne kar ho hota raha rahi pls plz
 """.split())
 
-# v1 router domain -> knowledge folders searched first (STUDENT_SUPPORT has no v1 domain; see search_for_route)
+# router domain -> knowledge folders searched first. STUDENT_SUPPORT is a router P1 v2 domain only (the v1 router
+# never returns it, so v1 behaviour is unchanged).
 DOMAIN_OFFICES = {"FEES": ("FINANCE",), "ACADEMICS": ("COURSE_SPECIFIC",), "IT": ("IT",), "HOSTEL": ("HOSTEL",),
-                  "CAMPUS_SERVICES": ("CAMPUS_SERVICES",)}
+                  "CAMPUS_SERVICES": ("CAMPUS_SERVICES",), "STUDENT_SUPPORT": ("STUDENT_SUPPORT",)}
 
 
 @dataclass(frozen=True)
@@ -192,6 +193,20 @@ class KBIndex:
         others = [x for x in ranked if x not in routed][:k - len(routed)]
         return [Hit(self.chunks[i], round(s, 4)) for s, i in sorted(routed + others, reverse=True)]
 
+    def search_routed_plus_all(self, query: str, domain: str | None, routed_k: int = 5,
+                               all_k: int = 3) -> list[Hit]:
+        """Milestone 2 step 3: the top routed_k chunks from the domain's folder(s) plus the top all_k of the remaining
+        chunks from all folders (k = 8 by default), sorted by score. OUT_OF_SCOPE or None searches all folders for
+        routed_k + all_k chunks."""
+        if domain is None or domain == "OUT_OF_SCOPE":
+            return self.search(query, k=routed_k + all_k)
+        if domain not in DOMAIN_OFFICES:
+            raise ValueError(f"unknown router domain {domain!r}")
+        ranked = self._ranked(query)
+        routed = [x for x in ranked if self.chunks[x[1]].office in DOMAIN_OFFICES[domain]][:routed_k]
+        others = [x for x in ranked if x not in routed][:all_k]
+        return [Hit(self.chunks[i], round(s, 4)) for s, i in sorted(routed + others, reverse=True)]
+
 
 _DEFAULT: KBIndex | None = None
 
@@ -210,6 +225,10 @@ def search(query: str, k: int = 5, office: str | None = None) -> list[Hit]:
 
 def search_for_route(query: str, v1_domain: str | None, k: int = 5) -> list[Hit]:
     return default_index().search_for_route(query, v1_domain, k=k)
+
+
+def search_routed_plus_all(query: str, domain: str | None, routed_k: int = 5, all_k: int = 3) -> list[Hit]:
+    return default_index().search_routed_plus_all(query, domain, routed_k=routed_k, all_k=all_k)
 
 
 def main(argv: list[str] | None = None) -> None:

@@ -1,0 +1,63 @@
+{
+ "run_id": "step3_P1v2_search8_P2v2_20261122-192957",
+ "title": "P1 v2 + search routed5_all3 + P2 v2",
+ "p2_version": "v2",
+ "started": "2026-11-22T19:29:57",
+ "finished": "2026-11-22T19:32:11",
+ "questions": "test-data/questions.csv",
+ "n_questions": 24,
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "prompt_file": "prompts/v2/P2_grounded_answer.md",
+ "prompt_sha256": "0e45708c06c8798ccbac881dd62b8cf757c8ef567a2e75d8a388728d1c64e57e",
+ "router": "helpdesk/router_v2.py classify() (P1 v2, prompts/v2/P1_router.md)",
+ "router_version": "v2",
+ "search": "routed5_all3",
+ "retrieval": "helpdesk.kb_search.search_routed_plus_all(first topic search_query or question, first topic domain): top 5 from the routed folder + top 3 from all folders (k=8)",
+ "quote_check": "pipeline.check_quote with quote_forms(): ** and __ removed, OCR line-end hyphens joined, whitespace collapsed, lowercased",
+ "git": {
+  "commit": "c4089da567388c05036ae51a2b540f77ef0350f4",
+  "dirty": true
+ },
+ "api_calls": 23,
+ "cache_hits": 23,
+ "totals": {
+  "action": {
+   "k": 22,
+   "n": 24
+  },
+  "key_fact": {
+   "k": 14,
+   "n": 16
+  },
+  "quote_verified": {
+   "k": 14,
+   "n": 16
+  },
+  "doc_cited": {
+   "k": 14,
+   "n": 16
+  },
+  "format_valid": {
+   "k": 18,
+   "n": 18
+  },
+  "language": {
+   "k": 2,
+   "n": 2
+  },
+  "router_office": {
+   "k": 17,
+   "n": 17
+  }
+ },
+ "router_prompt_file": "prompts/v2/P1_router.md",
+ "router_prompt_sha256": "0d8fd3c7a1bf4e99c5fdb78cbd6a4fc7cb6c999830be98c8fdb6994897412726"
+}

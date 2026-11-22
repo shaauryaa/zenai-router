@@ -8,9 +8,16 @@ answer(question, p2_version) returns a dict holding every intermediate step:
   c. kb_search.search_for_route(question, first topic's domain, k=5)
   d. P2: prompts/<version>/P2_grounded_answer.md (the text after TEMPLATE_MARKER) with {question} and {sections}
      filled in, sent as one user message. v1 is plain text (chat_text), v2 and later JSON mode (chat_json)
-  e. quote check (code, no LLM): the quote must appear in one retrieved section after collapsing whitespace and line
-     breaks, case-insensitive. If P2 says found but the check fails, action becomes not_found and the reason is kept
+  e. quote check (code, no LLM): the quote must appear in one retrieved section after normalising both sides
+     (quote_forms: markdown ** and __ removed, OCR line-end hyphens joined, whitespace collapsed, case-insensitive).
+     If P2 says found but the check fails, action becomes not_found and the reason is kept
   f. found = false -> action not_found (the handoff for not_found comes later)
+
+Options (Milestone 2 steps; the defaults are the original pipeline):
+  router="v1" frozen zenai/llm_router.py | "v2" helpdesk/router_v2.py (P1 v2, prompts/v2/P1_router.md)
+  search="route5" search_for_route(question, domain, k=5)
+       | "routed5_all3" search_routed_plus_all(first topic's search_query, or the question if empty, domain): top 5
+         from the routed folder + top 3 from all folders
 
 Provider errors (quota, network) are raised, never turned into answers.
 """
@@ -19,7 +26,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from helpdesk import kb_search
+from helpdesk import kb_search, router_v2
 from zenai.config import load_config
 from zenai.llm_router import classify
 from zenai.paths import PROMPTS
@@ -31,6 +38,8 @@ NOT_FOUND_TEXT = re.compile(r"couldn['’]?t find this in the official documents
 FIRST_QUOTE = re.compile(r"[\"“](.+?)[\"”]", re.S)
 JSON_KEYS = ("found", "answer", "quote", "doc_title", "page", "language")
 ROUTER_ACTIONS = {"not_campus": "refuse", "vague": "clarify", "needs_human": "handoff"}
+ROUTERS = ("v1", "v2")
+SEARCHES = ("route5", "routed5_all3")
 
 _PROVIDER: Provider | None = None
 
@@ -78,13 +87,31 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", text or "").strip().lower()
 
 
+MARKDOWN_EMPHASIS = re.compile(r"\*\*|__")
+LINE_END_HYPHEN = re.compile(r"(\w)-[ \t]*\r?\n\s*(\w)")  # "Anti-\nRagging", "exam-\nination"
+SPACED_HYPHEN = re.compile(r"(\w)- +(\w)")  # a line-end hyphen after the model turned the break into a space
+
+
+def quote_forms(text: str, *, source: bool) -> set[str]:
+    """Normalised forms of a text for the quote check (Milestone 2 step 1): markdown ** and __ removed, a word split
+    by an OCR line-end hyphen joined, whitespace collapsed, lowercased. A line-end hyphen is ambiguous (a real compound
+    "Anti-Ragging" or a split word "exam-ination"), so a source section gets both joins: hyphen kept and hyphen dropped.
+    In a quote, "word- word" is read as the same line-end hyphen (hyphen kept)."""
+    text = MARKDOWN_EMPHASIS.sub("", text or "")
+    if source:
+        forms = {LINE_END_HYPHEN.sub(r"\1-\2", text), LINE_END_HYPHEN.sub(r"\1\2", text)}
+    else:
+        forms = {SPACED_HYPHEN.sub(r"\1-\2", text)}
+    return {norm(f) for f in forms}
+
+
 def check_quote(quote: str, hits: list[kb_search.Hit]) -> tuple[bool, str | None, str]:
-    """(verified, chunk id the quote was found in, reason)."""
-    q = norm(quote)
+    """(verified, chunk id the quote was found in, reason). Both sides are normalised by quote_forms()."""
+    (q,) = quote_forms(quote, source=False)
     if not q:
         return False, None, "empty quote"
     for h in hits:
-        if q in norm(h.chunk.text):
+        if any(q in form for form in quote_forms(h.chunk.text, source=True)):
             return True, h.chunk.id, ""
     return False, None, "quote not found in the retrieved sections"
 
@@ -107,17 +134,20 @@ def parse_json(reply: dict) -> dict:
     return out
 
 
-def answer(question: str, p2_version: str, provider=None) -> dict:
-    out: dict = {"question": question, "p2_version": p2_version, "action": None, "reason": "", "router": None,
-                 "first_topic": None, "retrieval": [], "p2_prompt_sha256": None, "p2_raw": None, "p2": None,
-                 "quote_check": None, "llm_calls": 0}
+def answer(question: str, p2_version: str, provider=None, router: str = "v1", search: str = "route5") -> dict:
+    if router not in ROUTERS or search not in SEARCHES:
+        raise ValueError(f"router must be one of {ROUTERS}, search one of {SEARCHES}")
+    out: dict = {"question": question, "p2_version": p2_version, "router_version": router, "search": search,
+                 "action": None, "reason": "", "router": None, "first_topic": None, "search_query": None,
+                 "retrieval": [], "p2_prompt_sha256": None, "p2_raw": None, "p2": None, "quote_check": None,
+                 "llm_calls": 0}
     if not (question or "").strip():
         out.update(action="clarify", reason="empty input: no LLM call")
         return out
     provider = provider or default_provider()
 
-    # b. P1 router (frozen v1)
-    topics, router_meta = classify(question, provider)
+    # b. P1 router (frozen v1, or P1 v2)
+    topics, router_meta = (classify if router == "v1" else router_v2.classify)(question, provider)
     out["router"] = {"topics": [t.model_dump() for t in topics], "meta": router_meta}
     first = topics[0]
     out["first_topic"] = {"domain": first.domain, "request_type": first.request_type}
@@ -130,7 +160,13 @@ def answer(question: str, p2_version: str, provider=None) -> dict:
         return out
 
     # c. search
-    hits = kb_search.search_for_route(question, first.domain, k=5)
+    if search == "route5":
+        query = question
+        hits = kb_search.search_for_route(query, first.domain, k=5)
+    else:
+        query = (getattr(first, "search_query", "") or "").strip() or question
+        hits = kb_search.search_routed_plus_all(query, first.domain, routed_k=5, all_k=3)
+    out["search_query"] = query
     out["retrieval"] = [{"id": h.chunk.id, "file": h.chunk.file, "title": h.chunk.title, "office": h.chunk.office,
                          "page": h.chunk.page, "score": h.score} for h in hits]
 
@@ -159,11 +195,15 @@ def answer(question: str, p2_version: str, provider=None) -> dict:
     out["quote_check"] = {"verified": verified, "chunk_id": chunk_id, "reason": why}
 
     # f. decision
-    if not p2["found"]:
-        out.update(action="not_found", reason="P2 found=false"
-                   + (f" (invalid format: {p2['format_error']})" if p2.get("format_valid") is False else ""))
-    elif not verified:
-        out.update(action="not_found", reason=f"P2 said found but quote check failed: {why}")
-    else:
-        out.update(action="answer", reason="P2 found, quote verified")
+    out["action"], out["reason"] = decide(p2, verified, why)
     return out
+
+
+def decide(p2: dict, verified: bool, why: str) -> tuple[str, str]:
+    """Step f: (action, reason) from P2's parsed reply and the quote check."""
+    if not p2["found"]:
+        return "not_found", "P2 found=false" + (f" (invalid format: {p2['format_error']})"
+                                                if p2.get("format_valid") is False else "")
+    if not verified:
+        return "not_found", f"P2 said found but quote check failed: {why}"
+    return "answer", "P2 found, quote verified"

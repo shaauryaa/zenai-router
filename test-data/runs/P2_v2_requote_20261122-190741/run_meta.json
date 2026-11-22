@@ -1,0 +1,60 @@
+{
+ "run_id": "P2_v2_requote_20261122-190741",
+ "title": "P2 v2, quote check re-run offline",
+ "p2_version": "v2",
+ "questions": "test-data\\questions.csv",
+ "n_questions": 24,
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "prompt_file": "prompts/v2/P2_grounded_answer.md",
+ "prompt_sha256": "0e45708c06c8798ccbac881dd62b8cf757c8ef567a2e75d8a388728d1c64e57e",
+ "router": "zenai/llm_router.py classify() (v1, frozen)",
+ "retrieval": "helpdesk.kb_search.search_for_route(question, first topic domain, k=5)",
+ "started": "2026-11-22T19:07:41",
+ "finished": "2026-11-22T19:07:41",
+ "rescored_from": "test-data/runs/P2_v2_20261122-184902",
+ "quote_check": "pipeline.check_quote with quote_forms(): ** and __ removed, OCR line-end hyphens joined, whitespace collapsed, lowercased",
+ "git": {
+  "commit": "c4089da567388c05036ae51a2b540f77ef0350f4",
+  "dirty": true
+ },
+ "api_calls": 0,
+ "cache_hits": 0,
+ "totals": {
+  "action": {
+   "k": 19,
+   "n": 24
+  },
+  "key_fact": {
+   "k": 9,
+   "n": 16
+  },
+  "quote_verified": {
+   "k": 11,
+   "n": 16
+  },
+  "doc_cited": {
+   "k": 11,
+   "n": 16
+  },
+  "format_valid": {
+   "k": 15,
+   "n": 15
+  },
+  "language": {
+   "k": 1,
+   "n": 2
+  },
+  "router_office": {
+   "k": 17,
+   "n": 17
+  }
+ }
+}

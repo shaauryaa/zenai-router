@@ -26,3 +26,19 @@ the frozen v1 router prompt copied to prompts/final/P1_router.md). New pipeline 
 test-data/runs/P2_<version>_<timestamp>/ (outputs.jsonl, scorecard.md, run_meta.json). Recorded runs on
 test-data/questions.csv, final action correct: v1 17/24, v2 17/24, v3 16/24 (v3 fixed one quote, regressed two
 answers into refusals). Details and per-question errors in docs/iteration_log.md. zenai/llm_router.py unchanged.
+
+Router P1 v2, search and quote check (Milestone 2 steps 1-4; each step re-ran all 24 questions in
+test-data/questions.csv, runs in test-data/runs/, details in docs/iteration_log.md):
+1. Quote check normalisation in `code/helpdesk/pipeline.py`: markdown `**`/`__` removed, OCR line-end hyphens joined
+   (hyphen kept or dropped), whitespace collapsed, on quote and sections. The saved P2 v2 run re-scored offline
+   (`python -m helpdesk.score_p2 --rescore`): final action 17/24 -> 19/24.
+2. Router P1 v2 (`prompts/v2/P1_router.md`, `code/helpdesk/router_v2.py`): STUDENT_SUPPORT domain, request_type rule
+   (policy questions are info), new `search_query` field. `zenai/llm_router.py` (v1) unchanged. With P2 v2: 21/24.
+   P1 v2 alone on test-data/test_set.csv (seen set, `python -m helpdesk.route_eval`): routing 50/60 (83%) vs v1's 85%.
+3. Search `kb_search.search_routed_plus_all`: P1 v2's search_query, top 5 from the routed folder + top 3 from all
+   folders (k=8); STUDENT_SUPPORT mapped to its kb folder. With P2 v2: 22/24.
+4. P2 v4 (`prompts/v4/`) = v2 + one Hinglish rule: 21/24 (Q09 regressed), so the final P2 stays v2.
+Final prompts: `prompts/final/P1_router.md` = P1 v2, `prompts/final/P2_grounded_answer.md` = P2 v2; P1 v1 kept in
+`prompts/v1/P1_router.md`. `score_p2` gains `--router`, `--search`, `--name`, `--rescore`. code/CLAUDE.md now says
+Milestone 2 runs go in test-data/runs/. The 24 questions were used both to choose and to measure these changes, so
+the numbers are optimistic; a fresh question set is planned for Milestone 3.

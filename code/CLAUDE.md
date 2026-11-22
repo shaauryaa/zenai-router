@@ -12,7 +12,8 @@ case handoffs, staff queues, a web app) around it. See "ZEN AI full prototype" b
 
 - Domains: IT, FEES, ACADEMICS, HOSTEL, CAMPUS_SERVICES, OUT_OF_SCOPE. Actions: answer, clarify, handoff, refuse.
 - test-data/test_set.csv and test-data/simulated_v1.csv are TEST data. Never use them to write prompts, pick examples, choose keywords or tune thresholds. Only test-data/dev_set.csv may be used for tuning. Never copy any test question text into code, prompts or examples.
-- Never invent or hand-edit results. Every number must come from a file in test-data/results/.
+- Never invent or hand-edit results. Every number must come from a file in test-data/results/ (v1 routing) or
+  test-data/runs/ (Milestone 2 helpdesk runs).
 - Every LLM and embedding call goes through the cached provider in zenai/providers.py.
 
 ## Layout
@@ -48,7 +49,15 @@ Layout added on top of the v1 layout:
   whose schema this project never changes). KB chunks and queries are embedded with Azure `embed` only; the router's
   Gemini vectors are never mixed with them. Every `kb/<FOLDER>/INDEX.md` must list every file in the folder
 - `helpdesk/`: Milestone 2 helpdesk. `helpdesk/kb_search.py` is BM25 search over `kb/*/*.md`
-  (`python -m helpdesk.kb_search "query" --office HOSTEL --k 4`), index cached in `code/.cache/kb_search/`
+  (`python -m helpdesk.kb_search "query" --office HOSTEL --k 4`), index cached in `code/.cache/kb_search/`.
+  `helpdesk/pipeline.py`: router P1 -> search -> grounded answer P2 -> code quote check. `helpdesk/router_v2.py`:
+  router P1 v2 (prompt in `prompts/v2/P1_router.md`; `zenai/llm_router.py` stays v1). Runs:
+  `python -m helpdesk.score_p2 <P2 version> [--router v1|v2] [--search route5|routed5_all3] [--name ...]`
+  (`--rescore <run folder> --name ...` re-scores a saved run offline) and `python -m helpdesk.route_eval` (P1 v2
+  on test_set.csv, a seen set for v2)
+- `test-data/runs/`: Milestone 2 helpdesk run outputs (P1/P2 prompts on `test-data/questions.csv`), one folder per
+  run, committed to git. Never edit or overwrite an existing run folder. Every Milestone 2 helpdesk number must come
+  from a file here (`test-data/results/` stays the home of the v1 routing runs)
 - `tools/`: `python -m tools.build_kb --zip-dir <unzipped team data> --ocr-dir <ocr folder> [--check]` rebuilds
   `kb/` (documents, INDEX.md lists) and `test-data/kb_manifest.csv` from the team's sources, which stay outside the repo
 - `zenai/v2/`: routing v2 (`zenai/router.py` stays v1)
@@ -60,7 +69,8 @@ Layout added on top of the v1 layout:
   `config/` and `docs/API.md` follow it
 - `docs/API.md`: the HTTP contract the server and the web app both build against. Change it before changing the code
 - `.data/`: runtime state (cases, outbox), gitignored, at the repo root
-- `prompts/`: prompt versions for the course (`v1/` to `v4/`, `final/`)
+- `prompts/`: prompt versions for the course (`v1/` to `v4/`, `final/`). P1 = router (v1 frozen, v2), P2 = grounded
+  answer (v1 to v4); `final/` holds the chosen P1 and P2
 
 Rules for the full prototype (must follow):
 
