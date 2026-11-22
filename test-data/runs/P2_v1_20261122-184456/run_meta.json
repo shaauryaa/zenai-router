@@ -1,0 +1,57 @@
+{
+ "run_id": "P2_v1_20261122-184456",
+ "p2_version": "v1",
+ "started": "2026-11-22T18:44:56",
+ "finished": "2026-11-22T18:48:46",
+ "questions": "test-data\\questions.csv",
+ "n_questions": 24,
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "prompt_file": "prompts/v1/P2_grounded_answer.md",
+ "prompt_sha256": "b196ef13864a51f45725f070e4e054ef60f633fab53c5b2ce9cf7deaf54db1cb",
+ "router": "zenai/llm_router.py classify() (v1, frozen)",
+ "retrieval": "helpdesk.kb_search.search_for_route(question, first topic domain, k=5)",
+ "git": {
+  "commit": "d5d3b9fe5c335b5347ef0268119b8621eec64375",
+  "dirty": true
+ },
+ "api_calls": 44,
+ "cache_hits": 0,
+ "totals": {
+  "action": {
+   "k": 17,
+   "n": 24
+  },
+  "key_fact": {
+   "k": 8,
+   "n": 16
+  },
+  "quote_verified": {
+   "k": 9,
+   "n": 16
+  },
+  "doc_cited": {
+   "k": 11,
+   "n": 16
+  },
+  "format_valid": {
+   "k": 0,
+   "n": 0
+  },
+  "language": {
+   "k": 1,
+   "n": 2
+  },
+  "router_office": {
+   "k": 17,
+   "n": 17
+  }
+ }
+}
