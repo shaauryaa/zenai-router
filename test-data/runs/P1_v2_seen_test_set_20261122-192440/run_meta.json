@@ -1,0 +1,46 @@
+{
+ "run_id": "P1_v2_seen_test_set_20261122-192440",
+ "set": "test-data/test_set.csv",
+ "set_status": "seen",
+ "n_rows": 70,
+ "started": "2026-11-22T19:24:40",
+ "finished": "2026-11-22T19:29:44",
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "router_prompt_file": "prompts/v2/P1_router.md",
+ "router_prompt_sha256": "0d8fd3c7a1bf4e99c5fdb78cbd6a4fc7cb6c999830be98c8fdb6994897412726",
+ "git": {
+  "commit": "c4089da567388c05036ae51a2b540f77ef0350f4",
+  "dirty": true
+ },
+ "api_calls": 51,
+ "cache_hits": 25,
+ "totals": {
+  "routing_accuracy": {
+   "k": 50,
+   "n": 60
+  },
+  "routing_accuracy_either_office": {
+   "k": 55,
+   "n": 60
+  },
+  "action_accuracy": {
+   "k": 53,
+   "n": 70
+  },
+  "predicted_student_support_on_routing_rows": 0
+ },
+ "v1_reference": {
+  "run": "test-data/results/20260927-032804_test",
+  "routing_accuracy": "85% (n = 60)",
+  "routing_accuracy_either_office": "93% (n = 60)",
+  "action_accuracy_llm_only": "74% (n = 70)"
+ }
+}

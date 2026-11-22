@@ -1,0 +1,102 @@
+ZEN AI HELPDESK - 10 FRESH TEST QUESTIONS (DRAFT, NOT RUN YET)
+===============================================================
+
+Purpose: the fresh check for the evaluator review. These questions were written after the pipeline was frozen and
+have not been used to choose or change any prompt, search setting or quote check. Do not edit the prompts or search
+after seeing results on them; report whatever comes out.
+
+Every expected answer below was checked by hand against the text in code/kb/ (document, page and the exact words are
+given). None of the 10 repeats a topic from test-data/questions.csv.
+
+Mix: 6 normal (fees 2, hostel 2, IT 1, exams 1), 2 Hinglish or typos, 2 the documents cannot answer.
+
+
+NORMAL QUESTIONS (6)
+--------------------
+
+F1. (Normal, English)
+Question: How much are the examination charges each year, and how do I pay them?
+Expected action: answer
+Expected office / document: FINANCE / bennett-fee-structure.md (web page, no page number)
+Expected answer: Rs. 12,000 per academic year, paid in two instalments of Rs. 6,000 each at semester registration.
+Key fact (exact words in source): "Examination Charges: ₹12,000 per academic year, payable in two instalments of ₹6,000 each"
+
+F2. (Normal, English)
+Question: What is the tuition fee for the second year of B.Tech Computer Science Engineering?
+Expected action: answer
+Expected office / document: FINANCE / bennett-fee-structure.md (B.Tech CSE table)
+Expected answer: Rs. 3,90,000 for Year 2.
+Key fact: "Year 2 | 3,90,000"   (the B.Tech ECE and dual-degree tables are different, so a wrong table is a failure)
+
+H1. (Normal, English)
+Question: What are the dinner timings for hostel residents?
+Expected action: answer
+Expected office / document: HOSTEL / student-handbook.md, page 13
+Expected answer: Dinner is from 8:00 pm to 10:00 pm.
+Key fact: "Dinner 8:00 pm to 10:00 pm"
+
+H2. (Normal, English)
+Question: Which items am I allowed to keep in my hostel room?
+Expected action: answer
+Expected office / document: HOSTEL / student-handbook.md, page 13
+Expected answer: Only computer/laptop, mobile charger, personal musical instruments, and hair dryers and accessories.
+Key fact: "Only the following items are permitted in the hostel rooms: Computer/Laptop, Mobile Charger"
+
+I1. (Normal, English)
+Question: What is the minimum length of my university login password?
+Expected action: answer
+Expected office / document: IT / it-policy.md, page 144
+Expected answer: 8 characters.
+Key fact: "Minimum Password length shall be set to 8 characters"
+
+E1. (Normal, English; course-specific)
+Question: I'm a BA Liberal Arts student. When are the supplementary exams held?
+Expected action: answer
+Expected office / document: ACADEMICS (COURSE_SPECIFIC) / ba-liberal-arts-rulebook.md, page 17
+Expected answer: In January for odd semesters and June/July for even semesters.
+Key fact: "in January for Odd semester and June/July for Even semester"
+Note: course-specific, so it must be answered from the BA Liberal Arts rulebook, not another programme's rules.
+
+
+HINGLISH / TYPOS (2)
+--------------------
+
+X1. (Edge, Hinglish)
+Question: bonafide certificate banwane mein kitna time lagta hai?
+Expected action: answer (reply in Hinglish if the model manages it; English reply is still a correct action)
+Expected office / document: ACADEMICS (Registrar) / circular-student-queries-online.md, page 1 (document sits in the CAMPUS_SERVICES folder)
+Expected answer: Within 24 working hours.
+Key fact: "within 24 working hours"
+Note: the source is OCR text and the sentence is split across lines, so the quote check is part of what is tested.
+
+X2. (Edge, typos)
+Question: waht is the hostl fee for a triple sharing room per year?
+Expected action: answer
+Expected office / document: FINANCE / bennett-fee-structure.md ("Hostel Fees" table)
+Expected answer: Rs. 1,70,000 per annum for triple sharing, and the hostel fee can rise by up to 7% each year.
+Key fact: "Triple Sharing | ₹ 1,70,000 PA"
+Note: the word "hostel" points the router to HOSTEL, but the fee table is in the FINANCE folder, so this tests the search across folders.
+
+
+NOT IN THE DOCUMENTS (2)
+------------------------
+
+N1. (Edge, English)
+Question: When is the convocation ceremony this year?
+Expected action: not_found (then a handoff draft)
+Expected office for the draft: ACADEMICS
+Why: the word "convocation" appears nowhere in code/kb/. Any date in the answer is invented, so it is a failure.
+
+N2. (Edge, English)
+Question: What are the library opening hours on weekends?
+Expected action: not_found (then a handoff draft)
+Expected office for the draft: CAMPUS_SERVICES
+Why: the documents mention the library only for CCTV cover and the Law Library's collection, never opening hours.
+
+
+HOW TO SCORE (same rule as test-data/final_test_table.md)
+---------------------------------------------------------
+Pass = correct action, and for the 8 answer rows also the key fact found and the quote verified.
+Not-found rows pass if the action is not_found and a handoff draft is produced (no invented hours or dates).
+Do not change any expected value to make a row pass; failures stay in the table.
+Expected totals if everything works: 8 answers, 2 not_found.

@@ -1,0 +1,38 @@
+{
+ "run_id": "final_p3v2_20261122-212027",
+ "title": "Final test table, handoff-draft rows only, re-run with P3 v2",
+ "base_run": "final_20261122-201923",
+ "rows": [
+  "Q15",
+  "Q16",
+  "Q17",
+  "Q18",
+  "Q19"
+ ],
+ "started": "2026-11-22T21:20:27",
+ "finished": "2026-11-22T21:20:27",
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "final": {
+  "router": "v2",
+  "search": "routed5_all3",
+  "p2": "v2",
+  "p3": "v2"
+ },
+ "p3_prompt_file": "prompts/final/P3_handoff.md",
+ "p3_prompt_sha256": "43865836044b076834d00a6bc0bd7925ef998f641575154308d34e5e12f75f48",
+ "pass_rule": "same as the base run; every re-run row keeps its base action and Pass/Fail",
+ "git": {
+  "commit": "e3fecdc7b7277b12cb065f94fdc2e72e1a915528",
+  "dirty": true
+ },
+ "api_calls": 0,
+ "cache_hits": 14
+}

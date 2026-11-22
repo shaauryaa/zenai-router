@@ -17,7 +17,7 @@ documents:
   source_url: https://www.bennett.edu.in/admission/fee-structure/
   last_updated: '2026-10-06'
   date_kind: fetched_on                # optional: `updated` (default) or `fetched_on`
-  public_or_permission: public         # public | office-provided | team-written
+  public_or_permission: public         # public | office-provided | team-written | unverified
   collector: ZEN AI team
   course: CS101                        # optional (COURSE_SPECIFIC)
 ---
@@ -28,8 +28,8 @@ Rules, checked by `python -m retrieval.ingest` (any error stops the run before a
 | rule | result |
 |---|---|
 | entry has no `title` | error |
-| no `source_url` or no `last_updated` | error, except when `public_or_permission` is `office-provided` |
-| `public_or_permission` missing or not one of the three values; `last_updated` not `YYYY-MM-DD` | error |
+| no `source_url`, or neither `last_updated` nor `date` | error, except when `public_or_permission` is `office-provided` |
+| `public_or_permission` missing or not one of the four values; `last_updated` not `YYYY-MM-DD` | error |
 | file listed twice, or a path outside the folder | error |
 | folder with files but no `INDEX.md` | error |
 | listed file does not exist, unsupported type, unreadable, or a scanned PDF | warning, file skipped |
@@ -43,6 +43,14 @@ blank (INDEX.md wins when both say something).
 
 `last_updated` is the date the document states. If the page states none, use the day it was fetched and set
 `date_kind: fetched_on`; citations then show it as a fetch date, not an update date. Never guess a date.
+
+`date` (optional) is the date exactly as the team's source list gives it (`10/2024`, `02-Nov-18`, `2026-2027`,
+`unverified`, `unknown`). It satisfies the date rule when no exact `YYYY-MM-DD` is known, so a month or academic year
+is never turned into an invented day. Documents converted from PDFs (Milestone 2 helpdesk KB) also carry `office`,
+`text_source` (`ocr`, `pdf text`, `original md` or `html`) and `original_file` in their own front matter; these are
+accepted without a warning. Their bodies use `## Page N` headings, and student details and staff personal contacts are
+replaced by `[student details removed]` / `[contact removed]`. `helpdesk/kb_search.py` is a BM25-only search over the
+same files for the M2 demo.
 
 ### Adding a document
 
@@ -63,6 +71,10 @@ A document with `public_or_permission: team-written` was written by the team fro
 official document. Its `source_url` must say what it was compiled from (it is text, not a URL). Every citation of it
 carries `team_compiled: true`, `provenance: "team-written"` and a label ending `[team-compiled]`, for example
 `Hostel rules [team-compiled]`. The answer layer must show that label and must not describe the document as official.
+
+A document with `public_or_permission: unverified` came from the team's files but its source URL or date could not be
+confirmed (`source_url` / `date` then say `unverified` or `unknown`). It follows the same rules as `public`; citations
+carry `provenance: "unverified"`.
 
 ## Ingestion
 
