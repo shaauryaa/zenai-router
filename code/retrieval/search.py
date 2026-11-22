@@ -18,7 +18,8 @@ import re
 
 import openai
 
-from zenai.config import ROOT, load_config
+from zenai.config import load_config
+from zenai.paths import REPO_ROOT  # kb.local_dir in config.yaml is relative to the repo root (.cache/kb_local)
 from zenai.providers import ProviderError
 
 from .azure_backend import AzureBackend
@@ -41,7 +42,7 @@ def retriever_name(cfg: dict) -> str:
 def get_backend(cfg: dict, name: str | None = None) -> Backend:
     name = name or retriever_name(cfg)
     if name == "local":
-        return LocalBackend(ROOT / cfg["kb"]["local_dir"], cfg["providers"]["azure"]["embed_model"],
+        return LocalBackend(REPO_ROOT / cfg["kb"]["local_dir"], cfg["providers"]["azure"]["embed_model"],
                             kb_embed_dim(cfg))
     if name == "azure":
         return AzureBackend(cfg["kb"]["azure_search"], kb_embed_dim(cfg))

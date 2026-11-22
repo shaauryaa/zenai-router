@@ -9,15 +9,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from zenai.config import ROOT
 from zenai.offices import load_offices
+from zenai.paths import KB
 
 from .chunking import chunk_sections
 from .index_md import IndexError_, build_document, clean_relative_path, read_index
 from .loaders import SUPPORTED, LoaderError, extract
 from .model import Chunk
 
-KB_ROOT = ROOT / "kb"
+KB_ROOT = KB
 
 
 @dataclass

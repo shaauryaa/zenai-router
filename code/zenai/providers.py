@@ -19,7 +19,7 @@ from typing import Any, Callable
 import numpy as np
 import openai
 
-from .config import ROOT
+from .paths import CACHE
 
 JSON_INSTRUCTION = "Reply with a single JSON object only: no markdown fences and no other text."
 
@@ -158,7 +158,7 @@ class Provider:
                          "embed": RateLimiter(p["embed_requests_per_minute"], sleep)}
         self.sleep = sleep
         self.max_tries = 5
-        self.cache_dir = Path(cache_dir) if cache_dir else ROOT / ".cache"
+        self.cache_dir = Path(cache_dir) if cache_dir else CACHE
         self.usage = DailyUsage(self.cache_dir / "usage.json")
 
         # Downgraded at runtime if the endpoint rejects them; the state is reported by metadata().

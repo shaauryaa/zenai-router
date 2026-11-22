@@ -2,8 +2,8 @@
 
 python -m evaluation.run_eval --set dev|test|simulated [--baselines] [--limit N]
 
-Writes results/<timestamp>_<set>/ with predictions.csv, run_meta.json, leakage report, scorecard and charts.
-Test and simulated runs require frozen thresholds and are logged in results/test_runs.log.
+Writes test-data/results/<timestamp>_<set>/ with predictions.csv, run_meta.json, leakage report, scorecard and charts.
+Test and simulated runs require frozen thresholds and are logged in test-data/results/test_runs.log.
 """
 import argparse
 import hashlib
@@ -17,7 +17,8 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from zenai.config import DATA, ROOT, load_config
+from zenai.config import load_config
+from zenai.paths import CONFIG_FILE, DATA, REPO_ROOT, RESULTS
 from zenai.providers import ProviderError
 from zenai.router import Router
 
@@ -25,13 +26,12 @@ from . import baselines, leakage, metrics, report
 from .datasets import SET_FILES, TEST_SETS, load_set, read_csv, sha256_file
 from .sync_simulated import write_synced
 
-RESULTS = ROOT / "results"
-
 
 def git_info() -> dict:
     def git(*args):
         try:
-            return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+            return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True,
+                                  check=True).stdout.strip()
         except (OSError, subprocess.CalledProcessError):
             return None
     status = git("status", "--porcelain")
@@ -88,7 +88,7 @@ def main(argv=None) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
 
     cfg = load_config()
-    config_text = (ROOT / "config.yaml").read_text(encoding="utf-8")
+    config_text = CONFIG_FILE.read_text(encoding="utf-8")
     config_hash = hashlib.sha256(config_text.encode("utf-8")).hexdigest()
     if args.set in TEST_SETS and not cfg["thresholds"].get("frozen"):
         print("Tune on dev and freeze thresholds first.")
@@ -166,7 +166,7 @@ def main(argv=None) -> int:
     report.write(run_dir, args.set, preds, m, base, meta)
     save_meta("complete")
 
-    print(f"\n{run_dir.relative_to(ROOT)}")
+    print(f"\n{run_dir.relative_to(REPO_ROOT)}")
     print(f"routing accuracy: {report.fmt_rate(m['routing_accuracy'])}")
     print(f"action accuracy:  {report.fmt_rate(m['action_accuracy'])}")
     print(f"provider: {router.provider.stats()}")

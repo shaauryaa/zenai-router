@@ -6,8 +6,9 @@ import pytest
 import yaml
 
 from retrieval.index_md import read_index
-from zenai.config import ROOT, load_config
+from zenai.config import load_config
 from zenai.offices import OfficeConfigError, handoff_office, load_mailboxes, load_offices, plus_address
+from zenai.paths import CODE, CONFIG_DIR, DOCS, ENV_FILE, KB, POLICY, REPO_ROOT
 
 FOLDERS = {"IT", "FINANCE", "ACADEMICS", "COURSE_SPECIFIC", "HOSTEL", "CAMPUS_SERVICES", "EMPLOYEES",
            "STUDENT_SUPPORT"}
@@ -17,15 +18,15 @@ OFFICES = FOLDERS - {"COURSE_SPECIFIC"} | {"HELPDESK"}
 # ---- knowledge base folders ----
 
 def test_kb_has_exactly_the_agreed_folders_each_with_an_index():
-    found = {p.name for p in (ROOT / "kb").iterdir() if p.is_dir()}
-    assert found == FOLDERS and not (ROOT / "kb" / "HELPDESK").exists()
+    found = {p.name for p in KB.iterdir() if p.is_dir()}
+    assert found == FOLDERS and not (KB / "HELPDESK").exists()
     for folder in FOLDERS:
-        assert isinstance(read_index(ROOT / "kb" / folder / "INDEX.md"), list)
+        assert isinstance(read_index(KB / folder / "INDEX.md"), list)
 
 
 def test_every_kb_file_is_listed_in_its_folder_index():
     for folder in FOLDERS:
-        d = ROOT / "kb" / folder
+        d = KB / folder
         listed = {e["file"] for e in read_index(d / "INDEX.md")}
         for f in d.rglob("*"):
             if f.is_file() and f.name != "INDEX.md":
@@ -57,7 +58,7 @@ def test_offices_channels_and_required_fields():
     assert offices["HOSTEL"]["required_fields"]["fix_or_complaint"] == ["hostel_block", "room_no", "issue"]
     assert offices["CAMPUS_SERVICES"]["required_fields"]["fix_or_complaint"] == ["location", "category", "description"]
     assert offices["CAMPUS_SERVICES"]["punctualiti_categories"]
-    assert "TODO" in (ROOT / "config" / "offices.yaml").read_text(encoding="utf-8")
+    assert "TODO" in (CONFIG_DIR / "offices.yaml").read_text(encoding="utf-8")
 
 
 def test_office_config_errors(tmp_path):
@@ -91,7 +92,7 @@ def test_mailbox_errors_and_no_address_in_the_yaml():
     for bad in ("nobody", "@gmail.com", "a+b@example.test"):
         with pytest.raises(OfficeConfigError):
             plus_address(bad, "it")
-    assert "@" not in (ROOT / "config" / "mailbox_map.yaml").read_text(encoding="utf-8").replace("# ", "").split(
+    assert "@" not in (CONFIG_DIR / "mailbox_map.yaml").read_text(encoding="utf-8").replace("# ", "").split(
         "\n", 3)[3]
 
 
@@ -105,20 +106,20 @@ STAFF_PASSWORD_STUDENT_SUPPORT STAFF_PASSWORD_HELPDESK WEB_ORIGIN DEMO_MODE""".s
 
 
 def test_env_example_has_exactly_the_agreed_names_and_no_values():
-    lines = [ln for ln in (ROOT / ".env.example").read_text(encoding="utf-8").splitlines()
+    lines = [ln for ln in (REPO_ROOT / ".env.example").read_text(encoding="utf-8").splitlines()
              if ln.strip() and not ln.startswith("#")]
     assert [ln.split("=")[0] for ln in lines] == ENV_NAMES
     assert all(ln.endswith("=") for ln in lines)
 
 
 def test_runtime_state_dir_is_gitignored():
-    assert ".data/" in (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert ".data/" in (REPO_ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
 
 
 # ---- docs ----
 
 def test_policy_is_marked_as_team_defaults_and_covers_every_office():
-    text = (ROOT / "POLICY.md").read_text(encoding="utf-8")
+    text = POLICY.read_text(encoding="utf-8")
     assert "team defaults, 6 Oct 2026, confirm" in text
     for office in OFFICES:
         assert f"`{office}`" in text
@@ -127,7 +128,7 @@ def test_policy_is_marked_as_team_defaults_and_covers_every_office():
 
 
 def test_api_contract_lists_every_endpoint_and_stage():
-    text = (ROOT / "docs" / "API.md").read_text(encoding="utf-8")
+    text = (DOCS / "API.md").read_text(encoding="utf-8")
     endpoints = ["POST /api/chat", "GET /api/cases", "GET /api/cases/{case_id}", "POST /api/cases/{case_id}/approve",
                  "POST /api/cases/{case_id}/cancel", "POST /api/cases/{case_id}/punctualiti-ticket",
                  "POST /api/cases/{case_id}/confirm", "POST /api/cases/{case_id}/reopen", "POST /api/staff/login",
@@ -143,7 +144,7 @@ def test_api_contract_lists_every_endpoint_and_stage():
 
 
 def test_claude_md_keeps_v1_rules_and_adds_the_new_ones():
-    text = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    text = (CODE / "CLAUDE.md").read_text(encoding="utf-8")
     for rule in ("Never use them to write prompts", "Never invent or hand-edit results",
                  "Every LLM and embedding call goes through the cached provider", "`.cache/`: LLM/embedding response cache",
                  "The LLM can never send email", "Demo students only", "Keys and passwords live only in `.env`",
@@ -155,7 +156,7 @@ def test_claude_md_keeps_v1_rules_and_adds_the_new_ones():
 
 def _git(*args):
     try:
-        out = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True)
+        out = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, check=True)
     except (OSError, subprocess.CalledProcessError):
         pytest.skip("git not available")
     return out.stdout
@@ -164,7 +165,7 @@ def _git(*args):
 def test_env_is_not_tracked_and_no_secret_value_appears_in_any_committable_file():
     files = [f for f in _git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split("\0") if f]
     assert ".env" not in files
-    env_path = ROOT / ".env"
+    env_path = ENV_FILE
     if not env_path.exists():
         pytest.skip("no local .env to compare against")
     secrets = {}
@@ -175,7 +176,7 @@ def test_env_is_not_tracked_and_no_secret_value_appears_in_any_committable_file(
             secrets[name.strip()] = value
     leaks = []
     for f in files:
-        path = ROOT / f
+        path = REPO_ROOT / f
         if path.suffix.lower() in (".png", ".pdf", ".jpg") or not path.is_file():
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
@@ -186,12 +187,12 @@ def test_env_is_not_tracked_and_no_secret_value_appears_in_any_committable_file(
 def test_no_email_address_is_hardcoded_in_tracked_code_or_config():
     files = [f for f in _git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split("\0")
              if f.endswith((".py", ".yaml", ".yml", ".md", ".json", ".ts", ".tsx")) and not f.startswith(
-                 ("results/", "data/", "kb/", "web/node_modules/"))]
+                 ("test-data/", "code/kb/", "code/web/node_modules/"))]
     pattern = re.compile(r"[\w.+-]+@gmail\.com")
     allowed = {"name@gmail.com", "demo.user@gmail.com", "demo.user+it@gmail.com"}
     bad = []
     for f in files:
-        for m in pattern.findall((ROOT / f).read_text(encoding="utf-8", errors="ignore")):
+        for m in pattern.findall((REPO_ROOT / f).read_text(encoding="utf-8", errors="ignore")):
             if m not in allowed and not m.startswith(("demo.user+", "name+")):
                 bad.append(f)
     assert not bad, f"gmail address in: {sorted(set(bad))}"

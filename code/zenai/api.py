@@ -9,11 +9,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from .config import DATA, ROOT
+from .paths import DATA, STATIC
 from .providers import ProviderError, QuotaError
 from .router import Router
 
-STATIC = ROOT / "static"
 # Sample messages shown in the demo: dev set only, never test data (CLAUDE.md).
 SAMPLE_IDS = ["D026", "D031", "D017", "D024"]
 

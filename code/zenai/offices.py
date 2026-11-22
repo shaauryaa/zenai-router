@@ -10,10 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from .config import ROOT
-
-CONFIG = ROOT / "config"
-KB = ROOT / "kb"
+from .paths import CONFIG_DIR as CONFIG
 
 
 class OfficeConfigError(ValueError):

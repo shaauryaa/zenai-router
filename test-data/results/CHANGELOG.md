@@ -31,3 +31,11 @@ Gemini, so v1 cache keys are unchanged (`tests/test_providers_azure.py` pins two
 the older run only because `config.yaml` gained the `providers` block. Its `run_meta.json` says `dirty: true` because
 it ran on top of commit `c0b3b48` before the Azure changes were committed. The v1 numbers to quote remain those of the
 runs made on 2026-09-27.
+
+## 2026-11-22: folders moved for the Milestone 2 layout (tag `pre-m2` is the state before)
+
+This folder moved from `results/` to `test-data/results/`, the datasets from `data/` to `test-data/`, and the code
+(`zenai/`, `evaluation/`, `config.yaml`, ...) into `code/`. The moves were done with `git mv`; no file in any run folder
+changed. Paths recorded inside older runs (for example `data/dev_set.csv`, `results/...`) refer to the old layout:
+read `data/` as `test-data/` and `results/` as `test-data/results/`. Dataset contents and `config.yaml` are unchanged, so
+dataset hashes, `config_sha256` and cache keys are the same as before the move.

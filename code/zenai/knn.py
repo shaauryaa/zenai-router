@@ -1,4 +1,4 @@
-"""Signal B: k-nearest-neighbour vote over the labelled examples in data/examples.jsonl."""
+"""Signal B: k-nearest-neighbour vote over the labelled examples in test-data/examples.jsonl."""
 import json
 from dataclasses import dataclass
 from pathlib import Path

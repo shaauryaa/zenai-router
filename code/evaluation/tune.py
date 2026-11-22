@@ -4,7 +4,7 @@ python -m evaluation.tune [--write]
 
 Objective: maximize dev action_accuracy; tie-break by higher auto_route_precision, then lower clarify_rate,
 then smallest change from the current config (so exact ties never move the settings without dev evidence).
-The full grid is saved to results/<timestamp>_tune/. --write stores the winner in config.yaml and freezes it.
+The full grid is saved to test-data/results/<timestamp>_tune/. --write stores the winner in config.yaml and freezes it.
 Only the dev set may be tuned on (CLAUDE.md).
 """
 import argparse
@@ -17,7 +17,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from zenai.config import DATA, ROOT, load_config
+from zenai.config import load_config
+from zenai.paths import CONFIG_FILE, DATA, REPO_ROOT
 from zenai.router import decide
 
 from . import metrics
@@ -35,7 +36,7 @@ def latest_complete_run(set_name: str = "dev") -> Path:
         meta = json.loads((run_dir / "run_meta.json").read_text(encoding="utf-8"))
         if meta.get("status") == "complete" and not meta.get("limit"):
             return run_dir
-    raise SystemExit(f"no complete, unlimited {set_name} run in results/")
+    raise SystemExit(f"no complete, unlimited {set_name} run in test-data/results/")
 
 
 def load_run(run_dir: Path) -> list[tuple[pd.Series, dict]]:
@@ -81,7 +82,7 @@ def fmt(r: dict) -> str:
 
 
 def write_config(best: dict, tuned_on: str) -> None:
-    path = ROOT / "config.yaml"
+    path = CONFIG_FILE
     text = path.read_text(encoding="utf-8")
     text, n1 = re.subn(r"(?m)^confidence:.*$",
                        f"confidence: {{w_agree: {best['w_agree']}, w_share: {best['w_share']}}}", text)
@@ -116,8 +117,8 @@ def main(argv=None) -> int:
                "top5": results[:5]}
     (out_dir / "tune_summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
 
-    print(f"Tuned on signals from {run_dir.relative_to(ROOT)} ({len(rows)} dev rows), "
-          f"{len(results)} settings, 0 API calls. Grid saved to {out_dir.relative_to(ROOT)}")
+    print(f"Tuned on signals from {run_dir.relative_to(REPO_ROOT)} ({len(rows)} dev rows), "
+          f"{len(results)} settings, 0 API calls. Grid saved to {out_dir.relative_to(REPO_ROOT)}")
     print(f"\ncurrent config: action {fmt(current['action_accuracy'])}, "
           f"auto-route precision {fmt(current['auto_route_precision'])}, clarify {fmt(current['clarify_rate'])}")
     print("\nrank  w_agree  t_high  t_low  action_acc      auto_prec       coverage        clarify         routing")

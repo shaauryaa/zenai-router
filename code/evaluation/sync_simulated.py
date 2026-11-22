@@ -1,4 +1,4 @@
-"""Re-derive simulated_v1.csv labels from the current test_set.csv labels -> data/simulated_synced.csv.
+"""Re-derive simulated_v1.csv labels from the current test_set.csv labels -> test-data/simulated_synced.csv.
 
 Run: python -m evaluation.sync_simulated
 Only primary_domain, secondary_domain and expected_action are rewritten; question text is never changed.
@@ -61,7 +61,7 @@ def write_synced() -> list[str]:
 
 def main() -> None:
     changes = write_synced()
-    print(f"wrote data/simulated_synced.csv; {len(changes)} rows changed")
+    print(f"wrote test-data/simulated_synced.csv; {len(changes)} rows changed")
     for c in changes:
         print("  ", c)
 

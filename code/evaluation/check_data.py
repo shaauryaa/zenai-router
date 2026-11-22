@@ -1,15 +1,14 @@
-"""Validate the files in data/ without modifying them.
+"""Validate the dataset files in test-data/ without modifying them.
 
-Run: python -m evaluation.check_data
+Run (from code/): python -m evaluation.check_data
 Exits with status 1 if any row has a domain or action outside the allowed lists.
 """
 import re
 import sys
-from pathlib import Path
 
 import pandas as pd
 
-DATA = Path(__file__).resolve().parent.parent / "data"
+from zenai.paths import DATA
 
 DOMAINS = {"IT", "FEES", "ACADEMICS", "HOSTEL", "CAMPUS_SERVICES", "OUT_OF_SCOPE"}
 ACTIONS = {"answer", "clarify", "handoff", "refuse"}
