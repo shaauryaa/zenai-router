@@ -14,6 +14,8 @@ run at temperature 0, so a single question flipping (for example Q09 between ste
 sensitivity to prompt wording and is not strong evidence on its own. The P1 v2 routing number on test_set.csv is on a
 seen set (see below).
 
+Fresh check after the freeze (10 new team-written questions, `test-data/fresh_check.md`, run `fresh_20261122-214926`, no tuning after it): pass 6/10 (60%) against 21/24 (88%) on the seen set; failures: 2 correct answers rejected by the quote check on table/OCR text (F02, F07), 1 search miss (F06), 1 P2 found=false with the fact retrieved (F01); no wrong or invented answer.
+
 ## Table 1: P2 versions
 
 | Version | What changed | Why | Setup | Action | Key fact | Quote verified | Doc cited | Valid JSON | Language (Hinglish) | Router office | Run |

@@ -80,3 +80,5 @@ App polish and P3 v2:
   re-runs only the rows that get a P3 draft and rewrites those rows of test-data/final_test_table.csv/.md; it stops
   without saving if any action or Pass/Fail changes. Run `test-data/runs/final_p3v2_20261122-212027/` (Q15-Q19,
   0 API calls: P1/P2 and P3 replies from the cache). Pass stays 21/24. `pipeline.FINAL["p3"]` is now "v2".
+
+Fresh check: 10 new team-written questions (test-data/fresh_questions.csv, committed before the run) on the frozen final pipeline, run test-data/runs/fresh_20261122-214926/ (30 API calls): pass 6/10 (60%) vs 21/24 on the seen set; failures F01 (P2 found=false), F02 and F07 (quote check on table/OCR text), F06 (search miss); details in test-data/fresh_check.md. Prompts, search and code unchanged.
