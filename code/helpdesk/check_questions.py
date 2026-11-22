@@ -6,6 +6,8 @@ For every topic (fields with several topics are ;-separated, in the same order i
 the key_fact must appear word for word (case-sensitive; runs of whitespace such as OCR line breaks count as one
 space) in expected_doc on expected_page, or anywhere in the document when expected_page is blank (original .md files
 have no pages). Also checks ids, allowed values and that every `answer` topic names a document and a key fact.
+expected_office uses the v2 offices of docs/POLICY.md; v1_domain is the frozen v1 router's domain for the same topic
+(blank when v1 has none, router_scorable = no).
 """
 from __future__ import annotations
 
@@ -19,7 +21,8 @@ from zenai.paths import KB, TEST_DATA
 
 QUESTIONS = TEST_DATA / "questions.csv"
 COLUMNS = ["id", "question", "type", "language", "expected_office", "expected_action", "expected_doc",
-           "expected_page", "key_fact", "notes"]
+           "expected_page", "key_fact", "notes", "router_scorable", "v1_domain"]
+V1_DOMAINS = {"IT", "FEES", "ACADEMICS", "HOSTEL", "CAMPUS_SERVICES", "OUT_OF_SCOPE"}
 TYPES = {"Normal", "Edge", "Invalid"}
 LANGUAGES = {"en", "hinglish"}
 ACTIONS = {"answer", "not_found", "handoff", "refuse", "clarify"}
@@ -53,6 +56,11 @@ def check(path: Path = QUESTIONS) -> list[str]:
             errors.append(f"row {n}: id {rid!r}, expected Q{n:02d}")
         if row["type"] not in TYPES or row["language"] not in LANGUAGES:
             errors.append(f"{rid}: type {row['type']!r} or language {row['language']!r} not allowed")
+        if row["router_scorable"] not in ("yes", "no"):
+            errors.append(f"{rid}: router_scorable must be yes or no")
+        v1 = row["v1_domain"].split(";") if row["v1_domain"] else []
+        if any(d not in V1_DOMAINS for d in v1) or (v1 and len(v1) != len(row["expected_action"].split(";"))):
+            errors.append(f"{rid}: v1_domain {row['v1_domain']!r} must be v1 domains, one per topic")
         actions = row["expected_action"].split(";")
         n_topics = len(actions)
         cols = {c: row[c].split(";") if row[c] else [""] * n_topics
