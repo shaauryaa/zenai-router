@@ -6,3 +6,4 @@ __pycache__/
 .claude/
 review/
 docs/review/
+.playwright-cli/
