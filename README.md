@@ -1,157 +1,106 @@
-# ZEN AI Router
+# ZEN AI: Campus Helpdesk
 
-**One front door for every campus question.** ZEN AI Router reads a student's message (English or Hinglish),
-splits it into topics, sends each topic to the right campus office, and decides what should happen next:
-**answer**, **clarify**, **handoff** to a person, or **refuse**.
+**Problem C1.** Bennett University students ask the same questions every day (fee refunds, scholarships, hostel
+rules, attendance, wifi) and the answers are spread across dozens of official PDFs owned by different offices.
+ZEN AI Helpdesk answers a student's question **only from the official documents**, shows the exact sentence it used
+with the document, page and link, and when it cannot answer it **hands off**: it drafts a short email to the right
+office for the student to send.
 
-Built for Microsoft Innovate 2026, Problem Statement 18, *"One Front Door for Everything"*.
-This repository is the routing prototype and its evaluation; it does not answer questions itself.
+**Prototype:** [PROTOTYPE_LINK]
+
+**Team:** [TEAM]
+
+## How to use it
+
+1. Open the prototype link. No login; don't enter personal details.
+2. Type a question in English or Hinglish, or click one of the four examples.
+3. Read the result card. It is one of:
+   - **Answer**: the answer, the quote from the document in a quote block, the document title, page, date and a link
+     to the source, and a green "Quote verified in source" badge (the quote was found in the retrieved text by code).
+   - **Not found / needs a person**: a short explanation plus an email draft to the right office, with
+     `[Your name]` and `[Enrollment no.]` placeholders. Draft only: nothing is sent.
+   - **Out of scope / needs more detail**: a fixed message saying what ZEN AI can help with, or one short question.
+4. Open **"How ZEN AI decided"** to see every step: the router's office, request type and search query, the
+   retrieved sections with their scores, the raw answer JSON, the quote check result and the handoff draft checks.
+
+A message with two questions gets the first one answered and a clear note asking the student to send the other
+separately. Each browser session can ask 20 questions.
+
+## How it works: the prompt chain
 
 ```
-$ python -m zenai.route "AC kharab hai aur mujhe room change karna hai"
-
-#  topic                            LLM              kNN (share)             conf  action
-1  AC kharab hai                    CAMPUS_SERVICES  CAMPUS_SERVICES (0.43)  0.71  handoff
-2  aur mujhe room change karna hai  HOSTEL           HOSTEL (0.57)           0.79  handoff
-
-MESSAGE -> action=handoff  primary=CAMPUS_SERVICES  secondary=HOSTEL  auto_routed=True
+student question
+  -> P1 router (LLM, prompts/final/P1_router.md = P1 v2)
+       office, request type (info / needs_human / vague / not_campus), English search query, one entry per topic
+       not_campus -> refuse (fixed text)   vague or empty -> clarify (fixed text)   needs_human -> handoff
+  -> search (code, BM25 over code/kb/): top 5 sections from the routed office's folder + top 3 from all folders
+  -> P2 grounded answer (LLM, prompts/final/P2_grounded_answer.md = P2 v2)
+       JSON {found, answer, quote, doc_title, page, language}, using only the retrieved sections
+  -> quote check (code, no LLM): the quote must appear in a retrieved section; if not, the answer is not shown
+       verified -> answer        found = false or not verified -> not_found
+  -> P3 handoff draft (LLM, prompts/final/P3_handoff.md = P3 v1), for not_found and handoff only
+       JSON {to, subject, body}: polite, English, under 120 words, placeholders, no invented facts
 ```
 
-## Offices and actions
+Model: `gemini-3.5-flash-lite`, temperature 0. Every LLM call goes through one cached, rate-limited client
+(`code/zenai/providers.py`), so re-running a test costs no API calls and gives the same output. Office email
+addresses in drafts are demo addresses on the reserved `zenai-demo.example` domain; the app never sends email.
 
-| Domain | Covers |
+## Results
+
+All numbers come from saved runs in `test-data/runs/` on the 24-question set `test-data/questions.csv`
+(16 answerable, 2 not in the documents, 1 needs the student's record, 2 vague/empty, 3 off-topic or unsafe;
+English, Hinglish, typos and a two-question message).
+
+**Final test table** ([test-data/final_test_table.md](test-data/final_test_table.md), run
+`test-data/runs/final_20261122-201923`): **21/24 pass (88%)**. Pass = correct action, and for answerable rows
+also the key fact present and the quote verified.
+
+| Metric (final pipeline) | Score |
 |---|---|
-| IT | ERP, college email/Outlook, LMS, university laptops, network accounts and wifi connectivity |
-| FEES | fee structure, payments, receipts, scholarships, refunds, fee deadlines |
-| ACADEMICS | exams, academic calendar and holidays, attendance, faculty contacts, registrar documents, courses and batches, placements, clubs and fests |
-| HOSTEL | room change and allotment, curfew/in-time, leave and outing, guests, hostel rules, laundry |
-| CAMPUS_SERVICES | maintenance and cleaning, mess and food outlets, transport, sports facilities, library, lost and found |
-| OUT_OF_SCOPE | not a campus question, jokes, opinions, or anyone's private records |
+| Final action correct | 22/24 (92%) |
+| Key fact found | 14/16 (88%) |
+| Quote verified in source | 14/16 (88%) |
+| Right document cited | 14/16 (88%) |
+| Valid JSON from P2 | 18/18 (100%) |
+| Hinglish answer for Hinglish question | 2/2 |
+| Router office correct | 17/17 (100%) |
 
-Actions: **answer** (an official document can answer it), **clarify** (ask the student a follow-up),
-**handoff** (needs a person: the student's own records, a fix, a complaint), **refuse** (out of scope).
+The three failures: Q10 (answered from a different page of the anti-ragging rules, so the expected key fact is
+missing), Q15 (correct answer rejected by the quote check because the scanned source reads "ona scale"), Q16 (the
+search query for the wifi part missed the password page). How each prompt version and pipeline step moved these
+numbers (P2 v1 to v4, router v1 to v2, search, quote check) is in [docs/iteration_log.md](docs/iteration_log.md).
 
-## How it works
+**Limitation.** The same 24 questions were used to choose each change and to measure it, so these numbers are
+optimistic. A fresh, unseen question set is planned for the next milestone.
 
-1. **Signal A: LLM classifier.** One chat call splits the message into topics and labels each with a domain
-   and a request type (info, needs_human, vague, not_campus). The prompt contains only the domain
-   descriptions above, no example questions.
-2. **Signal B: nearest-neighbour vote.** Each topic is embedded and compared with 72 labelled example
-   questions; the 7 most similar vote for their domain.
-3. **Confidence** = 0.5 × (the two signals agree) + 0.5 × (share of neighbours that voted for the LLM's domain).
-4. **Decision rules:** out of scope → refuse; vague → clarify; confidence ≥ 0.7 → answer (info) or handoff
-   (needs a person); 0.4 to 0.7 → clarify; below 0.4 → handoff. The message takes the strictest topic action.
-
-Every model call goes through a disk cache, so re-running an evaluation costs no API calls and gives
-identical results. Raw signals are saved per question, so thresholds can be re-tested offline.
-
-## Results (v1, frozen thresholds)
-
-Model: `gemini-3.5-flash-lite` (temperature 0) with `gemini-embedding-2`. Thresholds were tuned on the dev
-set only, then frozen before the test set was run once. Every figure below is copied from a scorecard in
-[`results/`](results/); intervals are 95% Wilson intervals.
-
-**Test set** ([scorecard](results/20260927-032804_test/scorecard.md)):
-**Routing accuracy: 85% (95% CI 74-92%), n = 60 test questions (53 real student questions (survey), 7 composed (multi-topic, written by team))**
-
-| Metric | Test | Simulated variants ([scorecard](results/20260927-033305_simulated/scorecard.md)) |
-|---|---|---|
-| Routing accuracy | 85% (74-92%), n = 60 | 84% (78-88%), n = 178 |
-| Routing accuracy, either office | 93% (84-97%), n = 60 | 91% (86-94%), n = 178 |
-| Action accuracy | 69% (57-78%), n = 70 | 66% (59-72%), n = 206 |
-| Multi-topic recall | 29% (13-53%), n = 17 | 45% (33-57%), n = 65 |
-| Auto-route precision | 78% (63-88%), n = 41 | 79% (70-86%), n = 109 |
-| Auto-route coverage | 59% (47-69%), n = 70 | 53% (46-60%), n = 206 |
-
-Baselines on the same test rows:
-
-| Method | Routing accuracy | Action accuracy |
-|---|---|---|
-| Keyword matching | 65% (52-76%) | not defined |
-| Nearest-neighbour vote only | 50% (38-62%) | not defined |
-| LLM only | 85% (74-92%) | 74% (63-83%) |
-| Full router (LLM + neighbour confidence) | 85% (74-92%) | 69% (57-78%) |
-
-**What this shows.** The LLM classifier routes clearly better than keyword matching. The
-nearest-neighbour confidence layer, as built in v1, did not improve decisions: its action accuracy is below
-the LLM alone on both dev and test, and low-confidence questions were not more likely to be wrong. Most
-routing errors on test are wifi faults, which our labels send to CAMPUS_SERVICES but the domain
-description assigns to IT. Splitting multi-topic messages is the weakest area.
-
-## Quickstart
+## Run it locally
 
 Requires Python 3.11 and a Gemini API key.
 
 ```bash
 python -m venv .venv
-.venv/Scripts/activate            # Windows; use `source .venv/bin/activate` on macOS/Linux
-pip install -r requirements.txt
-cp .env.example .env              # then set GEMINI_API_KEY=...
+.venv/Scripts/activate                 # Windows; source .venv/bin/activate on macOS/Linux
+pip install -r code/requirements.txt
+cp .env.example .env                   # then set GEMINI_API_KEY=...
 
-python -m zenai.route "wifi aur mess dono bekaar hai"
-python -m zenai.route --json "fees"
-pytest
+streamlit run code/app.py              # the helpdesk app, from the repo root
+
+cd code
+pytest -q                              # tests, no network
+python -m helpdesk.final_test          # final test table on the 24 questions (cached: 0 new calls on a re-run)
+python -m helpdesk.kb_search "hostel in-time" --office HOSTEL --k 4   # try the search alone
 ```
 
-## Web demo
+For Streamlit Community Cloud the key goes in the app's secrets as `GEMINI_API_KEY = "..."`.
 
-```bash
-uvicorn zenai.api:app --reload    # then open http://127.0.0.1:8000
-```
+## Folder map
 
-Type a message (or click a sample from the dev set). Each topic appears as a card with its office, a
-confidence bar marked with the frozen thresholds, the action, a one-line reason, and a "Why?" panel showing
-the LLM's choice, the nearest-neighbour vote and the 3 closest example questions. The footer shows the model
-and thresholds the demo is running. `/?q=<message>` routes a message on page load, for shareable links.
-API: `POST /route {"message": "..."}`, `GET /health`, `GET /samples`.
+| Folder | What is in it |
+|---|---|
+| `code/` | All code. `app.py` (Streamlit app), `helpdesk/` (pipeline, router P1 v2, search, P3 handoff, scorers, `final_test.py`), `kb/` (the official documents as Markdown, one folder per office, with an `INDEX.md` each), `zenai/` (cached LLM client and the earlier router), `config/` (offices and demo mailboxes), `tests/` |
+| `prompts/` | Every prompt version with its settings and the reason for each change: `v1/` to `v4/`, and `final/` (P1 router, P2 grounded answer, P3 handoff) |
+| `test-data/` | `questions.csv` (the 24 test questions with expected action, document, page and key fact), `final_test_table.csv/.md`, `runs/` (one folder per recorded run: outputs, scorecard, settings), `kb_manifest.csv` (every document and its source) |
+| `docs/` | `iteration_log.md` (prompt iterations and errors), `POLICY.md` (routing rules), `RETRIEVAL.md`, `API.md` |
 
-## Evaluation workflow
-
-```bash
-python -m evaluation.check_data                    # validate labels in data/
-python -m evaluation.run_eval --set dev --baselines
-python -m evaluation.tune --write                  # grid search on saved dev signals, freeze thresholds
-python -m evaluation.sync_simulated                # re-derive simulated labels from test labels
-python -m evaluation.run_eval --set test --baselines
-python -m evaluation.run_eval --set simulated
-```
-
-Each run writes `results/<timestamp>_<set>/`: `scorecard.md`, `scorecard.json`, `predictions.csv`,
-`errors.csv`, a confusion matrix, a confidence-band chart, a leakage report and `run_meta.json` (commit,
-config hash, data hashes, model, API call counts).
-
-## Evaluation rules
-
-- **Dev data is for tuning; test data is only for measuring.** Prompts, examples, keywords and thresholds
-  never use `test_set.csv` or the simulated set. A leakage check runs before every evaluation.
-- **Test runs need frozen thresholds** and each one is logged in
-  [`results/test_runs.log`](results/test_runs.log), so the number of looks at the test set is on record.
-- **Numbers come only from files in `results/`.** Nothing there is hand-edited; see
-  [`results/CHANGELOG.md`](results/CHANGELOG.md) for anything that affects how runs should be read.
-
-## Data
-
-| File | Rows | What it is |
-|---|---|---|
-| `data/test_set.csv` | 70 | 62 real student questions from a survey + 8 multi-topic questions written by the team |
-| `data/simulated_v1.csv` | 206 | LLM-generated variants of test questions (paraphrase, Hinglish, SMS typos, vaguer, merged), team verified |
-| `data/dev_set.csv` | 32 | Tuning set, team drafted and verified |
-| `data/examples.jsonl` | 72 | Labelled examples for the nearest-neighbour vote, 12 per domain |
-
-## Known limits
-
-- Small samples: some offices have only 4-5 test questions, so per-office intervals are wide.
-- Labels are one team's judgement, not an independent gold standard.
-- Results are for one model at temperature 0; another model or prompt needs a new evaluation.
-- The test set has now been seen. A v2 router should be measured on fresh questions.
-
-## Repository layout
-
-```
-zenai/        router: providers (cached Gemini client), llm_router, knn, confidence, router, CLI
-evaluation/   data check, leakage check, simulated sync, run_eval, metrics, baselines, tuning, report
-tests/        pytest suite (no network)
-data/         labelled datasets
-results/      one folder per evaluation run, test run log, changelog
-config.yaml   provider, kNN, confidence weights, frozen thresholds
-```
+Builds on our earlier routing prototype (Sept to Oct 2026); its code and results are kept in code/ and test-data/results/.

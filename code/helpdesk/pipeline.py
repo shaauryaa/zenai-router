@@ -199,6 +199,20 @@ def answer(question: str, p2_version: str, provider=None, router: str = "v1", se
     return out
 
 
+FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v1"}
+
+
+def final_answer(question: str, provider=None) -> dict:
+    """The frozen final pipeline: P1 v2 -> search routed5_all3 -> P2 v2 -> quote check, then helpdesk/handoff.py:
+    a P3 handoff draft for not_found and handoff, fixed template text for refuse and clarify, and the multi-topic
+    note when P1 finds two or more topics."""
+    from helpdesk import handoff  # local import: handoff.py does not import this module
+
+    provider = provider or default_provider()
+    out = answer(question, FINAL["p2"], provider, router=FINAL["router"], search=FINAL["search"])
+    return handoff.finish(out, provider)
+
+
 def decide(p2: dict, verified: bool, why: str) -> tuple[str, str]:
     """Step f: (action, reason) from P2's parsed reply and the quote check."""
     if not p2["found"]:

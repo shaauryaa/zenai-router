@@ -55,6 +55,9 @@ Layout added on top of the v1 layout:
   `python -m helpdesk.score_p2 <P2 version> [--router v1|v2] [--search route5|routed5_all3] [--name ...]`
   (`--rescore <run folder> --name ...` re-scores a saved run offline) and `python -m helpdesk.route_eval` (P1 v2
   on test_set.csv, a seen set for v2)
+  Final pipeline: `pipeline.final_answer()` = P1 v2 + search routed5_all3 + P2 v2 + quote check, then
+  `helpdesk/handoff.py` (P3 handoff draft for not_found/handoff, fixed text for refuse/clarify). Final test table:
+  `python -m helpdesk.final_test`. Streamlit app: `streamlit run code/app.py` from the repo root
 - `test-data/runs/`: Milestone 2 helpdesk run outputs (P1/P2 prompts on `test-data/questions.csv`), one folder per
   run, committed to git. Never edit or overwrite an existing run folder. Every Milestone 2 helpdesk number must come
   from a file here (`test-data/results/` stays the home of the v1 routing runs)
@@ -70,7 +73,7 @@ Layout added on top of the v1 layout:
 - `docs/API.md`: the HTTP contract the server and the web app both build against. Change it before changing the code
 - `.data/`: runtime state (cases, outbox), gitignored, at the repo root
 - `prompts/`: prompt versions for the course (`v1/` to `v4/`, `final/`). P1 = router (v1 frozen, v2), P2 = grounded
-  answer (v1 to v4); `final/` holds the chosen P1 and P2
+  answer (v1 to v4), P3 = handoff draft (v1); `final/` holds the chosen P1, P2 and P3
 
 Rules for the full prototype (must follow):
 

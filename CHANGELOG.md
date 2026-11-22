@@ -42,3 +42,23 @@ Final prompts: `prompts/final/P1_router.md` = P1 v2, `prompts/final/P2_grounded_
 `prompts/v1/P1_router.md`. `score_p2` gains `--router`, `--search`, `--name`, `--rescore`. code/CLAUDE.md now says
 Milestone 2 runs go in test-data/runs/. The 24 questions were used both to choose and to measure these changes, so
 the numbers are optimistic; a fresh question set is planned for Milestone 3.
+
+Handoff prompt P3, Streamlit app and final test table:
+- P3 handoff draft, one version (`prompts/final/P3_handoff.md`, same file in `prompts/v1/`), in
+  `code/helpdesk/handoff.py`: input question, office, reason (not found in documents / needs the student's own record
+  / needs someone to act) and a demo office address (`<tag from config/mailbox_map.yaml>@zenai-demo.example`, a
+  reserved domain); output JSON {to, subject, body} with `[Your name]` and `[Enrollment no.]` placeholders. Code
+  records checks (keys, `to`, body under 120 words, placeholders) and always sets `to` to the demo address.
+- `pipeline.final_answer()`: the frozen final pipeline (P1 v2, search routed5_all3, P2 v2, quote check; prompts and
+  search unchanged) plus P3 for not_found and handoff, fixed template text (no LLM call) for refuse and clarify, and
+  a note naming the other topics when P1 finds two or more ("I answered the first one; please ask the other
+  separately").
+- Streamlit app `code/app.py` (`streamlit run code/app.py` from the repo root): question box, 4 example buttons
+  (new wording, not from any question set), result card per action, "How ZEN AI decided" expander, 20 questions per
+  session, cached index and answers, friendly error messages (`.streamlit/config.toml` hides error details).
+  `streamlit==1.58.0` added to `code/requirements.txt`.
+- Final test table `python -m helpdesk.final_test`: test-data/final_test_table.csv/.md, raw run
+  test-data/runs/final_20261122-201923/. Pass (action correct, and key fact found and quote verified where a key fact
+  is set): 21/24. Failures Q10 (key fact missing: answered from anti-ragging rules p.3, expected p.5), Q15 (quote
+  check: OCR "ona scale"), Q16 (search missed IT Policy p.11). 5 API calls (the 5 P3 drafts), 41 cache hits.
+- README.md rewritten for evaluators.

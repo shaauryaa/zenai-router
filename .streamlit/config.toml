@@ -1,0 +1,3 @@
+[client]
+# Students never see a stack trace; code/app.py shows a friendly message for every error it catches.
+showErrorDetails = "none"

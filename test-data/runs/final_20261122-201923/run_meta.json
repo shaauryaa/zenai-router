@@ -1,0 +1,70 @@
+{
+ "run_id": "final_20261122-201923",
+ "title": "Final pipeline: P1 v2 + search routed5_all3 + P2 v2 + quote check + P3 v1",
+ "started": "2026-11-22T20:19:23",
+ "finished": "2026-11-22T20:19:44",
+ "questions": "test-data/questions.csv",
+ "n_questions": 24,
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "final": {
+  "router": "v2",
+  "search": "routed5_all3",
+  "p2": "v2",
+  "p3": "v1"
+ },
+ "router_prompt_file": "prompts/v2/P1_router.md",
+ "router_prompt_sha256": "0d8fd3c7a1bf4e99c5fdb78cbd6a4fc7cb6c999830be98c8fdb6994897412726",
+ "p2_prompt_file": "prompts/v2/P2_grounded_answer.md",
+ "p2_prompt_sha256": "0e45708c06c8798ccbac881dd62b8cf757c8ef567a2e75d8a388728d1c64e57e",
+ "p3_prompt_file": "prompts/final/P3_handoff.md",
+ "p3_prompt_sha256": "1c96c82c47269b9ecc0adffbe1717096d475dc6a35364df6167c24165fe3eeb9",
+ "pass_rule": "action correct, and for rows with a key_fact also key fact found and quote verified",
+ "pass": {
+  "k": 21,
+  "n": 24
+ },
+ "totals": {
+  "action": {
+   "k": 22,
+   "n": 24
+  },
+  "key_fact": {
+   "k": 14,
+   "n": 16
+  },
+  "quote_verified": {
+   "k": 14,
+   "n": 16
+  },
+  "doc_cited": {
+   "k": 14,
+   "n": 16
+  },
+  "format_valid": {
+   "k": 18,
+   "n": 18
+  },
+  "language": {
+   "k": 2,
+   "n": 2
+  },
+  "router_office": {
+   "k": 17,
+   "n": 17
+  }
+ },
+ "git": {
+  "commit": "e56efbf6a5f45509c17b5c72ec1c393cb81d8d8d",
+  "dirty": true
+ },
+ "api_calls": 5,
+ "cache_hits": 41
+}
