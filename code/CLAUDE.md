@@ -49,6 +49,8 @@ Layout added on top of the v1 layout:
   Gemini vectors are never mixed with them. Every `kb/<FOLDER>/INDEX.md` must list every file in the folder
 - `helpdesk/`: Milestone 2 helpdesk. `helpdesk/kb_search.py` is BM25 search over `kb/*/*.md`
   (`python -m helpdesk.kb_search "query" --office HOSTEL --k 4`), index cached in `code/.cache/kb_search/`
+- `tools/`: `python -m tools.build_kb --zip-dir <unzipped team data> --ocr-dir <ocr folder> [--check]` rebuilds
+  `kb/` (documents, INDEX.md lists) and `test-data/kb_manifest.csv` from the team's sources, which stay outside the repo
 - `zenai/v2/`: routing v2 (`zenai/router.py` stays v1)
 - `answer/`: grounded answers and handoff drafts
 - `server/`: FastAPI app (chat, cases, email, staff). Its contract is `docs/API.md`

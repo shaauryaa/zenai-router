@@ -16,7 +16,7 @@ documents:
   title: Room Partner User Manual (Student Login)
   source_url: unverified
   date: unknown
-  public_or_permission: public
+  public_or_permission: unverified
   collector: ZEN AI team
 - file: student-discipline-conduct-rules.md
   title: Students' Discipline and Conduct Rules
@@ -51,7 +51,7 @@ Each entry:
 - `title`: shown in citations, for example `Fee structure`
 - `source_url`: the public URL; for a `team-written` document, say what it was compiled from
 - `last_updated`: YYYY-MM-DD from the document; if it states none, the day it was fetched, with `date_kind: fetched_on`
-- `public_or_permission`: `public`, `office-provided` or `team-written`
+- `public_or_permission`: `public`, `office-provided`, `team-written` or `unverified` (source not confirmed)
 - `collector`: who added it
 - `course`: optional, the course code (COURSE_SPECIFIC)
 

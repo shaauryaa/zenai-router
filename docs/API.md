@@ -116,7 +116,8 @@ One turn per topic, in the order the topic appears in the message. Fields of a t
 | `refuse_reason?` | string | present when `action` is `refuse`; says what ZEN AI can help with |
 
 **Citation:** `{n, title, source_url, last_updated, snippet, office}`, plus these optional fields: `page` (PDF page or
-null), `heading` (heading path or null), `provenance` (`public`, `office-provided` or `team-written`), `team_compiled`
+null), `heading` (heading path or null), `provenance` (`public`, `office-provided`, `team-written` or `unverified`: the source URL or date of the document
+could not be confirmed), `team_compiled`
 (true for `team-written`), `date_kind` (`updated`, or `fetched_on` when `last_updated` is the day the page was
 fetched) and `label` (what to display, e.g. `Fee structure, p. 3`; it ends `[team-compiled]` for a team-written
 document, which must never be presented as official). For a team-written document `source_url` is text saying what

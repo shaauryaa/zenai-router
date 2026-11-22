@@ -11,7 +11,7 @@ import re
 from dataclasses import asdict, dataclass, field
 
 META_PREFIX = "ZENAI-META "
-PROVENANCES = ("public", "office-provided", "team-written")
+PROVENANCES = ("public", "office-provided", "team-written", "unverified")  # unverified: source not confirmed
 TEAM_COMPILED_LABEL = "team-compiled"
 DATE_KINDS = ("updated", "fetched_on")
 HEADING_SEP = " > "
@@ -27,7 +27,7 @@ class Chunk:
     last_updated: str | None = None  # YYYY-MM-DD; None only for office-provided documents that state none
     page: int | None = None  # PDF page, 1-based
     heading_path: str = ""  # for example "Fee Structure > B.Tech CSE > Hostel Fees"
-    provenance: str = "public"  # public | office-provided | team-written
+    provenance: str = "public"  # public | office-provided | team-written | unverified
     file: str = ""  # path inside kb/<department>/
     course: str | None = None  # COURSE_SPECIFIC documents
     date_kind: str = "updated"  # updated | fetched_on

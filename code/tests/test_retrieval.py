@@ -185,6 +185,13 @@ def test_free_text_date_stands_in_for_last_updated_and_provenance_fields_are_acc
     assert d is None and any("missing last_updated" in e for e in errors)
 
 
+def test_unverified_provenance_is_accepted_and_still_needs_a_source_url():
+    d, errors, warnings = doc({**GOOD, "public_or_permission": "unverified"})
+    assert errors == [] and warnings == [] and d.public_or_permission == "unverified"
+    d, errors, _ = doc({**GOOD, "public_or_permission": "unverified", "source_url": ""})
+    assert d is None and any("missing source_url" in e for e in errors)
+
+
 def test_team_written_must_say_what_it_was_compiled_from():
     d, errors, _ = doc({**GOOD, "public_or_permission": "team-written", "source_url": ""})
     assert d is None and "compiled from" in " ".join(errors)

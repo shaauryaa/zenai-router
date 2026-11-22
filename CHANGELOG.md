@@ -15,3 +15,7 @@ contacts, the HR manual and processed-data/. PDFs are not committed. Student det
 mobile numbers and emails are redacted; names, roles, office landlines and role mailboxes are kept. INDEX.md entries
 gain a free-text `date` field (the date exactly as the team's source list gives it). New BM25 search:
 `python -m helpdesk.kb_search "query" --office HOSTEL --k 4`.
+
+KB build tools committed (`python -m tools.build_kb`; it reproduces the committed kb/ byte for byte). The late-fee
+annexure, the Room Partner manual and the anti-ragging/ICC contacts file are marked `public_or_permission: unverified`
+(new provenance value, also in docs/API.md).
