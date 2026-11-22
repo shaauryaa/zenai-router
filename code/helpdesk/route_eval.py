@@ -2,7 +2,7 @@
 
 Run (from code/):  python -m helpdesk.route_eval
 Labelled a SEEN set: v1's errors on it were studied before P1 v2 was written, so it is not a clean test of v2. The
-set is only run and scored here; nothing in it is used to write prompts (code/CLAUDE.md).
+set is only run and scored here; nothing in it is used to write prompts (project rules file in code/).
 
 Definitions match v1's llm_only baseline (evaluation/baselines.py, evaluation/metrics.py), so the numbers are
 comparable with v1's 85% (test-data/results/20260927-032804_test/scorecard.md):

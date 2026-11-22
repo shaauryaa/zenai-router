@@ -39,7 +39,7 @@ test-data/questions.csv, runs in test-data/runs/, details in docs/iteration_log.
    folders (k=8); STUDENT_SUPPORT mapped to its kb folder. With P2 v2: 22/24.
 4. P2 v4 (`prompts/v4/`) = v2 + one Hinglish rule: 21/24 (Q09 regressed), so the final P2 stays v2.
 Final prompts: `prompts/final/P1_router.md` = P1 v2, `prompts/final/P2_grounded_answer.md` = P2 v2; P1 v1 kept in
-`prompts/v1/P1_router.md`. `score_p2` gains `--router`, `--search`, `--name`, `--rescore`. code/CLAUDE.md now says
+`prompts/v1/P1_router.md`. `score_p2` gains `--router`, `--search`, `--name`, `--rescore`. The project rules file in code/ now says
 Milestone 2 runs go in test-data/runs/. The 24 questions were used both to choose and to measure these changes, so
 the numbers are optimistic; a fresh question set is planned for Milestone 3.
 

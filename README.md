@@ -71,8 +71,25 @@ missing), Q15 (correct answer rejected by the quote check because the scanned so
 search query for the wifi part missed the password page). How each prompt version and pipeline step moved these
 numbers (P2 v1 to v4, router v1 to v2, search, quote check) is in [docs/iteration_log.md](docs/iteration_log.md).
 
-**Limitation.** The same 24 questions were used to choose each change and to measure it, so these numbers are
-optimistic. A fresh, unseen question set is planned for the next milestone.
+The final run was made before its code was committed (its header says "e56efbf6a5 (uncommitted changes)"); that
+code is in commit 0f619fa, and the prompt sha256 values saved in the run's `run_meta.json` equal the committed prompt
+files.
+
+**Fresh check on unseen questions** ([test-data/fresh_check.md](test-data/fresh_check.md), run
+`test-data/runs/fresh_20261122-214926`): **6/10 pass (60%)**. The team wrote these 10 questions after the prompts and
+search were frozen. Their labels were committed before the run (commit "Add fresh check questions"), and nothing was
+tuned afterwards. Of the 4 failures, 2 are correct answers that the quote check rejected because the quote did not
+copy table or scanned (OCR) text exactly (F02, F07). One is a search miss (F06). In the last, P2 said "not found"
+although the answer was in the retrieved sections (F01). None gave a wrong answer: each became a handoff draft.
+
+**Limitations.** The 24-question numbers are optimistic, because the same questions were used to choose each change
+and to measure it. On unseen questions the pass rate drops from 88% to 60%. The word-for-word quote check blocks some
+correct answers from tables and scanned pages. Some hostel answers come from the Student Handbook for 2019-20, the
+newest handbook in the documents.
+
+**Not built in Milestone 2.** The FastAPI server, case approval and email sending, staff queues and the Next.js web
+app are planned only. `code/server/`, `code/web/` and `code/answer/` are empty placeholders, and `docs/API.md` is the
+planned contract. The prototype is the Streamlit app above.
 
 ## Run it locally
 
@@ -100,7 +117,7 @@ For Streamlit Community Cloud the key goes in the app's secrets as `GEMINI_API_K
 |---|---|
 | `code/` | All code. `app.py` (Streamlit app), `helpdesk/` (pipeline, router P1 v2, search, P3 handoff, scorers, `final_test.py`), `kb/` (the official documents as Markdown, one folder per office, with an `INDEX.md` each), `zenai/` (cached LLM client and the earlier router), `config/` (offices and demo mailboxes), `tests/` |
 | `prompts/` | Every prompt version with its settings and the reason for each change: `v1/` to `v4/`, and `final/` (P1 router, P2 grounded answer, P3 handoff) |
-| `test-data/` | `questions.csv` (the 24 test questions with expected action, document, page and key fact), `final_test_table.csv/.md`, `runs/` (one folder per recorded run: outputs, scorecard, settings), `kb_manifest.csv` (every document and its source) |
+| `test-data/` | `questions.csv` (the 24 test questions with expected action, document, page and key fact), `final_test_table.csv/.md`, `fresh_questions.csv` and `fresh_check.md` (10 unseen questions and their result), `runs/` (one folder per recorded run: outputs, scorecard, settings), `kb_manifest.csv` (every document and its source) |
 | `docs/` | `iteration_log.md` (prompt iterations and errors), `POLICY.md` (routing rules), `RETRIEVAL.md`, `API.md` |
 
 Builds on our earlier routing prototype (Sept to Oct 2026); its code and results are kept in code/ and test-data/results/.

@@ -3,7 +3,6 @@
 .cache/
 __pycache__/
 .data/
-.claude/
 review/
 docs/review/
 .playwright-cli/
