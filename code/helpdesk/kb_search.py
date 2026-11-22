@@ -3,7 +3,8 @@
 Each document is split at its "## Page N" headings; a page longer than MAX_WORDS is split further at blank lines
 (paragraphs), and a single paragraph longer than MAX_WORDS into MAX_WORDS-word windows. A document without page
 headings (an original .md) is chunked the same way with page = None. Every chunk keeps the document's title, office,
-page, source_url and date. Tokens are lowercased runs of letters and digits; scoring is rank_bm25's BM25Okapi.
+page, source_url and date. Tokens are lowercased runs of letters and digits minus STOP_WORDS (English and Hinglish
+fillers); scoring is rank_bm25's BM25Okapi. search_for_route() mixes in results for a v1 router domain.
 
 The chunks and their tokens are cached in code/.cache/kb_search/ (git-ignored), keyed by a hash of every kb file, so
 the index is rebuilt only when the knowledge base changes.
@@ -25,9 +26,24 @@ from rank_bm25 import BM25Okapi
 from zenai.paths import KB, KB_SEARCH_CACHE
 
 MAX_WORDS = 350
-INDEX_VERSION = 1  # bump when chunking or tokenising changes, so old caches are ignored
+INDEX_VERSION = 2  # bump when chunking or tokenising changes, so old caches are ignored
 PAGE_HEADING = re.compile(r"^## Page (\d+)[ \t]*$", re.M)
 TOKEN = re.compile(r"[a-z0-9]+")
+
+# Dropped from documents and queries before BM25 scoring: a standard English list plus common Hinglish fillers.
+STOP_WORDS = frozenset("""
+a about above after again against all am an and any are as at be because been before being below between both but
+by can could did do does doing down during each few for from further had has have having he her here hers herself
+him himself his how i if in into is it its itself just me more most my myself no nor not now of off on once only or
+other our ours ourselves out over own same she should so some such than that the their theirs them themselves then
+there these they this those through to too under until up very was we were what when where which while who whom
+why will with would you your yours yourself yourselves
+kya hai hain kaise kab kahan mujhe mera meri ka ki ke ko se me mein aur nahi karna karne kar ho hota raha rahi pls plz
+""".split())
+
+# v1 router domain -> knowledge folders searched first (STUDENT_SUPPORT has no v1 domain; see search_for_route)
+DOMAIN_OFFICES = {"FEES": ("FINANCE",), "ACADEMICS": ("COURSE_SPECIFIC",), "IT": ("IT",), "HOSTEL": ("HOSTEL",),
+                  "CAMPUS_SERVICES": ("CAMPUS_SERVICES",)}
 
 
 @dataclass(frozen=True)
@@ -49,7 +65,8 @@ class Hit:
 
 
 def tokenize(text: str) -> list[str]:
-    return TOKEN.findall(text.lower())
+    """Lowercased runs of letters and digits, without STOP_WORDS."""
+    return [t for t in TOKEN.findall(text.lower()) if t not in STOP_WORDS]
 
 
 def kb_files(kb: Path = KB) -> list[Path]:
@@ -149,19 +166,50 @@ class KBIndex:
             tmp.replace(cache)
         return cls(chunks, tokens)
 
-    def search(self, query: str, k: int = 5, office: str | None = None) -> list[Hit]:
-        """Top k chunks by BM25 score (score > 0 only), optionally only from one office's folder."""
+    def _ranked(self, query: str) -> list[tuple[float, int]]:
+        """(score, chunk index) for every chunk with score > 0, best first."""
         q = tokenize(query)
         if not q:
             return []
-        scores = self.bm25.get_scores(q)
-        ranked = sorted(((float(s), i) for i, s in enumerate(scores)
-                         if s > 0 and (office is None or self.chunks[i].office == office)), reverse=True)
+        return sorted(((float(s), i) for i, s in enumerate(self.bm25.get_scores(q)) if s > 0), reverse=True)
+
+    def search(self, query: str, k: int = 5, office: str | None = None) -> list[Hit]:
+        """Top k chunks by BM25 score (score > 0 only), optionally only from one office's folder."""
+        ranked = [(s, i) for s, i in self._ranked(query) if office is None or self.chunks[i].office == office]
         return [Hit(self.chunks[i], round(s, 4)) for s, i in ranked[:k]]
+
+    def search_for_route(self, query: str, v1_domain: str | None, k: int = 5) -> list[Hit]:
+        """Search guided by the v1 router's domain: the top 3 chunks from the domain's folder(s) plus the best
+        remaining chunks from all folders (2 when k=5), sorted by score. All folders stay reachable, so documents
+        with no v1 domain (STUDENT_SUPPORT: anti-ragging, POSH) can still be found. OUT_OF_SCOPE or None searches
+        all folders."""
+        if v1_domain is None or v1_domain == "OUT_OF_SCOPE":
+            return self.search(query, k=k)
+        if v1_domain not in DOMAIN_OFFICES:
+            raise ValueError(f"unknown v1 domain {v1_domain!r}")
+        ranked = self._ranked(query)
+        routed = [x for x in ranked if self.chunks[x[1]].office in DOMAIN_OFFICES[v1_domain]][:min(3, k)]
+        others = [x for x in ranked if x not in routed][:k - len(routed)]
+        return [Hit(self.chunks[i], round(s, 4)) for s, i in sorted(routed + others, reverse=True)]
+
+
+_DEFAULT: KBIndex | None = None
+
+
+def default_index() -> KBIndex:
+    """The index for code/kb/, loaded once per process (from the cache when it is current)."""
+    global _DEFAULT
+    if _DEFAULT is None:
+        _DEFAULT = KBIndex.load()
+    return _DEFAULT
 
 
 def search(query: str, k: int = 5, office: str | None = None) -> list[Hit]:
-    return KBIndex.load().search(query, k=k, office=office)
+    return default_index().search(query, k=k, office=office)
+
+
+def search_for_route(query: str, v1_domain: str | None, k: int = 5) -> list[Hit]:
+    return default_index().search_for_route(query, v1_domain, k=k)
 
 
 def main(argv: list[str] | None = None) -> None:

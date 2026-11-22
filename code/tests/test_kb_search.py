@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from helpdesk.kb_search import KBIndex, kb_files, read_document, split_pages, split_text
+from helpdesk.kb_search import KBIndex, kb_files, read_document, split_pages, split_text, tokenize
 from zenai.paths import KB
 
 REQUIRED = ("title", "office", "source_url", "date", "text_source", "original_file")
@@ -93,6 +93,27 @@ def test_refund_in_finance_finds_the_fee_refund_policy(index):
 def test_password_in_it_finds_the_it_policy(index):
     hits = index.search("password", k=3, office="IT")
     assert hits and "IT/it-policy.md" in [h.chunk.file for h in hits]
+
+
+def test_stop_words_are_dropped_from_english_and_hinglish():
+    assert tokenize("Kya hostel ka in-time hai?") == ["hostel", "time"]
+    assert tokenize("How do I reset my password pls") == ["reset", "password"]
+
+
+def test_report_ragging_finds_the_anti_ragging_rules(index):
+    assert "STUDENT_SUPPORT/anti-ragging.md" in [h.chunk.file for h in index.search("how do I report ragging", k=3)]
+
+
+def test_search_for_route_mixes_the_domain_folder_with_all_folders(index):
+    hits = index.search_for_route("refund", "FEES", k=5)
+    assert len(hits) == 5 and [h.score for h in hits] == sorted((h.score for h in hits), reverse=True)
+    assert sum(h.chunk.office == "FINANCE" for h in hits) >= 3
+    # a ragging question routed to HOSTEL by v1 still reaches STUDENT_SUPPORT through the all-folders slots
+    assert "STUDENT_SUPPORT" in {h.chunk.office for h in index.search_for_route("report ragging", "HOSTEL")}
+    assert index.search_for_route("refund", None) == index.search("refund", k=5)
+    assert index.search_for_route("refund", "OUT_OF_SCOPE") == index.search("refund", k=5)
+    with pytest.raises(ValueError):
+        index.search_for_route("refund", "FINANCE")  # a kb folder, not a v1 domain
 
 
 def test_empty_or_unmatched_query_returns_nothing(index):
