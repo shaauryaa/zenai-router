@@ -1,8 +1,11 @@
 """Read and validate a kb/<FOLDER>/INDEX.md: YAML front matter with a `documents:` list, one entry per file.
 
 Entry fields: file, title, source_url, last_updated, public_or_permission, collector, course (optional),
-date_kind (optional: `updated`, the default, or `fetched_on` when last_updated is the day the page was fetched).
+date_kind (optional: `updated`, the default, or `fetched_on` when last_updated is the day the page was fetched),
+date (optional: the document date exactly as the team's source list gives it, e.g. `10/2024`, `2026-2027` or
+`unknown`; it stands in for last_updated when no exact YYYY-MM-DD date is known, so no day is ever guessed).
 A .md or .txt file may carry front matter with the same fields; it fills only fields INDEX.md leaves blank.
+Converted documents also carry provenance fields (office, text_source, original_file) that are not validated here.
 """
 from __future__ import annotations
 
@@ -16,8 +19,11 @@ import yaml
 from .loaders import LoaderError, split_front_matter
 from .model import DATE_KINDS, PROVENANCES
 
-FIELDS = ("file", "title", "source_url", "last_updated", "public_or_permission", "collector", "course", "date_kind")
+FIELDS = ("file", "title", "source_url", "last_updated", "public_or_permission", "collector", "course", "date_kind",
+          "date")
 METADATA_FIELDS = FIELDS[1:]  # everything but `file`, which only INDEX.md can say
+# front matter keys a file may carry for provenance; accepted without a warning, not used for validation
+FILE_ONLY_FIELDS = ("fetched_on", "source", "note", "office", "text_source", "original_file")
 
 
 class IndexError_(ValueError):
@@ -34,6 +40,7 @@ class KBDocument:
     collector: str
     course: str | None
     date_kind: str
+    date: str | None = None
 
 
 def _text(value) -> str:
@@ -81,7 +88,7 @@ def build_document(entry: dict, file_meta: dict | None = None, label: str = "") 
         if key not in FIELDS:
             warnings.append(f"{label}: unknown field `{key}` in INDEX.md is ignored")
     for key in file_meta:
-        if key not in METADATA_FIELDS and key not in ("fetched_on", "source", "note"):
+        if key not in METADATA_FIELDS and key not in FILE_ONLY_FIELDS:
             warnings.append(f"{label}: unknown front matter field `{key}` is ignored")
     values = {k: _text(entry.get(k)) for k in METADATA_FIELDS}
     for k in METADATA_FIELDS:
@@ -98,8 +105,8 @@ def build_document(entry: dict, file_meta: dict | None = None, label: str = "") 
     if not values["source_url"] and not office_provided:
         errors.append(f"{label}: missing source_url" + (" (for a team-written document, say what it was compiled "
                                                          "from)" if kind == "team-written" else ""))
-    if not values["last_updated"] and not office_provided:
-        errors.append(f"{label}: missing last_updated")
+    if not values["last_updated"] and not values["date"] and not office_provided:
+        errors.append(f"{label}: missing last_updated (or `date` as the source list gives it)")
     if values["last_updated"]:
         try:
             dt.date.fromisoformat(values["last_updated"])
@@ -114,7 +121,8 @@ def build_document(entry: dict, file_meta: dict | None = None, label: str = "") 
         return None, errors, warnings
     return (KBDocument(file=_text(entry.get("file")), title=values["title"], source_url=values["source_url"],
                        last_updated=values["last_updated"] or None, public_or_permission=kind,
-                       collector=values["collector"], course=values["course"] or None, date_kind=date_kind),
+                       collector=values["collector"], course=values["course"] or None, date_kind=date_kind,
+                       date=values["date"] or None),
             errors, warnings)
 
 

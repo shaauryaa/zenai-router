@@ -176,6 +176,15 @@ def test_office_provided_may_omit_source_url_and_last_updated_but_not_title():
     assert d is None and "missing title" in errors[0]
 
 
+def test_free_text_date_stands_in_for_last_updated_and_provenance_fields_are_accepted():
+    entry = {k: v for k, v in GOOD.items() if k != "last_updated"} | {"date": "10/2024"}
+    meta = {"office": "FINANCE", "text_source": "ocr", "original_file": "x.pdf", "date": "ignored: INDEX.md wins"}
+    d, errors, warnings = doc(entry, meta)
+    assert errors == [] and warnings == [] and d.date == "10/2024" and d.last_updated is None
+    d, errors, _ = doc({**entry, "date": ""})
+    assert d is None and any("missing last_updated" in e for e in errors)
+
+
 def test_team_written_must_say_what_it_was_compiled_from():
     d, errors, _ = doc({**GOOD, "public_or_permission": "team-written", "source_url": ""})
     assert d is None and "compiled from" in " ".join(errors)

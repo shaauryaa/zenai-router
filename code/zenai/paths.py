@@ -17,6 +17,7 @@ CONFIG_FILE = CODE / "config.yaml"
 CONFIG_DIR = CODE / "config"
 KB = CODE / "kb"
 STATIC = CODE / "static"
+KB_SEARCH_CACHE = CODE / ".cache" / "kb_search"  # helpdesk BM25 index (git-ignored by the `.cache/` rule)
 
 # test-data/
 TEST_DATA = REPO_ROOT / "test-data"

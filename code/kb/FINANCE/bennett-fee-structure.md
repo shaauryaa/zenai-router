@@ -1,4 +1,10 @@
 ---
+title: Bennett University fee structure
+office: FINANCE
+source_url: https://www.bennett.edu.in/admission/fee-structure/
+date: latest
+text_source: html
+original_file: fee-structure web page (HTML)
 source: https://www.bennett.edu.in/admission/fee-structure/
 fetched_on: 2026-10-06
 note: Converted from the public HTML page by retrieval.loaders.html_to_markdown. The page shows no last-updated date, so the INDEX.md date is the day it was fetched.

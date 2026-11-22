@@ -7,6 +7,24 @@ documents:
   date_kind: fetched_on
   public_or_permission: public
   collector: ZEN AI team (fetched with Claude Code)
+- file: fee-refund-policy-2026-27.md
+  title: Fee Refund Policy, Academic Year 2026-27
+  source_url: https://d2xwywryb7yxbo.cloudfront.net/s3bucket-images/Fee-Refund-Policy-26-27_compressed.pdf
+  date: 2026-2027
+  public_or_permission: public
+  collector: ZEN AI team
+- file: late-fee-payment-rules.md
+  title: 'Annexure I: Rules for Late Fee Payment'
+  source_url: unverified
+  date: unverified
+  public_or_permission: public
+  collector: ZEN AI team
+- file: scholarship-policy-2026-27.md
+  title: Scholarship Policy, Academic Year 2026-27
+  source_url: https://d2xwywryb7yxbo.cloudfront.net/s3bucket-images/Scholarship-Policy-26-27_compressed.pdf
+  date: 2026-2027
+  public_or_permission: public
+  collector: ZEN AI team
 ---
 
 # kb/FINANCE

@@ -1,5 +1,11 @@
 ---
-documents: []
+documents:
+- file: professor-of-practice-policy.md
+  title: Policy for the Appointment of Professor of Practice
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2025/01/Policy_Professor-of-Practice.pdf
+  date: 01/2025
+  public_or_permission: public
+  collector: ZEN AI team
 ---
 
 # kb/EMPLOYEES

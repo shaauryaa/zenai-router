@@ -38,13 +38,17 @@ and never touch an existing folder in `test-data/results/`. The v1 demo is serve
 
 Layout added on top of the v1 layout:
 
-- `kb/`: the knowledge base. `kb/<FOLDER>/` holds the original files (PDF, md, txt, html) and one `INDEX.md` listing
-  the metadata of every file in it. Folders are exactly IT, FINANCE, ACADEMICS, COURSE_SPECIFIC, HOSTEL,
+- `kb/`: the knowledge base. `kb/<FOLDER>/` holds Markdown documents (converted from the team's PDFs with `## Page N`
+  headings; the PDFs themselves are never committed) and one `INDEX.md` listing the metadata of every file in it.
+  Student details and staff personal contacts are redacted in kb files (`[student details removed]`,
+  `[contact removed]`). `test-data/kb_manifest.csv` lists every document. Folders are exactly IT, FINANCE, ACADEMICS, COURSE_SPECIFIC, HOSTEL,
   CAMPUS_SERVICES, EMPLOYEES, STUDENT_SUPPORT. There is no `kb/HELPDESK`: HELPDESK is an office that holds no documents.
 - `retrieval/`: ingestion and search over `kb/` (`python -m retrieval.ingest`, `python -m retrieval.inspect`; see
   `docs/RETRIEVAL.md`). Backends: `local` (BM25 + numpy, `.cache/kb_local/` at the repo root) and `azure` (the existing `zenai-kb` index,
   whose schema this project never changes). KB chunks and queries are embedded with Azure `embed` only; the router's
   Gemini vectors are never mixed with them. Every `kb/<FOLDER>/INDEX.md` must list every file in the folder
+- `helpdesk/`: Milestone 2 helpdesk. `helpdesk/kb_search.py` is BM25 search over `kb/*/*.md`
+  (`python -m helpdesk.kb_search "query" --office HOSTEL --k 4`), index cached in `code/.cache/kb_search/`
 - `zenai/v2/`: routing v2 (`zenai/router.py` stays v1)
 - `answer/`: grounded answers and handoff drafts
 - `server/`: FastAPI app (chat, cases, email, staff). Its contract is `docs/API.md`

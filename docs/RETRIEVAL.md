@@ -28,7 +28,7 @@ Rules, checked by `python -m retrieval.ingest` (any error stops the run before a
 | rule | result |
 |---|---|
 | entry has no `title` | error |
-| no `source_url` or no `last_updated` | error, except when `public_or_permission` is `office-provided` |
+| no `source_url`, or neither `last_updated` nor `date` | error, except when `public_or_permission` is `office-provided` |
 | `public_or_permission` missing or not one of the three values; `last_updated` not `YYYY-MM-DD` | error |
 | file listed twice, or a path outside the folder | error |
 | folder with files but no `INDEX.md` | error |
@@ -43,6 +43,14 @@ blank (INDEX.md wins when both say something).
 
 `last_updated` is the date the document states. If the page states none, use the day it was fetched and set
 `date_kind: fetched_on`; citations then show it as a fetch date, not an update date. Never guess a date.
+
+`date` (optional) is the date exactly as the team's source list gives it (`10/2024`, `02-Nov-18`, `2026-2027`,
+`unverified`, `unknown`). It satisfies the date rule when no exact `YYYY-MM-DD` is known, so a month or academic year
+is never turned into an invented day. Documents converted from PDFs (Milestone 2 helpdesk KB) also carry `office`,
+`text_source` (`ocr`, `pdf text`, `original md` or `html`) and `original_file` in their own front matter; these are
+accepted without a warning. Their bodies use `## Page N` headings, and student details and staff personal contacts are
+replaced by `[student details removed]` / `[contact removed]`. `helpdesk/kb_search.py` is a BM25-only search over the
+same files for the M2 demo.
 
 ### Adding a document
 

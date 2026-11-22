@@ -1,5 +1,41 @@
 ---
-documents: []
+documents:
+- file: hostel-sports-refund-policy-2025-26.md
+  title: Hostel Charges & Sports Charges Refund Policy for Returning Students (2025-26)
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2025/06/Hostel-Sports-Refund-Policy-for-Returning-Students-AY-2025-26.pdf
+  date: 2025-2026
+  public_or_permission: public
+  collector: ZEN AI team
+- file: hostel-standing-orders.md
+  title: Standing Orders for Hostel
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2017/11/HostelRules201117.pdf
+  date: 11/2017
+  public_or_permission: public
+  collector: ZEN AI team
+- file: room-partner-user-manual.md
+  title: Room Partner User Manual (Student Login)
+  source_url: unverified
+  date: unknown
+  public_or_permission: public
+  collector: ZEN AI team
+- file: student-discipline-conduct-rules.md
+  title: Students' Discipline and Conduct Rules
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2024/05/STUDENTS-DISCIPLINE-AND-CONDUCT-RULES.pdf
+  date: 05/2024
+  public_or_permission: public
+  collector: ZEN AI team
+- file: student-handbook.md
+  title: Student Handbook, Academic Year 2019-20
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2019/07/studentHandbookBennett.pdf
+  date: 07/2019
+  public_or_permission: public
+  collector: ZEN AI team
+- file: travel-policy.md
+  title: Travel & Tour Policy
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2024/06/Travel-Policy.pdf
+  date: 06/2024
+  public_or_permission: public
+  collector: ZEN AI team
 ---
 
 # kb/HOSTEL

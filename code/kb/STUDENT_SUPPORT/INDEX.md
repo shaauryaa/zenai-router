@@ -1,5 +1,23 @@
 ---
-documents: []
+documents:
+- file: anti-ragging-and-sexual-harassment-contacts.md
+  title: Anti-Ragging Committee and Sexual Harassment Complaint Contacts
+  source_url: unknown
+  date: unknown
+  public_or_permission: public
+  collector: ZEN AI team
+- file: anti-ragging.md
+  title: Rules on Curbing the Menace of Ragging in Bennett University
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2024/05/Anti-Ragging.pdf
+  date: 05/2024
+  public_or_permission: public
+  collector: ZEN AI team
+- file: posh-policy.md
+  title: Policy on Prevention of Sexual Harassment
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2024/05/Posh_.pdf
+  date: 05/2024
+  public_or_permission: public
+  collector: ZEN AI team
 ---
 
 # kb/STUDENT_SUPPORT

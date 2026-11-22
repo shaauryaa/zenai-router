@@ -1,5 +1,11 @@
 ---
-documents: []
+documents:
+- file: circular-student-queries-online.md
+  title: 'Circular: Online Helpdesk for Student Queries'
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2024/10/Circular-regarding-student-quries-online.pdf
+  date: 10/2024
+  public_or_permission: public
+  collector: ZEN AI team
 ---
 
 # kb/CAMPUS_SERVICES

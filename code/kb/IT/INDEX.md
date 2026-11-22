@@ -1,5 +1,11 @@
 ---
-documents: []
+documents:
+- file: it-policy.md
+  title: IT Policy
+  source_url: https://www.bennett.edu.in/wp-content/uploads/2024/06/IT_Policy.pdf
+  date: 06/2024
+  public_or_permission: public
+  collector: ZEN AI team
 ---
 
 # kb/IT
