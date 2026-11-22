@@ -199,7 +199,7 @@ def answer(question: str, p2_version: str, provider=None, router: str = "v1", se
     return out
 
 
-FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v1"}
+FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v2"}
 
 
 def final_answer(question: str, provider=None) -> dict:

@@ -62,3 +62,21 @@ Handoff prompt P3, Streamlit app and final test table:
   is set): 21/24. Failures Q10 (key fact missing: answered from anti-ragging rules p.3, expected p.5), Q15 (quote
   check: OCR "ona scale"), Q16 (search missed IT Policy p.11). 5 API calls (the 5 P3 drafts), 41 cache hits.
 - README.md rewritten for evaluators.
+
+App polish and P3 v2:
+- Streamlit app look (UI only; pipeline, prompts P1/P2, search and scoring unchanged): theme for light and dark in
+  `.streamlit/config.toml` (system font, blue accent, softer radii; developer toolbar items hidden; error details
+  still hidden), question box first and example buttons below in a wrapping row (readable at phone width), trust
+  badges under the title, a coloured status badge per action, the quote shown with its source, page, date and link
+  and the "Quote verified in source" badge, "Draft only. Nothing is sent." as a badge above the handoff draft, a
+  progress bar for questions left. A few lines of scoped CSS in `code/app.py` for heading tracking, the quote block
+  and button press feedback (off under reduced motion). The four example buttons give the same results as before.
+- Hinglish example button: the old example ("cooler ya heater") was answered in English. New example (not from any
+  question set): "kya main hostel room mein apna pet, jaise ek billi, rakh sakta hoon?", answered in Hinglish with a
+  verified quote (Standing Orders for Hostel p.2).
+- P3 handoff draft v2 (`prompts/v2/P3_handoff.md`, now also `prompts/final/P3_handoff.md`; v1 kept in `prompts/v1/`):
+  the Q19 draft repeated itself ("because it needs my own record, could you please check my own record"). Two rule
+  lines changed; details in docs/iteration_log.md. New `python -m helpdesk.final_handoff_rerun --base <final run>`
+  re-runs only the rows that get a P3 draft and rewrites those rows of test-data/final_test_table.csv/.md; it stops
+  without saving if any action or Pass/Fail changes. Run `test-data/runs/final_p3v2_20261122-212027/` (Q15-Q19,
+  0 API calls: P1/P2 and P3 replies from the cache). Pass stays 21/24. `pipeline.FINAL["p3"]` is now "v2".

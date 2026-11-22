@@ -1,4 +1,4 @@
-# Iteration log: P1 router and P2 grounded answer
+# Iteration log: P1 router, P2 grounded answer and P3 handoff draft
 
 Every number below is read from the run folders under `test-data/runs/` (scorecard.md, run_meta.json). All runs use
 test-data/questions.csv (24 questions), model gemini-3.5-flash-lite, temperature 0, reasoning_effort minimal. Metric
@@ -89,6 +89,41 @@ questions.csv failures; no test_set text was used). Same definitions as v1's llm
 P1 v2 does not improve office routing on this set (one row lower, within noise for n = 60). Of its 10 errors, 5
 pick the labelled secondary office of a two-office row and 2 more are CAMPUS_SERVICES rows routed to IT. It predicted STUDENT_SUPPORT on
 no row. Its request_type rule gives +2 points of action accuracy.
+
+## P3 handoff draft: v1 -> v2
+
+P3 v1 was the only P3 version in the final run `final_20261122-201923` (pass 21/24). Reading its five drafts showed
+one wording problem, in Q19 (action handoff, reason `needs the student's own record`):
+
+> I am writing to ask how much fee is still pending on my account for this semester. Since ZEN AI could not answer
+> this because it needs my own record, could you please check my own record and reply?
+
+The model copied the reason phrase into the email and then followed the record rule, so the request appears twice,
+and the email talks about ZEN AI although the student sends it. P3 v2 (`prompts/v2/P3_handoff.md`, now also
+`prompts/final/P3_handoff.md`; v1 kept in `prompts/v1/`) changes two lines of the Rules: the record rule asks the
+office to "look up the student's account or details and reply", and a new rule says to state the question once and
+the request once, not to copy the "why" phrase word for word, and not to mention ZEN AI. Inputs, placeholders and
+JSON format are unchanged.
+
+Only the five rows that get a P3 draft were re-run (`python -m helpdesk.final_handoff_rerun --base
+final_20261122-201923`, run `final_p3v2_20261122-212027`). P1 and P2 replies came from the cache, so actions and
+Pass/Fail are unchanged (the script stops without saving if either changes). Pass stays 21/24.
+
+| id | action | P3 v1 subject | P3 v2 subject |
+|---|---|---|---|
+| Q15 | not_found | Inquiry regarding SCSET 10% academic scholarship CGPA requirement | Query regarding SCSET 10% academic scholarship CGPA requirement |
+| Q16 | not_found | Inquiry regarding WiFi login sharing and campus curfew | Inquiry regarding WiFi login sharing and campus curfew |
+| Q17 | not_found | Inquiry regarding swimming pool timings on Sundays | Inquiry regarding Sunday swimming pool timings |
+| Q18 | not_found | Inquiry regarding college bus availability after 9 pm | Inquiry regarding college bus availability to Pari Chowk metro |
+| Q19 | handoff | Inquiry regarding pending fee for this semester | Inquiry regarding pending semester fee |
+
+Q19 body with P3 v2:
+
+> I would like to know how much fee is still pending on my account for this semester. Could you please look up my
+> account details and let me know the status?
+
+The four not_found drafts keep the same content (question, "could not find the answer in the official university
+documents", a request to answer). This is a wording fix checked by reading five drafts, not a measured improvement.
 
 ## v3: errors by question (input to the steps above)
 

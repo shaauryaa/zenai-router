@@ -1,5 +1,6 @@
 """Final pipeline: P3 handoff draft, refuse/clarify templates, multi-topic note, final test table. No network."""
 from helpdesk import final_test, handoff, pipeline
+from zenai.paths import PROMPTS
 from zenai.providers import FakeProvider
 
 
@@ -17,12 +18,16 @@ DRAFT = {"to": "x", "subject": "Question about the fee refund",
          "body": "Dear Finance Office,\nI could not find this.\n[Your name]\n[Enrollment no.]"}
 
 
-def test_p3_prompt_final_and_v1_are_the_same_template():
+def test_p3_prompt_final_is_v2_and_v1_is_kept():
     t = handoff.load_template()
-    assert t == handoff.load_template(handoff.PROMPT_FILE_V1)
-    for name in ("{question}", "{office}", "{office_email}", "{reason}", "[Your name]", "[Enrollment no.]"):
-        assert name in t
-    assert '{"to": "...", "subject": "...", "body": "..."}' in t
+    assert t == handoff.load_template(PROMPTS / "v2" / "P3_handoff.md")
+    v1 = handoff.load_template(handoff.PROMPT_FILE_V1)
+    assert t != v1
+    for template in (t, v1):
+        for name in ("{question}", "{office}", "{office_email}", "{reason}", "[Your name]", "[Enrollment no.]"):
+            assert name in template
+        assert '{"to": "...", "subject": "...", "body": "..."}' in template
+    assert pipeline.FINAL["p3"] == "v2"
 
 
 def test_office_mapping_and_demo_addresses():

@@ -3,6 +3,7 @@
 The frozen final pipeline (helpdesk.pipeline.final_answer): P1 v2 router -> BM25 search (5 routed + 3 all) -> P2 v2
 grounded answer -> code quote check -> P3 handoff draft (not_found, handoff) or fixed text (refuse, clarify).
 API key: st.secrets["GEMINI_API_KEY"], else the environment (.env locally). Nothing is ever sent by email.
+Look and feel: theme in .streamlit/config.toml (light and dark) plus the small scoped CSS in APP_CSS.
 """
 from __future__ import annotations
 
@@ -20,13 +21,37 @@ from zenai.providers import ProviderError, QuotaError  # noqa: E402
 
 MAX_QUESTIONS = 20
 EXAMPLES = [
-    ("Fee refund (English)", "How long does it take to get my fee refund after I withdraw from the programme?"),
-    ("Hostel (Hinglish)", "kya main hostel room mein apna khud ka cooler ya heater rakh sakta hoon?"),
-    ("Off-topic", "Can you recommend a good movie for this weekend?"),
-    ("Not in the documents", "Is there a dance club audition this month?"),
+    ("Fee refund (English)", ":material/payments:",
+     "How long does it take to get my fee refund after I withdraw from the programme?"),
+    ("Hostel (Hinglish)", ":material/translate:", "kya main hostel room mein apna pet, jaise ek billi, rakh sakta hoon?"),
+    ("Off-topic", ":material/block:", "Can you recommend a good movie for this weekend?"),
+    ("Not in the documents", ":material/search_off:", "Is there a dance club audition this month?"),
 ]
 ACTION_LABELS = {"answer": "Answered from the documents", "not_found": "Not found in the documents",
                  "handoff": "Needs a person", "refuse": "Outside what ZEN AI covers", "clarify": "Needs more detail"}
+ACTION_STYLE = {"answer": ("green", ":material/task_alt:"), "not_found": ("orange", ":material/search_off:"),
+                "handoff": ("blue", ":material/support_agent:"), "refuse": ("gray", ":material/block:"),
+                "clarify": ("violet", ":material/help:")}
+
+# Only what the theme cannot do: heading tracking, the source quote, and press feedback on buttons.
+APP_CSS = """
+<style>
+h1 { letter-spacing: -0.022em; line-height: 1.1; }
+.st-key-result_card blockquote {
+  margin: 0.25rem 0 0; padding: 0.75rem 1rem; border-left: 3px solid #2563EB; border-radius: 0 0.5rem 0.5rem 0;
+  background: rgba(127, 127, 140, 0.09);
+}
+.st-key-result_card blockquote, .st-key-result_card blockquote p { color: inherit !important; opacity: 1 !important; }
+.st-key-result_card blockquote p { font-size: 0.95rem; line-height: 1.55; }
+.st-key-result_card .stCode pre { white-space: pre-wrap; }
+.stButton button, .stFormSubmitButton button { transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1); }
+.stButton button:active, .stFormSubmitButton button:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) {
+  .stButton button, .stFormSubmitButton button { transition: none; }
+  .stButton button:active, .stFormSubmitButton button:active { transform: none; }
+}
+</style>
+"""
 
 st.set_page_config(page_title="ZEN AI: Campus Helpdesk", page_icon=":material/school:", layout="centered")
 
@@ -72,10 +97,11 @@ def quote_block(text: str) -> str:
 def show_answer(r: dict) -> None:
     p2, qc = r["p2"], r["quote_check"]
     st.markdown(p2["answer"])
+    st.caption("From the official document")
     st.markdown(quote_block(p2["quote"]))
     c = chunk_by_id(qc.get("chunk_id"))
     if c is not None:
-        parts = [f"**{c.title}**"]
+        parts = [f":material/description: **{c.title}**"]
         if c.page is not None:
             parts.append(f"page {c.page}")
         if c.date:
@@ -100,14 +126,16 @@ def show_handoff(r: dict) -> None:
                     f"You can send this email to the **{office}**.")
     d = p3.get("draft")
     if d:
-        st.caption("Draft only. Nothing is sent. Replace [Your name] and [Enrollment no.] before sending.")
+        with st.container(horizontal=True, vertical_alignment="center", gap="small"):
+            st.badge("Draft only. Nothing is sent.", icon=":material/drafts:", color="orange")
+            st.caption("Replace [Your name] and [Enrollment no.] before sending.", width="content")
         st.code(f"To: {d['to']}\nSubject: {d['subject']}\n\n{d['body']}", language=None, wrap_lines=True)
     else:
         st.caption(f"I couldn't prepare a draft this time. Please contact the {office} directly.")
 
 
 def show_details(r: dict) -> None:
-    with st.expander("How ZEN AI decided"):
+    with st.expander("How ZEN AI decided", icon=":material/account_tree:"):
         topics = (r.get("router") or {}).get("topics") or []
         first = topics[0] if topics else {}
         st.markdown(f"**Final action:** `{r['action']}` ({r['reason']}). LLM calls for this question: {r['llm_calls']}.")
@@ -144,7 +172,7 @@ def show_details(r: dict) -> None:
             st.markdown("Not run.")
         if r.get("p3"):
             p3 = r["p3"]
-            st.markdown(f"**Step 5. Handoff draft (P3 v1)** · reason given to P3: `{p3['reason']}`")
+            st.markdown(f"**Step 5. Handoff draft (P3 {pipeline.FINAL['p3']})** · reason given to P3: `{p3['reason']}`")
             if p3.get("checks"):
                 st.json(p3["checks"])
             if p3.get("error"):
@@ -153,10 +181,11 @@ def show_details(r: dict) -> None:
 
 def show_result(r: dict) -> None:
     if r.get("multi_topic_note"):
-        st.warning(r["multi_topic_note"])
+        st.warning(r["multi_topic_note"], icon=":material/call_split:")
         st.markdown("Not answered here: " + "; ".join(f"“{t}”" for t in r["other_topics"]))
-    with st.container(border=True):
-        st.markdown(f"#### {ACTION_LABELS.get(r['action'], r['action'])}")
+    with st.container(border=True, key="result_card"):
+        color, icon = ACTION_STYLE.get(r["action"], ("gray", None))
+        st.badge(ACTION_LABELS.get(r["action"], r["action"]), icon=icon, color=color)
         if r["action"] == "answer":
             show_answer(r)
         elif r["action"] in ("not_found", "handoff"):
@@ -171,30 +200,43 @@ def sidebar() -> None:
     with st.sidebar:
         st.markdown("### About this prototype")
         st.markdown(f"**Model:** {cfg['provider']['chat_model']} (temperature {cfg['provider']['temperature']})")
-        st.markdown("**Prompts in use:**\n- P1 router v2\n- P2 grounded answer v2\n- P3 handoff draft v1\n\n"
+        st.markdown(f"**Prompts in use:**\n- P1 router {pipeline.FINAL['router']}\n"
+                    f"- P2 grounded answer {pipeline.FINAL['p2']}\n- P3 handoff draft {pipeline.FINAL['p3']}\n\n"
                     "**Search:** BM25, top 5 from the routed folder + top 3 from all folders\n\n"
                     "**Quote check:** code, no LLM")
-        st.info("No login. Don't enter personal details.")
-        left = MAX_QUESTIONS - st.session_state.get("asked", 0)
-        st.caption(f"Questions left in this session: {left} of {MAX_QUESTIONS}")
+        st.info("No login. Don't enter personal details.", icon=":material/lock:")
+        asked = st.session_state.get("asked", 0)
+        st.progress(min(asked, MAX_QUESTIONS) / MAX_QUESTIONS)
+        st.caption(f"Questions left in this session: {MAX_QUESTIONS - asked} of {MAX_QUESTIONS}")
+
+
+def pick_example(text: str) -> None:
+    """Button callback: runs before the rerun, so the question box can be filled even though it is drawn above."""
+    st.session_state["question_box"] = text
+    st.session_state["pending_question"] = text
 
 
 def main() -> None:
     st.session_state.setdefault("asked", 0)
-    st.title("ZEN AI: Campus Helpdesk")
+    st.html(APP_CSS)
+    st.title("ZEN AI: Campus Helpdesk", anchor=False)
     st.markdown("Answers only from official Bennett University documents, quotes the source, and hands off to the "
                 "right office when it can't.")
+    with st.container(horizontal=True, gap="small"):
+        st.badge("Official documents only", icon=":material/menu_book:", color="blue")
+        st.badge("Every quote checked", icon=":material/fact_check:", color="blue")
+        st.badge("Nothing is sent for you", icon=":material/mark_email_read:", color="blue")
 
-    clicked = None
-    st.markdown("**Try an example:**")
-    for col, (label, text) in zip(st.columns(len(EXAMPLES)), EXAMPLES):
-        if col.button(label, width="stretch"):
-            clicked = text
-            st.session_state["question_box"] = text
-    with st.form("ask", clear_on_submit=False):
+    with st.form("ask", clear_on_submit=False, border=False):
         typed = st.text_input("Your question (English or Hinglish)", key="question_box",
                               placeholder="e.g. What is the minimum attendance for B.Tech?")
-        submitted = st.form_submit_button("Ask", type="primary")
+        submitted = st.form_submit_button("Ask", type="primary", icon=":material/arrow_upward:")
+    st.caption("Or try an example")
+    with st.container(horizontal=True, gap="small"):
+        for label, icon, text in EXAMPLES:
+            st.button(label, icon=icon, on_click=pick_example, args=(text,))
+
+    clicked = st.session_state.pop("pending_question", None)
     question = clicked if clicked is not None else (typed if submitted else None)
     if question is not None:
         ask(question.strip())

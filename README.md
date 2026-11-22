@@ -38,7 +38,7 @@ student question
        JSON {found, answer, quote, doc_title, page, language}, using only the retrieved sections
   -> quote check (code, no LLM): the quote must appear in a retrieved section; if not, the answer is not shown
        verified -> answer        found = false or not verified -> not_found
-  -> P3 handoff draft (LLM, prompts/final/P3_handoff.md = P3 v1), for not_found and handoff only
+  -> P3 handoff draft (LLM, prompts/final/P3_handoff.md = P3 v2), for not_found and handoff only
        JSON {to, subject, body}: polite, English, under 120 words, placeholders, no invented facts
 ```
 

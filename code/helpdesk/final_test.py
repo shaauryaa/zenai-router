@@ -103,7 +103,7 @@ def main() -> None:
     run_id = f"final_{started.strftime('%Y%m%d-%H%M%S')}"
     totals = {k: {"k": sum(v for v in (r["scores"][k] for r in records) if v is not None),
                   "n": sum(r["scores"][k] is not None for r in records)} for k in records[0]["scores"]}
-    meta = {"run_id": run_id, "title": "Final pipeline: P1 v2 + search routed5_all3 + P2 v2 + quote check + P3 v1",
+    meta = {"run_id": run_id, "title": "Final pipeline: P1 v2 + search routed5_all3 + P2 v2 + quote check + P3 " + pipeline.FINAL["p3"],
             "started": started.isoformat(timespec="seconds"), "finished": datetime.now().isoformat(timespec="seconds"),
             "questions": QUESTIONS.relative_to(REPO_ROOT).as_posix(), "n_questions": len(records),
             "settings": provider.metadata(), "final": pipeline.FINAL,

@@ -1,3 +1,44 @@
 [client]
 # Students never see a stack trace; code/app.py shows a friendly message for every error it catches.
 showErrorDetails = "none"
+# Hide developer menu items (Deploy, rerun settings) from students.
+toolbarMode = "viewer"
+
+[theme]
+# System font stack: native optical sizing and tracking on every platform.
+font = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+headingFont = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+headingFontSizes = ["2.25rem", "1.5rem", "1.25rem", "1.0625rem", "1rem", "0.875rem"]
+baseRadius = "0.75rem"
+buttonRadius = "0.625rem"
+showWidgetBorder = true
+linkUnderline = false
+
+[theme.light]
+primaryColor = "#2563EB"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F5F7"
+textColor = "#1D1D1F"
+borderColor = "#E2E4E9"
+linkColor = "#1D4ED8"
+codeBackgroundColor = "#F4F5F7"
+
+[theme.light.sidebar]
+backgroundColor = "#F7F7F9"
+secondaryBackgroundColor = "#EDEEF2"
+borderColor = "#E2E4E9"
+
+[theme.dark]
+primaryColor = "#2563EB"
+backgroundColor = "#111113"
+secondaryBackgroundColor = "#1C1C20"
+textColor = "#F2F2F4"
+borderColor = "#2E2F35"
+linkColor = "#7AB1FF"
+codeBackgroundColor = "#1C1C20"
+
+[theme.dark.sidebar]
+backgroundColor = "#17171A"
+secondaryBackgroundColor = "#222227"
+borderColor = "#2E2F35"
