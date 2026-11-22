@@ -8,7 +8,12 @@ office for the student to send.
 
 **Prototype:** https://zenai-campusdesk.streamlit.app/
 
-**Team:** [TEAM]
+**Team:** codingwoofs (Team ID PE-B81-26). SCSE4041 Prompt Engineering, problem C1, batch B81-93, faculty: Indrajeet Gupta.
+
+| Member | Enrollment no. | Main task |
+|---|---|---|
+| Shaurya Nigam (team leader) | S24CSEU0497 | Prompt design (P1, P2, P3), prompt iterations and testing, knowledge base, Streamlit prototype, documentation |
+| Saksham Chandel | S24CSEU0448 | Reel voice-over and narration of the demo |
 
 ## How to use it
 
