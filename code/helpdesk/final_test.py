@@ -72,10 +72,10 @@ def topic_text(out: dict) -> str:
         near = " (near match)" if (out.get("quote_check") or {}).get("rule") == "near" else ""
         text = (f'answer: "{short(p2.get("answer", ""), 70)}" [{short(p2.get("doc_title", ""), 40)}{page}; '
                 f'quote verified{near}]')
-    elif action in ("not_found", "handoff"):
+    elif action in ("not_found", "handoff", "safety"):
         p3 = out.get("p3") or {}
         d = p3.get("draft")
-        text = (f'{action}; draft to {p3.get("office_email")}: "{short(d["subject"], 50)}"' if d
+        text = (f'{action}{" (contacts card)" if action == "safety" else ""}; draft to {p3.get("office_email")}: "{short(d["subject"], 50)}"' if d
                 else f"{action}; draft failed ({p3.get('error')})")
     else:
         text = f'{action}: "{short(out.get("reply_text", ""), 60)}"'

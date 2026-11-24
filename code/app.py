@@ -30,10 +30,11 @@ EXAMPLES = [
     ("Not in the documents", ":material/search_off:", "Is there a dance club audition this month?"),
 ]
 ACTION_LABELS = {"answer": "Answered from the documents", "not_found": "Not found in the documents",
-                 "handoff": "Needs a person", "refuse": "Outside what ZEN AI covers", "clarify": "Needs more detail"}
+                 "handoff": "Needs a person", "refuse": "Outside what ZEN AI covers", "clarify": "Needs more detail",
+                 "safety": "Please reach out now"}
 ACTION_STYLE = {"answer": ("green", ":material/task_alt:"), "not_found": ("orange", ":material/search_off:"),
                 "handoff": ("blue", ":material/support_agent:"), "refuse": ("gray", ":material/block:"),
-                "clarify": ("violet", ":material/help:")}
+                "clarify": ("violet", ":material/help:"), "safety": ("red", ":material/emergency:")}
 
 # Only what the theme cannot do: heading tracking, the source quote, and press feedback on buttons.
 APP_CSS = """
@@ -117,7 +118,9 @@ def show_answer(r: dict) -> None:
 def show_handoff(r: dict) -> None:
     p3 = r.get("p3") or {}
     office = r["office_name"]
-    if r["action"] == "not_found":
+    if r["action"] == "safety":
+        st.markdown(f"ZEN AI can't act on this itself. You can also send this email to **{office}**.")
+    elif r["action"] == "not_found":
         st.markdown(f"I couldn't find this in the official documents, so I won't guess. "
                     f"You can send this email to the **{office}** instead.")
     elif p3.get("reason") == handoff.REASON_RECORD:
@@ -205,6 +208,9 @@ def show_result(r: dict) -> None:
             st.badge(ACTION_LABELS.get(tr["action"], tr["action"]), icon=icon, color=color)
             if tr["action"] == "answer":
                 show_answer(tr)
+            elif tr["action"] == "safety":
+                st.error(tr.get("reply_text") or "", icon=":material/health_and_safety:")
+                show_handoff(tr)
             elif tr["action"] in ("not_found", "handoff"):
                 show_handoff(tr)
             else:

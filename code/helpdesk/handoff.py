@@ -20,6 +20,7 @@ import re
 
 import yaml
 
+from helpdesk import safety
 from zenai.paths import CONFIG_DIR, PROMPTS
 from zenai.providers import JSONParseError
 
@@ -137,10 +138,15 @@ def draft(question: str, office: str, reason: str, provider) -> dict:
 
 
 def _reply(r: dict, topic: dict, clarify_topics: list[dict], question: str, provider) -> dict:
-    office = office_for(topic.get("domain"))
-    r.update(office=office, office_name=office_name(office), reply_text="", p3=None)
     action = r["action"]
-    if action == "refuse":
+    office = safety.OFFICE if action == "safety" else office_for(topic.get("domain"))
+    r.update(office=office, office_name=office_name(office), reply_text="", p3=None)
+    if action == "safety":  # the fixed card first, then the P3 draft to Student Support
+        r["safety_card"] = safety.card()
+        r["reply_text"] = safety.card_markdown(r["safety_card"])
+        r["p3"] = draft(question, office, REASON_ACT, provider)
+        r["llm_calls"] += 1
+    elif action == "refuse":
         r["reply_text"] = REFUSE_TEXT
     elif action == "clarify":
         r["reply_text"] = clarify_text(clarify_topics)

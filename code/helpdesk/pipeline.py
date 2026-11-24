@@ -33,6 +33,10 @@ Options (Milestone 2 steps; the defaults are the original pipeline):
   own text instead of the whole message. Steps c-f for one topic are answer_topic(); final_answer() runs it for
   topic 2 too (config FINAL["topics"] == 2) and returns both in out["topic_results"].
 
+Safety (sprint S4, helpdesk/safety.py): before anything else, a topic with domain STUDENT_SUPPORT and request_type
+needs_human, or whose text reports an incident (ragging, harassment, threat, assault, self-harm), gets action
+"safety": no search and no P2; handoff.py shows the fixed contacts card first, then a P3 draft to Student Support.
+
 Provider errors (quota, network) are raised, never turned into answers.
 """
 from __future__ import annotations
@@ -41,7 +45,7 @@ import hashlib
 import re
 from collections import Counter
 
-from helpdesk import kb_search, router_v2
+from helpdesk import kb_search, router_v2, safety
 from zenai.config import load_config
 from zenai.llm_router import classify
 from zenai.paths import PROMPTS
@@ -336,6 +340,10 @@ def answer_topic(topic: dict, question: str, p2_version: str, provider, search: 
     r: dict = {"topic": topic, "question": question, "llm_calls": 0, **{k: None for k in TOPIC_FIELDS}}
     r.update(reason="", retrieval=[])
     rt, domain = topic.get("request_type"), topic.get("domain")
+    why = safety.trigger(topic, (topic.get("text") or "").strip() or question)
+    if why:  # safety first (docs/POLICY.md section 5): no search, no P2; helpdesk/handoff.py adds the card and P3
+        r.update(action="safety", reason=why)
+        return r
     if rt is None:
         r.update(action="handoff", reason="router reply unusable")
         return r
