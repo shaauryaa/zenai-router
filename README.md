@@ -103,6 +103,12 @@ same rule quoted from another page (F17); a search miss (F18); a correct answer 
 text (F22 part 2). No price or fee was invented. On the 34 earlier questions the pipeline scored 22/24 and 9/10; on
 unseen questions it scores 61%, which is the number to trust.
 
+**Wrong answers shown (human-checked): 1/18, F15** ("90 days"; IT Policy p.144 says 45 days). A person read every
+row the scorer listed as "incomplete" (answer shown, key fact missing): F17 and F28 are true answers missing the key
+fact's wording, F15 contradicts the documents. The automatic scorer filed F15 as incomplete, so its count does not
+separate wrong answers from incomplete ones. The run was retried once: the first attempt stopped at F23 on an HTTP
+503 from the provider and saved nothing, and in the retry F11-F22 came back identical from the cache.
+
 How each prompt version and pipeline step moved these numbers is in [docs/iteration_log.md](docs/iteration_log.md).
 
 **Limitations.**
@@ -121,6 +127,16 @@ How each prompt version and pipeline step moved these numbers is in [docs/iterat
   one run at temperature 0.
 - The quote check still rejects some correct answers from OCR and table text (F22 part 2), and the safety trigger's
   incident patterns are English only (Hinglish reports rely on the router).
+- Error analysis of fresh check 2 ([docs/iteration_log.md](docs/iteration_log.md), "Error analysis: fresh check 2"),
+  with the next steps, all planned and not built:
+  - conflicting documents (F15): the 2019-20 handbook and the 2024 IT Policy disagree, and P2 used the older one.
+    Next step: prefer the newest document when two disagree;
+  - an OCR character in the quote (F22 part 2): P2 copied a "�" into its quote. Next step: strip OCR replacement
+    characters before the quote check (the source's OCR bullets may still block an exact match);
+  - a programme-dependent question not treated as vague (F28 turn 1, "exam rules"), answered from one programme's
+    rules. Next step: flag programme-dependent questions as vague;
+  - P2 declined with the page retrieved (F13), the router sent a rules question to a person (F16), and a search miss
+    (F18): no fix chosen yet.
 
 **Not built in Milestone 2.** The FastAPI server, case approval and email sending, staff queues and the Next.js web
 app are planned only. `code/server/`, `code/web/` and `code/answer/` are empty placeholders, and `docs/API.md` is the

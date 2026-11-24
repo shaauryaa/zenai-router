@@ -61,6 +61,26 @@ document cited 9/14, valid JSON 15/15, Hinglish reply 0/1 (F17), router office 9
 action 3/4, turn 1 clarify 1/2, safety card with contacts 2/2. Incomplete (answer shown, key fact missing): 3/11
 (F15, F17, F28). Needs review (answer shown, expected action not answer): 0/11.
 
+## Wrong answers shown (human-checked)
+
+The scorer never decides that an answer is wrong; it lists rows for a person to read. A person read every
+"incomplete" row against the documents (no re-run, no label change):
+
+| Row | Verdict | Answer shown | What the documents say |
+|---|---|---|---|
+| F15 | **WRONG** (contradicts the documents) | "Your university login password expires after 90 days." Quote: "Changing passwords every 90 days." (Student Handbook 2019-20, 07/2019, p.17) | IT Policy (06/2024) p.144: "Maximum Password age shall be set to 45 days" |
+| F17 | INCOMPLETE (true, key fact missing) | "There are no limits on internet bandwidth or data usage for valid academic purposes, but large consumption requires faculty approval, and you can buy the Bennett Mobile Plan for non-academic usage." | Handbook p.17: "There are no restrictions on the use of internet bandwidth and/or data downloads for valid academic purposes." and "Large consumption of bandwidth or data will be permitted upon approvals from the respective faculty."; p.34 (key fact): "There is no limit on the bandwidth or data usage for valid academic reasons." Same rule, other page |
+| F28 (turn 2) | INCOMPLETE (true, key fact missing) | "For the MBA program, a 'D' grade is considered the minimum passing grade." | MBA rules p.20: "it is the minimum passing grade in any course" (also p.25); key fact on p.15: "pass (D and above) grade". The quote was matched to the same sentence in the SEAS B.Tech rules |
+
+**Wrong answers shown (human-checked): 1/18, F15.** The automatic scorer filed F15 as *incomplete* (answer shown, key
+fact missing), the same as the two true answers, so the "incomplete" count alone does not separate wrong answers
+from incomplete ones. F28's turn 1 ("two written examinations i.e Mid Term and an End Term Examination", from the BA
+Journalism rules) is a real rule, not contradicted by the documents, but it answers a question that named no
+programme from one programme's rulebook; it is counted as a failure (turn 1 not clarify), not as a wrong answer.
+
+The run was retried once: the first attempt stopped at F23 on HTTP 503 and saved nothing; in the second, F11-F22 came
+back identical from the cache (see the top of this file).
+
 ## Failures (cause read from `outputs.jsonl` and the retrieved chunk ids, no re-run)
 
 - F13 (electric iron): the chunk with the rule (`hostel-standing-orders.md#p1-2`, "Electrical appliances like
@@ -105,6 +125,8 @@ action 3/4, turn 1 clarify 1/2, safety card with contacts 2/2. Incomplete (answe
   with the "upto 7%" line from the fee structure page.
 
 No row shows an invented price or fee: F19, F20 and F24 part 2 ended as not_found with a handoff draft. One wrong
-answer was shown with a verified quote (F15, 90 days instead of 45).
+answer was shown with a verified quote (F15, 90 days instead of 45), found by a person, not by the scorer.
+
+Error categories and planned fixes (none built): `docs/iteration_log.md`, "Error analysis: fresh check 2".
 
 Raw run: `test-data/runs/fresh_20261124-183516/` (outputs.jsonl, run_meta.json, scorecard.md, table.csv).

@@ -106,6 +106,23 @@ Frozen 24 Nov (tag `m2-final-24nov`): P1 v2 + routed5_all3_prog + P2 v2 + quote 
 topics, safety card, clarify follow-up. Seen 22/24 (`final_20261124-181511`), fresh 1 (now seen) 9/10
 (`fresh_20261124-181523`), fresh 2 (unseen) 11/18 (`fresh_20261124-183516`).
 
+## Error analysis: fresh check 2
+
+Every failed row of `fresh_20261124-183516` (11/18), read from `outputs.jsonl` and the retrieved chunk ids, and the
+"incomplete" rows read by a person (`test-data/fresh2_check.md`, "Wrong answers shown (human-checked)": 1 wrong
+answer, F15, which the scorer filed as incomplete). None of the fixes below is built; the pipeline stays frozen at
+`m2-final-24nov`.
+
+| Row | Failure cause category | Evidence | Next-step fix | Status |
+|---|---|---|---|---|
+| F15 | Conflicting documents | Both retrieved: IT Policy (06/2024) p.144 "Maximum Password age shall be set to 45 days" (rank 1) and Student Handbook 2019-20 (07/2019) p.17 "Changing passwords every 90 days." P2 answered 90 days from the handbook; quote verified. **Wrong answer shown** | Prefer the newest document when two retrieved documents disagree (use the INDEX.md `date`) | planned, not built |
+| F13 | P2 declined with the page retrieved | `hostel-standing-orders.md#p1-2` ("Electrical appliances like electrical irons, heaters...") in the top 8; P2 found=false | No fix chosen yet (P2 v5, the last P2 change, was rejected) | planned, not built |
+| F16 | Router request type | P1 gave needs_human for a rules question ("Can I still take the supplementary exam?"); handoff, no search | No fix chosen yet (P1 request_type rule: rules questions are info) | planned, not built |
+| F28 | Programme-dependent question not treated as vague | Turn 1 "exam rules" names no programme; P1 gave info and P2 answered from the BA Journalism rules p.13, so there was no clarify and turn 2 ran on its own (turn 2 itself true: MBA rules p.20 "minimum passing grade", key fact on p.15 missing) | Flag programme-dependent questions (ACADEMICS, no programme named) as vague, so they get a clarify | planned, not built |
+| F18 | Search miss | Standing Orders p.2 ("keep pets") not in the top 8 for search_query "pet policy in hostel" (typo "hostle" in the question) | No fix chosen yet (the dual-query search, the last search change, was rejected) | planned, not built |
+| F22 (part 2) | OCR character in quote | P2's answer was right; its quote "10:00 AM to 1:00 PM � 2:00 PM to 4:00 PM" has a "�" not in the source (the source lines are "e 10:00 AM to 1:00 PM" / "e 2:00 PM to 4:00 PM", "e" an OCR bullet) | Strip OCR replacement characters before the quote check (may not be enough alone: the OCR bullet "e" stays in the source) | planned, not built |
+| F17 | Same rule on another page (outside the six categories) | Answer true, from handbook p.17 ("There are no restrictions on the use of internet bandwidth..."); key fact is p.34's wording ("There is no limit on the bandwidth..."); English reply to a Hinglish question | None for the pipeline; labels unchanged | - |
+
 ### Sprint S4 (24 Nov): dual-query search tried and rejected
 
 Dual-query search (`search="dual_prog"`: BM25 on P1's search_query and on the topic's own text, merged by reciprocal
