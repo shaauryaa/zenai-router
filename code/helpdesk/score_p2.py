@@ -50,8 +50,9 @@ ROUTER_TEXT = {"v1": "zenai/llm_router.py classify() (P1 v1, frozen)",
 SEARCH_TEXT = {"route5": "helpdesk.kb_search.search_for_route(question, first topic domain, k=5)",
                "routed5_all3": "helpdesk.kb_search.search_routed_plus_all(first topic search_query or question, "
                                "first topic domain): top 5 from the routed folder + top 3 from all folders (k=8)"}
-QUOTE_CHECK_TEXT = ("pipeline.check_quote with quote_forms(): ** and __ removed, OCR line-end hyphens joined, "
-                    "whitespace collapsed, lowercased")
+QUOTE_CHECK_TEXT = ("pipeline.verify_quote (quote check v2): rule exact = quote_forms() match (** and __ removed, OCR "
+                    "line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against one section, "
+                    "every number present, >= 90% of content words present, >= 4 content words")
 
 
 def first(field: str) -> str:
@@ -227,9 +228,8 @@ def rescore(source: Path, name: str) -> str:
             if missing:
                 sys.exit(f"{old['id']}: retrieved chunks {missing} are not in the current index (kb/ changed?)")
             hits = [kb_search.Hit(chunks[r["id"]], r["score"]) for r in out["retrieval"]]
-            verified, chunk_id, why = pipeline.check_quote(out["p2"]["quote"], hits)
-            out["quote_check"] = {"verified": verified, "chunk_id": chunk_id, "reason": why}
-            out.update(zip(("action", "reason"), pipeline.decide(out["p2"], verified, why)))
+            out["quote_check"] = qc = pipeline.verify_quote(out["p2"]["quote"], hits)
+            out.update(zip(("action", "reason"), pipeline.decide(out["p2"], qc["verified"], qc["reason"], qc["rule"])))
         records.append(make_record(rows[old["id"]], out))
     version = src_meta["p2_version"]
     run_id = f"{name}_{started.strftime('%Y%m%d-%H%M%S')}"

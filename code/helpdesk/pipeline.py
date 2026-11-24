@@ -8,8 +8,11 @@ answer(question, p2_version) returns a dict holding every intermediate step:
   c. kb_search.search_for_route(question, first topic's domain, k=5)
   d. P2: prompts/<version>/P2_grounded_answer.md (the text after TEMPLATE_MARKER) with {question} and {sections}
      filled in, sent as one user message. v1 is plain text (chat_text), v2 and later JSON mode (chat_json)
-  e. quote check (code, no LLM): the quote must appear in one retrieved section after normalising both sides
-     (quote_forms: markdown ** and __ removed, OCR line-end hyphens joined, whitespace collapsed, case-insensitive).
+  e. quote check v2 (code, no LLM, verify_quote): rule "exact" = the quote appears in one retrieved section after
+     normalising both sides (quote_forms: markdown ** and __ removed, OCR line-end hyphens joined, whitespace
+     collapsed, case-insensitive). If not, rule "near" accepts it against ONE section when every number of the quote
+     is in that section, >= 90% of its content words are, and it has >= 4 content words (table rows reformatted, OCR
+     lines reordered, OCR typos such as "ona scale"). quote_check["rule"] records which rule verified it.
      If P2 says found but the check fails, action becomes not_found and the reason is kept
   f. found = false -> action not_found (the handoff for not_found comes later)
 
@@ -105,15 +108,69 @@ def quote_forms(text: str, *, source: bool) -> set[str]:
     return {norm(f) for f in forms}
 
 
-def check_quote(quote: str, hits: list[kb_search.Hit]) -> tuple[bool, str | None, str]:
-    """(verified, chunk id the quote was found in, reason). Both sides are normalised by quote_forms()."""
+# Quote check v2, "near" rule (Milestone 2 sprint S1). Numbers: digits with , . : separators (3,90,000 / 8.5 / 8:00);
+# a % sign or a Rs/₹ prefix is not part of the match, commas are dropped (3,90,000 == 390000).
+NUMBER = re.compile(r"\d+(?:[.,:]\d+)*")
+TABLE_MARKUP = re.compile(r"\||^\s*#+\s*|^\s*-{3,}\s*$|`", re.M)  # table pipes, heading marks, rules, backticks
+NEAR_MIN_WORDS = 4
+NEAR_MIN_SHARE = 0.9
+
+
+def quote_numbers(text: str) -> set[str]:
+    return {n.replace(",", "") for n in NUMBER.findall(text or "")}
+
+
+def content_words(text: str) -> list[str]:
+    """kb_search tokens (lowercased letter/digit runs minus STOP_WORDS) after removing table pipes and markdown."""
+    return kb_search.tokenize(TABLE_MARKUP.sub(" ", MARKDOWN_EMPHASIS.sub("", text or "")))
+
+
+def near_match(quote: str, chunk_text: str) -> tuple[bool, str]:
+    """The near rule against ONE chunk: (accepted, why not). All must hold: every number of the quote is in the chunk,
+    at least NEAR_MIN_SHARE of the quote's content words are in the chunk, and the quote has >= NEAR_MIN_WORDS."""
+    (q,) = quote_forms(quote, source=False)
+    words = content_words(q)
+    if len(words) < NEAR_MIN_WORDS:
+        return False, f"{len(words)} content words (< {NEAR_MIN_WORDS})"
+    sources = quote_forms(chunk_text, source=True)  # both line-end hyphen joins
+    missing_numbers = quote_numbers(q) - set().union(*(quote_numbers(s) for s in sources))
+    if missing_numbers:
+        return False, f"numbers not in section: {', '.join(sorted(missing_numbers))}"
+    vocab = set().union(*(content_words(s) for s in sources))
+    share = sum(w in vocab for w in words) / len(words)
+    if share < NEAR_MIN_SHARE:
+        return False, f"{share:.0%} of content words in section (< {NEAR_MIN_SHARE:.0%})"
+    return True, ""
+
+
+def verify_quote(quote: str, hits: list[kb_search.Hit]) -> dict:
+    """Quote check v2: {"verified", "chunk_id", "reason", "rule"}. rule "exact": the quote appears in one retrieved
+    section after quote_forms() normalising (the original check, always tried first). rule "near": no exact match,
+    but near_match() accepts it against one section. rule None: not verified."""
     (q,) = quote_forms(quote, source=False)
     if not q:
-        return False, None, "empty quote"
+        return {"verified": False, "chunk_id": None, "reason": "empty quote", "rule": None}
     for h in hits:
         if any(q in form for form in quote_forms(h.chunk.text, source=True)):
-            return True, h.chunk.id, ""
-    return False, None, "quote not found in the retrieved sections"
+            return {"verified": True, "chunk_id": h.chunk.id, "reason": "", "rule": "exact"}
+    why_near = []
+    for h in hits:
+        ok, why = near_match(quote, h.chunk.text)
+        if ok:
+            return {"verified": True, "chunk_id": h.chunk.id, "reason": "", "rule": "near"}
+        why_near.append(why)
+    reason = "quote not found in the retrieved sections"
+    if why_near and why_near[0].endswith(f"(< {NEAR_MIN_WORDS})"):
+        reason += f"; near rule not applicable: {why_near[0]}"
+    elif why_near:
+        reason += " (exact or near)"
+    return {"verified": False, "chunk_id": None, "reason": reason, "rule": None}
+
+
+def check_quote(quote: str, hits: list[kb_search.Hit]) -> tuple[bool, str | None, str]:
+    """(verified, chunk id the quote was found in, reason): verify_quote() without the rule name."""
+    r = verify_quote(quote, hits)
+    return r["verified"], r["chunk_id"], r["reason"]
 
 
 def parse_plain(reply: str) -> dict:
@@ -191,11 +248,10 @@ def answer(question: str, p2_version: str, provider=None, router: str = "v1", se
     out["p2"] = p2
 
     # e. quote check
-    verified, chunk_id, why = check_quote(p2["quote"], hits)
-    out["quote_check"] = {"verified": verified, "chunk_id": chunk_id, "reason": why}
+    out["quote_check"] = qc = verify_quote(p2["quote"], hits)
 
     # f. decision
-    out["action"], out["reason"] = decide(p2, verified, why)
+    out["action"], out["reason"] = decide(p2, qc["verified"], qc["reason"], qc["rule"])
     return out
 
 
@@ -213,11 +269,11 @@ def final_answer(question: str, provider=None) -> dict:
     return handoff.finish(out, provider)
 
 
-def decide(p2: dict, verified: bool, why: str) -> tuple[str, str]:
+def decide(p2: dict, verified: bool, why: str, rule: str | None = None) -> tuple[str, str]:
     """Step f: (action, reason) from P2's parsed reply and the quote check."""
     if not p2["found"]:
         return "not_found", "P2 found=false" + (f" (invalid format: {p2['format_error']})"
                                                 if p2.get("format_valid") is False else "")
     if not verified:
         return "not_found", f"P2 said found but quote check failed: {why}"
-    return "answer", "P2 found, quote verified"
+    return "answer", "P2 found, quote verified" + (" (near match, not word for word)" if rule == "near" else "")

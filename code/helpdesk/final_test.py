@@ -50,7 +50,9 @@ def actual_text(out: dict) -> str:
     if action == "answer":
         p2 = out["p2"] or {}
         page = f" p.{p2['page']}" if p2.get("page") else ""
-        text = f'answer: "{short(p2.get("answer", ""), 70)}" [{short(p2.get("doc_title", ""), 40)}{page}; quote verified]'
+        near = " (near match)" if (out.get("quote_check") or {}).get("rule") == "near" else ""
+        text = (f'answer: "{short(p2.get("answer", ""), 70)}" [{short(p2.get("doc_title", ""), 40)}{page}; '
+                f'quote verified{near}]')
     elif action in ("not_found", "handoff"):
         p3 = out.get("p3") or {}
         d = p3.get("draft")

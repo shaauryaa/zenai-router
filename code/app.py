@@ -166,7 +166,11 @@ def show_details(r: dict) -> None:
         st.markdown("**Step 4. Quote check (code, no LLM)**")
         qc = r.get("quote_check")
         if qc:
-            st.markdown(f"Verified: `{qc['verified']}` · section: `{qc.get('chunk_id') or '-'}`"
+            rule = {"exact": "exact (word for word after normalising)",
+                    "near": "near (not word for word: all numbers and at least 90% of the words are in the section)"}
+            st.markdown(f"Verified: `{qc['verified']}`"
+                        + (f" · rule: {rule.get(qc['rule'], qc['rule'])}" if qc.get("rule") else "")
+                        + f" · section: `{qc.get('chunk_id') or '-'}`"
                         + (f" · reason: {qc['reason']}" if qc.get("reason") else ""))
         else:
             st.markdown("Not run.")
