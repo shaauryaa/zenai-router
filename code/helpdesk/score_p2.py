@@ -13,7 +13,9 @@ never recorded as an answer.
 
 Metrics, per question (multi-topic rows such as Q16 are scored on the first topic; the second is noted):
 - action: final action == expected_action                                                      (all rows)
-- key_fact: normalised key_fact appears in P2's answer or quote                         (rows with a key_fact)
+- key_fact: key_fact appears in P2's answer or quote, both sides through fact_norm() (curly quotes straightened,
+  table pipes | and colons : turned into spaces, whitespace collapsed, lowercased), the same for every row
+                                                                                         (rows with a key_fact)
 - quote_verified: the pipeline's quote check passed (step e)            (rows whose expected action is answer)
 - doc_cited: the expected document's title is named: in P2's doc_title (JSON versions, equal or one contains the
   other) or anywhere in the reply (v1)                                       (rows with an expected_doc)
@@ -22,6 +24,10 @@ Metrics, per question (multi-topic rows such as Q16 are scored on the first topi
 - router_office: the router's first-topic domain == v1_domain          (router_scorable = yes and v1_domain set)
 - topic2_action: the second topic's action == the second expected_action    (rows labelled with two actions, in runs
   of the two-topic final pipeline, which records out["topic_results"]; not part of Pass)
+- incomplete: an answer was shown but its key fact is missing     (rows with a key_fact whose final action is answer)
+- needs_review: an answer was shown although the expected action is not answer   (rows whose final action is answer)
+  These rows are listed for a human to read; the scorer never decides on its own that an answer is wrong.
+  incomplete and needs_review count problems (lower is better) and are not part of Pass.
 """
 from __future__ import annotations
 
@@ -46,7 +52,9 @@ milegi kar karna karein karke ya aur toh hoga liye kya bhi agar jab tak lekin ra
 METRICS = [("action", "Final action correct"), ("key_fact", "Key fact found"), ("quote_verified", "Quote verified"),
            ("doc_cited", "Right document cited"), ("format_valid", "Valid format (JSON)"),
            ("language", "Language matches (Hinglish rows)"), ("router_office", "Router office correct"),
-           ("topic2_action", "Topic 2 action correct (two-action rows)")]
+           ("topic2_action", "Topic 2 action correct (two-action rows)"),
+           ("incomplete", "Incomplete: answer shown, key fact missing (lower is better)"),
+           ("needs_review", "Needs review: answer shown, expected action not answer (lower is better)")]
 ROW_FIELDS = ("expected_action", "expected_office", "expected_doc", "key_fact", "language", "v1_domain")
 ROUTER_TEXT = {"v1": "zenai/llm_router.py classify() (P1 v1, frozen)",
                "v2": "helpdesk/router_v2.py classify() (P1 v2, prompts/v2/P1_router.md)"}
@@ -71,6 +79,12 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
+def fact_norm(text: str) -> str:
+    """Key-fact matching, applied to the key fact AND to P2's text: norm(), then table pipes and colons become spaces
+    and whitespace is collapsed again ("Year 2 | 3,90,000" == "Year 2: 3,90,000")."""
+    return re.sub(r"\s+", " ", re.sub(r"[|:]", " ", norm(text))).strip()
+
+
 def is_hinglish(text: str) -> bool:
     return sum(w in HINGLISH_WORDS for w in re.findall(r"[a-z]+", (text or "").lower())) >= 3
 
@@ -86,7 +100,7 @@ def score(row: dict, out: dict) -> dict:
     p2 = out.get("p2") or {}
     text = f"{p2.get('answer', '')}\n{p2.get('quote', '')}"
     s: dict = {"action": out["action"] == exp_action}
-    s["key_fact"] = (norm(fact) in norm(text)) if fact else None
+    s["key_fact"] = (fact_norm(fact) in fact_norm(text)) if fact else None
     s["quote_verified"] = bool((out.get("quote_check") or {}).get("verified")) if exp_action == "answer" else None
     if doc:
         title = norm(doc_title(doc))
@@ -110,6 +124,9 @@ def score(row: dict, out: dict) -> dict:
         s["topic2_action"] = len(results) > 1 and results[1]["action"] == actions[1]
     else:
         s["topic2_action"] = None
+    answered = out["action"] == "answer"
+    s["incomplete"] = (not s["key_fact"]) if answered and fact else None
+    s["needs_review"] = (exp_action != "answer") if answered else None
     return s
 
 

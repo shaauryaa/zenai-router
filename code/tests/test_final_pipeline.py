@@ -181,3 +181,27 @@ def test_final_test_pass_rule():
     assert not final_test.passed({"key_fact": "", "expected_action": "refuse"}, {"action": False})
     assert final_test.table_md([["Q1", "a|b", "Edge", "e", "x", "Pass"]]).splitlines()[2] == \
         "| Q1 | a/b | Edge | e | x | Pass |"
+
+
+def test_key_fact_normalises_pipes_colons_and_whitespace_on_both_sides():
+    from helpdesk.score_p2 import fact_norm
+    assert fact_norm("Block A | 1,20,000") == fact_norm("Block A: 1,20,000") == "block a 1,20,000"
+    row = {"expected_action": "answer", "key_fact": "Block A | 1,20,000", "expected_doc": "", "language": "en",
+           "router_scorable": "no", "v1_domain": ""}
+    out = {"action": "answer", "p2_version": "v2", "p2": {"answer": "Rs 1,20,000", "quote": "Block  A:\n1,20,000"},
+           "quote_check": {"verified": True}}
+    s = score(row, out)
+    assert s["key_fact"] is True and s["incomplete"] is False and s["needs_review"] is False
+
+
+def test_incomplete_and_needs_review():
+    row = {"expected_action": "answer", "key_fact": "back by 7 pm", "expected_doc": "", "language": "en",
+           "router_scorable": "no", "v1_domain": ""}
+    out = {"action": "answer", "p2_version": "v2", "p2": {"answer": "Ask the warden.", "quote": "x"},
+           "quote_check": {"verified": True}}
+    s = score(row, out)
+    assert s["incomplete"] is True and s["needs_review"] is False
+    s = score({**row, "expected_action": "not_found", "key_fact": ""}, out)
+    assert s["incomplete"] is None and s["needs_review"] is True
+    s = score(row, {**out, "action": "not_found"})
+    assert s["incomplete"] is None and s["needs_review"] is None

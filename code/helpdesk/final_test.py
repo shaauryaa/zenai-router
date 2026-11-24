@@ -90,6 +90,19 @@ def passed(row: dict, s: dict) -> bool:
     return True
 
 
+def review_md(records: list[dict]) -> str:
+    """The rows a human should read: incomplete (answer shown, key fact missing) and needs_review (answer shown,
+    expected action not answer). Listed only, never marked wrong automatically."""
+    lines = ["", "## Rows for a human to read", ""]
+    for key, label in (("incomplete", "Incomplete (answer shown, key fact missing)"),
+                       ("needs_review", "Needs review (answer shown, expected action not answer)")):
+        hits = [r for r in records if r["scores"].get(key)]
+        lines.append(f"- {label}: " + ("; ".join(
+            f'{r["id"]} (expected {r["expected_action"]}): "{short((r.get("p2") or {}).get("answer", ""), 90)}"'
+            for r in hits) or "none"))
+    return "\n".join(lines) + "\n"
+
+
 def md_cell(text: str) -> str:
     return str(text).replace("|", "/").replace("\n", " ")
 
@@ -176,7 +189,7 @@ def main(argv: list[str] | None = None) -> None:
               f"are scored on topic 1. **Pass: {pct(n_pass, len(records))}**\n\n")
     metrics = "\n\n| Metric | Score |\n|---|---|\n" + "\n".join(
         f"| {k} | {pct(v['k'], v['n'])} |" for k, v in totals.items()) + "\n"
-    (folder / "scorecard.md").write_text(header + table_md(table) + metrics, encoding="utf-8")
+    (folder / "scorecard.md").write_text(header + table_md(table) + metrics + review_md(records), encoding="utf-8")
     with open(folder / "table.csv", "w", encoding="utf-8", newline="") as fh:
         w = csv.writer(fh, lineterminator="\n")
         w.writerow(COLUMNS)
