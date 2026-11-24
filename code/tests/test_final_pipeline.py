@@ -99,8 +99,8 @@ P2_FOUND = {"found": True, "answer": "Rs. 1,000.", "quote": "made-up quote that 
             "doc_title": "", "page": "", "language": "en"}
 
 
-def test_final_config_is_two_topics_with_dual_search_and_p2_v2():
-    assert pipeline.FINAL == {"router": "v2", "search": "dual_prog", "p2": "v2", "p3": "v2", "topics": 2}
+def test_final_config_is_two_topics_with_programme_search_and_p2_v2():
+    assert pipeline.FINAL == {"router": "v2", "search": "routed5_all3_prog", "p2": "v2", "p3": "v2", "topics": 2}
 
 
 def test_two_info_topics_each_get_their_own_search_and_p2():

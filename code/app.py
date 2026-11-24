@@ -1,8 +1,7 @@
 """ZEN AI: Campus Helpdesk (Streamlit). Run from the repo root:  streamlit run code/app.py
 
-The final pipeline (helpdesk.pipeline.final_answer, pipeline.FINAL): P1 v2 router -> BM25 search with the search_query and
-the topic's own text merged by rank fusion (5 routed, or 5 from the named programme's rules for an academic question,
-+ 3 all) -> P2 grounded answer -> code quote check -> P3 handoff
+The final pipeline (helpdesk.pipeline.final_answer, pipeline.FINAL): P1 v2 router -> BM25 search (5 routed, or 5 from
+the named programme's rules for an academic question, + 3 all) -> P2 grounded answer -> code quote check -> P3 handoff
 draft (not_found, handoff) or fixed text (refuse, clarify). A message with two topics gets one result card per topic.
 API key: st.secrets["GEMINI_API_KEY"], else the environment (.env locally). Nothing is ever sent by email.
 Look and feel: theme in .streamlit/config.toml (light and dark) plus the small scoped CSS in APP_CSS.
@@ -152,9 +151,8 @@ def show_details(r: dict, topic: dict | None, all_topics: list[dict], calls_labe
                               for t in all_topics], hide_index=True)
         else:
             st.markdown("Not run (empty question).")
-        st.markdown("**Step 2. Search (BM25 on the search query and on the topic's own text, merged by rank fusion: "
-                    "top 5 from the routed folder, or from the named programme's rules for an academic question, + "
-                    "top 3 from all folders)**")
+        st.markdown("**Step 2. Search (BM25: top 5 from the routed folder, or from the named programme's rules for an "
+                    "academic question, + top 3 from all folders)**")
         if r.get("programme_files"):
             st.markdown("Programme named: searched only " + ", ".join(f"`{f}`" for f in r["programme_files"]))
         if r.get("retrieval"):
@@ -227,8 +225,8 @@ def sidebar() -> None:
         st.markdown(f"**Model:** {cfg['provider']['chat_model']} (temperature {cfg['provider']['temperature']})")
         st.markdown(f"**Prompts in use:**\n- P1 router {pipeline.FINAL['router']}\n"
                     f"- P2 grounded answer {pipeline.FINAL['p2']}\n- P3 handoff draft {pipeline.FINAL['p3']}\n\n"
-                    "**Search:** BM25 on the search query and the question's own words, merged; top 5 from the "
-                    "routed folder (or the named programme's rules) + top 3 from all folders\n\n**Two questions in one message:** each is answered on its own\n\n"
+                    "**Search:** BM25, top 5 from the routed folder (or the named programme's rules) + top 3 from "
+                    "all folders\n\n**Two questions in one message:** each is answered on its own\n\n"
                     "**Quote check:** code, no LLM")
         st.info("No login. Don't enter personal details.", icon=":material/lock:")
         asked = st.session_state.get("asked", 0)

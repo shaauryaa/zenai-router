@@ -401,9 +401,10 @@ def answer_topic(topic: dict, question: str, p2_version: str, provider, search: 
 # The final pipeline (Milestone 2 sprint S3, frozen 24 Nov): P1 v2 + programme-aware search + P2 v2 + quote check v2
 # (tightened) + P3 v2, and the first two topics of a message each answered on their own. P2 v5 was tried and rejected
 # (run test-data/runs/final_20261124-173053); prompts/v5/ is kept as a recorded version.
-# Sprint S4: search dual_prog (search_query + topic text, reciprocal rank fusion) replaced routed5_all3_prog after
-# test-data/runs/search_recall_dual_20261124-180009: no labelled topic lost its expected page, Q16 topic 2 gained it.
-FINAL = {"router": "v2", "search": "dual_prog", "p2": "v2", "p3": "v2", "topics": 2}
+# Sprint S4: search dual_prog (search_query + topic text, reciprocal rank fusion) was tried and rejected: page hit@8
+# rose (search_recall_dual_20261124-180009) but the seen pass rate fell 22/24 -> 19/24 (run final_20261124-181011,
+# Q09 a wrong "yes"). It stays an option (search="dual_prog"), not used by FINAL.
+FINAL = {"router": "v2", "search": "routed5_all3_prog", "p2": "v2", "p3": "v2", "topics": 2}
 # The 22 Nov final pipeline as re-scored from the cache in sprint S1 (one topic, old search, P2 v2).
 S1_FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v2", "topics": 1}
 
