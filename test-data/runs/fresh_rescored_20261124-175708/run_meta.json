@@ -1,0 +1,109 @@
+{
+ "run_id": "fresh_rescored_20261124-175708",
+ "title": "Offline re-score of fresh_20261124-174736 with the current scorer",
+ "rescored_from": "test-data/runs/fresh_20261124-174736",
+ "questions": "test-data/fresh_questions.csv",
+ "question_status": "fresh check 1, now seen (used to choose today's fixes)",
+ "n_questions": 10,
+ "started": "2026-11-24T17:57:08",
+ "git": {
+  "commit": "128d69b95ec05ab7250f3ffcefeeaed77b600f6d",
+  "dirty": true
+ },
+ "api_calls": 0,
+ "old_pass": {
+  "k": 8,
+  "n": 10
+ },
+ "pass": {
+  "k": 9,
+  "n": 10
+ },
+ "old_wrong_shown": [
+  "F02"
+ ],
+ "old_totals": {
+  "action": {
+   "k": 9,
+   "n": 10
+  },
+  "key_fact": {
+   "k": 6,
+   "n": 8
+  },
+  "quote_verified": {
+   "k": 7,
+   "n": 8
+  },
+  "doc_cited": {
+   "k": 7,
+   "n": 8
+  },
+  "format_valid": {
+   "k": 10,
+   "n": 10
+  },
+  "language": {
+   "k": 0,
+   "n": 1
+  },
+  "router_office": {
+   "k": 9,
+   "n": 10
+  },
+  "topic2_action": {
+   "k": 0,
+   "n": 0
+  },
+  "incomplete": {
+   "k": 0,
+   "n": 0
+  },
+  "needs_review": {
+   "k": 0,
+   "n": 0
+  }
+ },
+ "totals": {
+  "action": {
+   "k": 9,
+   "n": 10
+  },
+  "key_fact": {
+   "k": 7,
+   "n": 8
+  },
+  "quote_verified": {
+   "k": 7,
+   "n": 8
+  },
+  "doc_cited": {
+   "k": 7,
+   "n": 8
+  },
+  "format_valid": {
+   "k": 10,
+   "n": 10
+  },
+  "language": {
+   "k": 0,
+   "n": 1
+  },
+  "router_office": {
+   "k": 9,
+   "n": 10
+  },
+  "topic2_action": {
+   "k": 0,
+   "n": 0
+  },
+  "incomplete": {
+   "k": 0,
+   "n": 7
+  },
+  "needs_review": {
+   "k": 0,
+   "n": 7
+  }
+ }
+}

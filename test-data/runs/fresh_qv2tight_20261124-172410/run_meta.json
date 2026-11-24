@@ -1,0 +1,96 @@
+{
+ "run_id": "fresh_qv2tight_20261124-172410",
+ "title": "Cache-only re-run, quote check v2, old search routed5_all3: 10 fresh questions, now seen (used to choose the fix)",
+ "runner": "code/helpdesk/cached_rerun.py",
+ "base_run": "fresh_20261122-214926",
+ "started": "2026-11-24T17:24:10",
+ "finished": "2026-11-24T17:24:10",
+ "questions": "test-data/fresh_questions.csv",
+ "n_questions": 10,
+ "question_status": "seen (used to choose the fix)",
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "final": {
+  "router": "v2",
+  "search": "routed5_all3",
+  "p2": "v2",
+  "p3": "v2"
+ },
+ "quote_check": "pipeline.verify_quote (quote check v2, tightened): rule exact = quote_forms() match (** and __ removed, OCR line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against one section, every content word present (negations kept), every number next to the same token, >= 4 content words; both rules reject a dropped negation",
+ "router_prompt_sha256": "0d8fd3c7a1bf4e99c5fdb78cbd6a4fc7cb6c999830be98c8fdb6994897412726",
+ "p2_prompt_sha256": "0e45708c06c8798ccbac881dd62b8cf757c8ef567a2e75d8a388728d1c64e57e",
+ "p3_prompt_file": "prompts/final/P3_handoff.md",
+ "p3_prompt_sha256": "43865836044b076834d00a6bc0bd7925ef998f641575154308d34e5e12f75f48",
+ "pass_rule": "action correct, and for rows with a key_fact also key fact found and quote verified",
+ "pass": {
+  "k": 7,
+  "n": 10
+ },
+ "base_pass": {
+  "k": 6,
+  "n": 10
+ },
+ "changed_rows": [
+  {
+   "id": "F02",
+   "old_action": "not_found",
+   "new_action": "answer",
+   "old_pass": false,
+   "new_pass": false,
+   "rule": "near",
+   "reason": "P2 found, quote verified (near match, not word for word)"
+  },
+  {
+   "id": "F07",
+   "old_action": "not_found",
+   "new_action": "answer",
+   "old_pass": false,
+   "new_pass": true,
+   "rule": "near",
+   "reason": "P2 found, quote verified (near match, not word for word)"
+  }
+ ],
+ "totals": {
+  "action": {
+   "k": 8,
+   "n": 10
+  },
+  "key_fact": {
+   "k": 5,
+   "n": 8
+  },
+  "quote_verified": {
+   "k": 6,
+   "n": 8
+  },
+  "doc_cited": {
+   "k": 6,
+   "n": 8
+  },
+  "format_valid": {
+   "k": 10,
+   "n": 10
+  },
+  "language": {
+   "k": 0,
+   "n": 1
+  },
+  "router_office": {
+   "k": 9,
+   "n": 10
+  }
+ },
+ "git": {
+  "commit": "042bfbd04508a1f91f89b1e4676ae1d8ba652f3a",
+  "dirty": true
+ },
+ "api_calls": 0,
+ "cache_hits": 24
+}

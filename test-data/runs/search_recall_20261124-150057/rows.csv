@@ -1,0 +1,25 @@
+set,id,domain,search_query,expected_doc,expected_page,programme_files,searched_in_run,old_doc,old_page,old_fact,new_doc,new_page,new_fact
+seen,Q01,FEES,fee refund policy admission cancellation deadline,FINANCE/fee-refund-policy-2026-27.md,1,,True,True,True,True,True,True,True
+seen,Q02,FEES,scholarship renewal criteria backlog second year,FINANCE/scholarship-policy-2026-27.md,4,,True,True,True,True,True,True,True
+seen,Q03,FEES,late registration fee policy and amount,FINANCE/late-fee-payment-rules.md,,,True,True,,True,True,,True
+seen,Q04,HOSTEL,hostel out pass rules for leaving campus outing,HOSTEL/hostel-standing-orders.md,3,,True,True,True,True,True,True,True
+seen,Q05,HOSTEL,hostel room vacation procedure and fee refund policy,HOSTEL/hostel-sports-refund-policy-2025-26.md,1,,True,True,True,True,True,True,True
+seen,Q06,IT,password sharing policy security IT support,IT/it-policy.md,11,,True,True,True,True,True,True,True
+seen,Q07,IT,guest wifi access procedure for visitors on campus,IT/it-policy.md,189,,True,True,True,True,True,True,True
+seen,Q08,ACADEMICS,minimum attendance requirement policy for B.Tech courses,COURSE_SPECIFIC/seas-btech-ordinances-rules.md,28,COURSE_SPECIFIC/seas-btech-ordinances-rules.md,True,True,True,True,True,True,True
+seen,Q09,ACADEMICS,make-up exam policy and eligibility for missed end-sem exams due to illness,COURSE_SPECIFIC/scset-academic-rules-ug.md,9,COURSE_SPECIFIC/scset-academic-rules-ug.md,True,False,False,True,True,True,True
+seen,Q10,STUDENT_SUPPORT,anti ragging committee reporting procedure contacts,STUDENT_SUPPORT/anti-ragging.md,5,,True,True,False,False,True,False,False
+seen,Q11,STUDENT_SUPPORT,sexual harassment complaint procedure and committee contact,STUDENT_SUPPORT/posh-policy.md,4,,True,True,True,True,True,True,True
+seen,Q12,ACADEMICS,procedure to request registrar documents online bonafide certificate,CAMPUS_SERVICES/circular-student-queries-online.md,1,,True,True,True,True,True,True,True
+seen,Q13,HOSTEL,hostel visitor policy and parents entry rules in rooms,HOSTEL/hostel-standing-orders.md,2,,True,True,True,True,True,True,True
+seen,Q14,FEES,fee refund timeline after admission cancellation policy,FINANCE/fee-refund-policy-2026-27.md,1,,True,True,True,True,True,True,True
+seen,Q15,FEES,academic scholarship CGPA requirement SCSET,FINANCE/scholarship-policy-2026-27.md,5,,True,True,True,True,True,True,True
+seen,Q16,IT,wifi network account sharing policy,IT/it-policy.md,11,,True,True,False,False,True,False,False
+fresh,F01,FEES,annual examination fee structure and payment procedure,FINANCE/bennett-fee-structure.md,,,True,True,,True,True,,True
+fresh,F02,FEES,tuition fee structure second year BTech Computer Science Engineering,FINANCE/bennett-fee-structure.md,,,True,True,,True,True,,True
+fresh,F03,CAMPUS_SERVICES,mess dinner timings for hostel residents,HOSTEL/student-handbook.md,13,,True,True,True,True,True,True,True
+fresh,F04,HOSTEL,allowed items and prohibited appliances in hostel rooms policy,HOSTEL/student-handbook.md,13,,True,True,True,True,True,True,True
+fresh,F05,IT,minimum password length policy network account IT,IT/it-policy.md,144,,True,True,True,True,True,True,True
+fresh,F06,ACADEMICS,supplementary exams schedule academic calendar,COURSE_SPECIFIC/ba-liberal-arts-rulebook.md,17,COURSE_SPECIFIC/ba-liberal-arts-rulebook.md,True,True,False,True,True,True,True
+fresh,F07,ACADEMICS,processing time for bonafide certificate,CAMPUS_SERVICES/circular-student-queries-online.md,1,,True,True,True,False,True,True,False
+fresh,F08,FEES,hostel fee structure triple sharing room per year,FINANCE/bennett-fee-structure.md,,,True,True,,True,True,,True

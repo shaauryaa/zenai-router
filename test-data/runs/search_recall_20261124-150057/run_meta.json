@@ -1,0 +1,81 @@
+{
+ "run_id": "search_recall_20261124-150057",
+ "title": "Search recall, old vs programme-aware search",
+ "started": "2026-11-24T15:00:57",
+ "script": "code/helpdesk/search_recall.py",
+ "sources": {
+  "seen": {
+   "questions": "test-data/questions.csv",
+   "run": "test-data/runs/final_20261122-201923"
+  },
+  "fresh": {
+   "questions": "test-data/fresh_questions.csv",
+   "run": "test-data/runs/fresh_20261122-214926"
+  }
+ },
+ "totals": {
+  "seen": {
+   "old_doc": {
+    "k": 15,
+    "n": 16
+   },
+   "new_doc": {
+    "k": 16,
+    "n": 16
+   },
+   "old_page": {
+    "k": 12,
+    "n": 15
+   },
+   "new_page": {
+    "k": 13,
+    "n": 15
+   },
+   "old_fact": {
+    "k": 14,
+    "n": 16
+   },
+   "new_fact": {
+    "k": 14,
+    "n": 16
+   }
+  },
+  "fresh": {
+   "old_doc": {
+    "k": 8,
+    "n": 8
+   },
+   "new_doc": {
+    "k": 8,
+    "n": 8
+   },
+   "old_page": {
+    "k": 4,
+    "n": 5
+   },
+   "new_page": {
+    "k": 5,
+    "n": 5
+   },
+   "old_fact": {
+    "k": 7,
+    "n": 8
+   },
+   "new_fact": {
+    "k": 7,
+    "n": 8
+   }
+  }
+ },
+ "changed_rows": [
+  "Q09",
+  "F06"
+ ],
+ "old_search_reproduces_saved_retrieval": true,
+ "mismatches": [],
+ "git": {
+  "commit": "5dfcfc777589d8a46538ac24be02b4a69927ff59",
+  "dirty": true
+ },
+ "api_calls": 0
+}

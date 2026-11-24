@@ -1,0 +1,93 @@
+{
+ "run_id": "quote_check_v2_tight_20261124-172251",
+ "title": "Quote check v2 (tightened) false-accept check (mutated verified quotes)",
+ "started": "2026-11-24T17:22:51",
+ "source_runs": [
+  "test-data/runs/final_20261122-201923",
+  "test-data/runs/fresh_20261122-214926"
+ ],
+ "n_verified_quotes": 18,
+ "script": "code/helpdesk/quote_mutations.py",
+ "quote_check": "pipeline.verify_quote (quote check v2, tightened): rule exact = quote_forms() match (** and __ removed, OCR line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against one section, every content word present (negations kept), every number next to the same token, >= 4 content words; both rules reject a dropped negation",
+ "near_rule": {
+  "min_content_words": 4,
+  "word_share": 1.0,
+  "negations": [
+   "cannot",
+   "never",
+   "no",
+   "nor",
+   "not",
+   "without"
+  ],
+  "negation_window": 3
+ },
+ "totals": {
+  "original (not a mutation)": {
+   "mutations": 18,
+   "n_a": 0,
+   "accepted_exact": 18,
+   "accepted_near": 0,
+   "false_accepts": [
+    "Q01",
+    "Q02",
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q06",
+    "Q07",
+    "Q08",
+    "Q09",
+    "Q10",
+    "Q11",
+    "Q12",
+    "Q13",
+    "Q14",
+    "F03",
+    "F04",
+    "F05",
+    "F08"
+   ]
+  },
+  "number": {
+   "mutations": 8,
+   "n_a": 10,
+   "accepted_exact": 0,
+   "accepted_near": 0,
+   "false_accepts": []
+  },
+  "word": {
+   "mutations": 18,
+   "n_a": 0,
+   "accepted_exact": 0,
+   "accepted_near": 0,
+   "false_accepts": []
+  },
+  "other_doc": {
+   "mutations": 18,
+   "n_a": 0,
+   "accepted_exact": 0,
+   "accepted_near": 0,
+   "false_accepts": []
+  },
+  "number_in_section": {
+   "mutations": 8,
+   "n_a": 10,
+   "accepted_exact": 0,
+   "accepted_near": 0,
+   "false_accepts": []
+  },
+  "negation": {
+   "mutations": 7,
+   "n_a": 11,
+   "accepted_exact": 0,
+   "accepted_near": 0,
+   "false_accepts": []
+  }
+ },
+ "git": {
+  "commit": "042bfbd04508a1f91f89b1e4676ae1d8ba652f3a",
+  "dirty": true
+ },
+ "api_calls": 0
+}
