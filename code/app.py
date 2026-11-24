@@ -60,11 +60,11 @@ if (!window.__zenCopy) {
 TOKENS = {  # colours the theme cannot express; picked per active theme (st.context.theme.type)
     "light": {"sky": "#0593C6", "link": "#0479A6", "pink": "#D83995", "muted": "#5B6B78", "card": "#FFFFFF", "border": "#E6EDF2",
               "bubble": "#E9F6FC", "bubble_text": "#14212B", "quote": "#F5F9FB", "red": "#B42318",
-              "red_bg": "#FDF1EF", "amber": "#B45309", "glow_sky": "rgba(5,147,198,0.20)",
+              "red_bg": "#FDF1EF", "amber": "#B45309", "amber_text": "#8A3B06", "amber_bg": "#FDF3E4", "glow_sky": "rgba(5,147,198,0.20)",
               "glow_pink": "rgba(216,57,149,0.13)", "active_bg": "rgba(216,57,149,0.08)", "shadow": "rgba(20,33,43,0.05)"},
     "dark": {"sky": "#3DB8E8", "link": "#3DB8E8", "pink": "#F06BB4", "muted": "#93A3B1", "card": "#131B23", "border": "#22303C",
              "bubble": "#13293A", "bubble_text": "#E8EEF2", "quote": "#0F171E", "red": "#F87171",
-             "red_bg": "#21121A", "amber": "#F5B544", "glow_sky": "rgba(61,184,232,0.16)",
+             "red_bg": "#21121A", "amber": "#F5B544", "amber_text": "#F7C566", "amber_bg": "#2B2010", "glow_sky": "rgba(61,184,232,0.16)",
              "glow_pink": "rgba(240,107,180,0.11)", "active_bg": "rgba(240,107,180,0.12)", "shadow": "rgba(0,0,0,0.25)"},
 }
 
@@ -74,7 +74,7 @@ def app_css(t: dict) -> str:
     return f"""<style>
 :root {{ --zen-sky:{t['sky']}; --zen-link:{t['link']};--zen-pink:{t['pink']}; --zen-muted:{t['muted']}; --zen-card:{t['card']};
   --zen-border:{t['border']}; --zen-bubble:{t['bubble']}; --zen-bubble-text:{t['bubble_text']}; --zen-quote:{t['quote']};
-  --zen-red:{t['red']}; --zen-red-bg:{t['red_bg']}; --zen-amber:{t['amber']}; --zen-shadow:{t['shadow']};
+  --zen-red:{t['red']}; --zen-red-bg:{t['red_bg']}; --zen-amber:{t['amber']}; --zen-amber-text:{t['amber_text']}; --zen-amber-bg:{t['amber_bg']}; --zen-shadow:{t['shadow']};
   --zen-ease: cubic-bezier(0.23, 1, 0.32, 1); }}
 .block-container {{ max-width: 46rem; padding-top: 3rem; padding-bottom: 2rem; }}
 h1, h2, h3 {{ letter-spacing: -0.02em; }}
@@ -150,6 +150,13 @@ h1, h2, h3 {{ letter-spacing: -0.02em; }}
   border-radius:0 .5rem .5rem 0; font-size:.9375rem; line-height:1.55; overflow-wrap:anywhere; }}
 .zen-doc {{ font-weight:600; line-height:1.4; overflow-wrap:anywhere; }}
 .zen-meta {{ font-size:.875rem; color:var(--zen-muted); margin-top:.125rem; }}
+.zen-old {{ display:inline-block; margin-left:.375rem; padding:0 .4375rem; border-radius:999px; font-size:.75rem;
+  line-height:1.5rem; background:color-mix(in srgb, var(--zen-muted) 14%, transparent); color:var(--zen-muted);
+  white-space:nowrap; vertical-align:baseline; }}
+.zen-warn {{ display:flex; gap:.5rem; align-items:flex-start; font-size:.875rem; line-height:1.45; padding:.5rem .75rem;
+  border-radius:.625rem; color:var(--zen-amber-text); background:var(--zen-amber-bg);
+  border:1px solid color-mix(in srgb, var(--zen-amber) 35%, transparent); }}
+.zen-warn span {{ font-weight:700; }}
 .zen-meta a, .zen-meta a:visited {{ color:var(--zen-link); font-weight:500; text-decoration:none; white-space:nowrap; }}
 .zen-meta a:hover {{ text-decoration:underline; }}
 .zen-copy {{ font:inherit; font-size:.875rem; font-weight:500; display:inline-flex; align-items:center; gap:.375rem;
@@ -209,8 +216,6 @@ h1, h2, h3 {{ letter-spacing: -0.02em; }}
 </style>"""
 
 
-st.set_page_config(page_title="ZEN AI: Campus Helpdesk", page_icon=":material/school:", layout="centered",
-                   initial_sidebar_state="auto")
 
 
 # ---------- pipeline access (unchanged behaviour) ----------
@@ -468,6 +473,66 @@ def safety_html(card: dict) -> str:
     return '<div class="zen-contacts">' + "".join(blocks) + "</div>"
 
 
+# ---------- honest source badges (display only: the pipeline's result is never changed) ----------
+
+OLD_BEFORE_YEAR = 2022
+_NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
+# (label, level, pattern). level: "ug", "pg" or "phd". A generic label ("Bachelor's", "Master's") covers every
+# programme of its level, so "MBA" in the question and "Master's Programme" in the title is not a mismatch.
+PROGRAMMES = [
+    ("B.Tech", "ug", r"\bb\.?\s?tech\b"), ("M.Tech", "pg", r"\bm\.?\s?tech\b"),
+    ("BBA", "ug", r"\bbba\b"), ("MBA", "pg", r"\bmba\b"), ("BCA", "ug", r"\bbca\b"), ("MCA", "pg", r"\bmca\b"),
+    ("B.Sc", "ug", r"\bb\.?\s?sc\b"), ("M.Sc", "pg", r"\bm\.?\s?sc\b"), ("B.Com", "ug", r"\bb\.?\s?com\b"),
+    ("B.Des", "ug", r"\bb\.?\s?des\b"), ("M.Des", "pg", r"\bm\.?\s?des\b"),
+    ("LLB", "ug", r"\bll\.?\s?b\b"), ("LLM", "pg", r"\bll\.?\s?m\b"), ("PhD", "phd", r"\bph\.?\s?d\b"),
+    ("Bachelor's", "ug", r"\bbachelor'?s?\b|\bunder\s?graduate\b"),
+    ("Master's", "pg", r"\bmaster'?s?\b|\bpost\s?graduate\b"),
+]
+GENERIC = {"Bachelor's": "Bachelor's programmes", "Master's": "Master's programmes"}
+
+
+def _num(text: str) -> str:
+    return text.replace(",", "")
+
+
+def numbers_not_in_quote(answer: str, quote: str) -> list[str]:
+    """Numbers in the answer (70%, 45 days, Rs. 1,000) that the verified quote does not contain, in order."""
+    have = {_num(m) for m in _NUMBER.findall(quote or "")}
+    out: list[str] = []
+    for m in _NUMBER.findall(answer or ""):
+        if _num(m) not in have and m not in out:
+            out.append(m)
+    return out
+
+
+def programmes_in(text: str) -> list[tuple[str, str]]:
+    """(label, level) of every programme the text names."""
+    t = (text or "").replace("’", "'")
+    return [(label, level) for label, level, pat in PROGRAMMES if re.search(pat, t, re.I)]
+
+
+def programme_mismatch(question: str, title: str) -> str | None:
+    """The source's programme (for the note) when the question names a programme and the source title names only
+    other ones; None when either names none or they agree (same programme, or a generic one at the same level)."""
+    asked, source = programmes_in(question), programmes_in(title)
+    if not asked or not source:
+        return None
+    for a_label, a_level in asked:
+        for s_label, s_level in source:
+            if a_label == s_label or (a_level == s_level and (a_label in GENERIC or s_label in GENERIC)):
+                return None
+    return ", ".join(GENERIC.get(label, label) for label, _ in source)
+
+
+def older_year(date: str | None) -> int | None:
+    """The document's year when it is before OLD_BEFORE_YEAR ("07/2019" -> 2019), else None. An academic year
+    ("2021-2022") counts by its later year; a date with no year ("unknown") is never flagged."""
+    years = [int(y) for y in re.findall(r"\b(?:19|20)\d{2}\b", date or "")]
+    if not years or max(years) >= OLD_BEFORE_YEAR:
+        return None
+    return max(years)
+
+
 def show_answer(r: dict, n: int) -> None:
     p2, qc = r["p2"], r["quote_check"]
     st.markdown(p2["answer"])
@@ -479,15 +544,27 @@ def show_answer(r: dict, n: int) -> None:
             if c.page is not None:
                 meta.append(f"Page {esc(c.page)}")
             if c.date:
-                meta.append(esc(c.date))
+                old = older_year(c.date)
+                meta.append(esc(c.date) + (f' <span class="zen-old">Older document ({old})</span>' if old else ""))
             if c.source_url:
                 meta.append(f'<a href="{esc(c.source_url)}" target="_blank" rel="noopener">Open document&nbsp;↗</a>')
             st.html(f'<div class="zen-doc">{esc(c.title)}</div><div class="zen-meta">{" · ".join(meta)}</div>')
         st.html(f'<blockquote class="zen-quote">{esc((p2.get("quote") or "").strip())}</blockquote>')
+        missing = numbers_not_in_quote(p2.get("answer") or "", p2.get("quote") or "")
         near = qc.get("rule") == "near"
-        st.badge("Quote verified · near match" if near else "Quote verified · exact", icon=":material/check_circle:",
-                 color="green", help=("Not word for word: all numbers and at least 90% of the words are in the "
-                                      "section." if near else "Found word for word in the document."))
+        if missing:
+            st.badge("Quote verified · number not in quote", icon=":material/error:", color="orange",
+                     help=("The quote is in the document, but it does not show " + ", ".join(missing)
+                           + " from the answer. Check the document before relying on that number."))
+        else:
+            st.badge("Quote verified · near match" if near else "Quote verified · exact",
+                     icon=":material/check_circle:", color="green",
+                     help=("Not word for word: all numbers and at least 90% of the words are in the section."
+                           if near else "Found word for word in the document."))
+        other = programme_mismatch(r.get("question") or "", c.title if c is not None else "")
+        if other:
+            st.html(f'<div class="zen-warn" role="note"><span aria-hidden="true">!</span>This source is for '
+                    f"{esc(other)}. Check your own programme's rules.</div>")
 
 
 def show_handoff(r: dict, n: int) -> None:
@@ -698,6 +775,8 @@ def ask(question: str) -> None:
 # ---------- page ----------
 
 def main() -> None:
+    st.set_page_config(page_title="ZEN AI: Campus Helpdesk", page_icon=":material/school:", layout="centered",
+                       initial_sidebar_state="auto")
     init_state()
     st.html(app_css(theme_tokens()))
     st.html(COPY_SCRIPT, unsafe_allow_javascript=True)
@@ -725,4 +804,5 @@ def main() -> None:
     sidebar()
 
 
-main()
+if __name__ == "__main__":  # Streamlit runs this file as __main__; tests import the checks above without a page
+    main()
