@@ -21,6 +21,8 @@ Options (Milestone 2 steps; the defaults are the original pipeline):
   search="route5" search_for_route(question, domain, k=5)
        | "routed5_all3" search_routed_plus_all(first topic's search_query, or the question if empty, domain): top 5
          from the routed folder + top 3 from all folders
+       | "routed5_all3_prog" the same, but for an ACADEMICS question that names a programme (kb_search.programme_files
+         on the question and the search_query) the top 5 routed come only from that programme's COURSE_SPECIFIC file(s)
 
 Provider errors (quota, network) are raised, never turned into answers.
 """
@@ -42,7 +44,7 @@ FIRST_QUOTE = re.compile(r"[\"“](.+?)[\"”]", re.S)
 JSON_KEYS = ("found", "answer", "quote", "doc_title", "page", "language")
 ROUTER_ACTIONS = {"not_campus": "refuse", "vague": "clarify", "needs_human": "handoff"}
 ROUTERS = ("v1", "v2")
-SEARCHES = ("route5", "routed5_all3")
+SEARCHES = ("route5", "routed5_all3", "routed5_all3_prog")
 
 _PROVIDER: Provider | None = None
 
@@ -222,7 +224,12 @@ def answer(question: str, p2_version: str, provider=None, router: str = "v1", se
         hits = kb_search.search_for_route(query, first.domain, k=5)
     else:
         query = (getattr(first, "search_query", "") or "").strip() or question
-        hits = kb_search.search_routed_plus_all(query, first.domain, routed_k=5, all_k=3)
+        if search == "routed5_all3":
+            hits = kb_search.search_routed_plus_all(query, first.domain, routed_k=5, all_k=3)
+        else:
+            out["programme_files"] = (kb_search.programme_files(question, query)
+                                      if first.domain == "ACADEMICS" else [])
+            hits = kb_search.search_routed_plus_all_prog(query, first.domain, question, routed_k=5, all_k=3)
     out["search_query"] = query
     out["retrieval"] = [{"id": h.chunk.id, "file": h.chunk.file, "title": h.chunk.title, "office": h.chunk.office,
                          "page": h.chunk.page, "score": h.score} for h in hits]

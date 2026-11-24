@@ -47,6 +47,49 @@ DOMAIN_OFFICES = {"FEES": ("FINANCE",), "ACADEMICS": ("COURSE_SPECIFIC",), "IT":
                   "CAMPUS_SERVICES": ("CAMPUS_SERVICES",), "STUDENT_SUPPORT": ("STUDENT_SUPPORT",)}
 
 
+# Programme mentions -> COURSE_SPECIFIC files (Milestone 2 sprint S1), from the titles in test-data/kb_manifest.csv.
+# Plain regex on the lowercased question + search_query. A text can name several programmes: their files are joined.
+_CS = "COURSE_SPECIFIC/"
+LLB_COMBO = re.compile(r"\b(?:bba|ba)\b[\s.,/&()-]*(?:\(?hons\.?\)?[\s.,/&-]*)?ll\.?\s?b\b")  # "BBA LLB", "BA LL.B"
+PROGRAMMES: list[tuple[str, re.Pattern, tuple[str, ...]]] = [
+    # "Rules and Regulations for Undergraduate/Integrated Programs: BBA LLB (Hons)/BA LLB (Hons)"
+    ("BBA LLB / BA LLB (SOL)", re.compile(r"\bll\.?\s?b\b|\bschool of law\b|\bsol\b"), (_CS + "sol-academic-handbook.md",)),
+    # "Rules and Regulations for Bachelor of Business Administration (BBA) Program" (BBA LLB removed first)
+    ("BBA", re.compile(r"\bbba\b|bachelor of business administration"), (_CS + "bba-rules.md",)),
+    # "Academic Rules Master of Business Administration (MBA)"
+    ("MBA", re.compile(r"\bmba\b|master of business administration"), (_CS + "mba-rules.md",)),
+    # "Rules and Regulations for Undergraduate BA (Journalism & Mass Communication)"
+    ("BAJMC", re.compile(r"\bba\s*\(?\s*jmc\b|\bbajmc\b|\bjmc\b|journalism|mass comm"), (_CS + "bajmc-rules.md",)),
+    # "Rules and Regulations for Undergraduate BA Liberal Arts"
+    ("BA Liberal Arts", re.compile(r"liberal arts"), (_CS + "ba-liberal-arts-rulebook.md",)),
+    # "Ordinances, Rules and Regulations for Post Graduate Programs: Engineering (M.Tech)"
+    ("M.Tech", re.compile(r"\bm\.?\s?tech\b|master of technology"), (_CS + "mtech-ordinances-rules.md",)),
+    # "Ordinances, Rules and Regulations for Under Graduate Programs: Engineering (B.Tech)" (SEAS)
+    ("B.Tech (SEAS)", re.compile(r"\bb\.?\s?tech\b|\bseas\b|bachelor of technology"),
+     (_CS + "seas-btech-ordinances-rules.md",)),
+]
+# "SCSET Academic Rules for Undergraduate Programs" / "SCSET Academic Rules for Master's Programme" (PG / dual)
+SCSET = re.compile(r"\bscset\b|\bcse\b|computer science")
+SCSET_PG_CUE = re.compile(r"\bmasters?\b|master['’]s|\bpg\b|post\s?-?graduate|\bdual\b|\bm\.?\s?tech\b")
+SCSET_UG_FILE, SCSET_PG_FILE = _CS + "scset-academic-rules-ug.md", _CS + "scset-academic-rules-pg-dual.md"
+
+
+def programme_files(*texts: str) -> list[str]:
+    """COURSE_SPECIFIC files of every programme named in the texts (case-insensitive); [] when none is named.
+    CSE or SCSET -> SCSET UG, or SCSET PG/dual when master's, PG, dual or M.Tech is also said."""
+    t = " ".join(x for x in texts if x).lower()
+    files: list[str] = []
+    for _, pattern, fs in PROGRAMMES:
+        text = t if fs[0].endswith("sol-academic-handbook.md") else LLB_COMBO.sub(" ", t)
+        if pattern.search(text):
+            files += [f for f in fs if f not in files]
+    if SCSET.search(t):
+        f = SCSET_PG_FILE if SCSET_PG_CUE.search(t) else SCSET_UG_FILE
+        if f not in files:
+            files.append(f)
+    return files
+
+
 @dataclass(frozen=True)
 class Chunk:
     id: str
@@ -202,10 +245,23 @@ class KBIndex:
             return self.search(query, k=routed_k + all_k)
         if domain not in DOMAIN_OFFICES:
             raise ValueError(f"unknown router domain {domain!r}")
+        return self._routed_plus_all(query, lambda c: c.office in DOMAIN_OFFICES[domain], routed_k, all_k)
+
+    def _routed_plus_all(self, query: str, in_routed, routed_k: int, all_k: int) -> list[Hit]:
         ranked = self._ranked(query)
-        routed = [x for x in ranked if self.chunks[x[1]].office in DOMAIN_OFFICES[domain]][:routed_k]
+        routed = [x for x in ranked if in_routed(self.chunks[x[1]])][:routed_k]
         others = [x for x in ranked if x not in routed][:all_k]
         return [Hit(self.chunks[i], round(s, 4)) for s, i in sorted(routed + others, reverse=True)]
+
+    def search_routed_plus_all_prog(self, query: str, domain: str | None, question: str = "", routed_k: int = 5,
+                                    all_k: int = 3) -> list[Hit]:
+        """Programme-aware search_routed_plus_all (Milestone 2 sprint S1): when the domain is ACADEMICS and the
+        question or the query names a programme (programme_files), the routed part searches only that programme's
+        file(s); the all-folders part is unchanged. Otherwise exactly search_routed_plus_all."""
+        files = programme_files(question, query) if domain == "ACADEMICS" else []
+        if not files:
+            return self.search_routed_plus_all(query, domain, routed_k=routed_k, all_k=all_k)
+        return self._routed_plus_all(query, lambda c: c.file in files, routed_k, all_k)
 
 
 _DEFAULT: KBIndex | None = None
@@ -229,6 +285,11 @@ def search_for_route(query: str, v1_domain: str | None, k: int = 5) -> list[Hit]
 
 def search_routed_plus_all(query: str, domain: str | None, routed_k: int = 5, all_k: int = 3) -> list[Hit]:
     return default_index().search_routed_plus_all(query, domain, routed_k=routed_k, all_k=all_k)
+
+
+def search_routed_plus_all_prog(query: str, domain: str | None, question: str = "", routed_k: int = 5,
+                                all_k: int = 3) -> list[Hit]:
+    return default_index().search_routed_plus_all_prog(query, domain, question, routed_k=routed_k, all_k=all_k)
 
 
 def main(argv: list[str] | None = None) -> None:
