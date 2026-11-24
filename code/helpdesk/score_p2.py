@@ -63,7 +63,10 @@ SEARCH_TEXT = {"route5": "helpdesk.kb_search.search_for_route(question, first to
                                "first topic domain): top 5 from the routed folder + top 3 from all folders (k=8)",
                "routed5_all3_prog": "helpdesk.kb_search.search_routed_plus_all_prog: as routed5_all3, but an "
                                     "ACADEMICS question naming a programme takes its top 5 routed only from that "
-                                    "programme's COURSE_SPECIFIC file(s)"}
+                                    "programme's COURSE_SPECIFIC file(s)",
+               "dual_prog": "helpdesk.kb_search.search_dual_prog: BM25 on the first topic's search_query and on its "
+                            "own text, merged by reciprocal rank fusion (k=60), then the routed5_all3_prog split and "
+                            "programme filter"}
 QUOTE_CHECK_TEXT = ("pipeline.verify_quote (quote check v2, tightened): rule exact = quote_forms() match (** and __ "
                     "removed, OCR line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against "
                     "one section, every content word present (negations kept), every number next to the same token, "
