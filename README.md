@@ -127,6 +127,9 @@ How each prompt version and pipeline step moved these numbers is in [docs/iterat
   one run at temperature 0.
 - The quote check still rejects some correct answers from OCR and table text (F22 part 2), and the safety trigger's
   incident patterns are English only (Hinglish reports rely on the router).
+- A verified quote can stop short of the number the answer states (e.g. B.Tech attendance quoted as '...minimum
+  attendance of'): the quote check confirms the quote is in the document, not that it supports every part of the
+  answer.
 - Error analysis of fresh check 2 ([docs/iteration_log.md](docs/iteration_log.md), "Error analysis: fresh check 2"),
   with the next steps, all planned and not built:
   - conflicting documents (F15): the 2019-20 handbook and the 2024 IT Policy disagree, and P2 used the older one.

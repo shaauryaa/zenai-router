@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # code/ on the path, w
 
 import streamlit as st  # noqa: E402
 
-from helpdesk import followup, handoff, kb_search, pipeline  # noqa: E402
+from helpdesk import followup, handoff, kb_search, pipeline, safety  # noqa: E402
 from zenai.config import load_config  # noqa: E402
 from zenai.providers import ProviderError, QuotaError  # noqa: E402
 
@@ -161,10 +161,26 @@ h1, h2, h3 {{ letter-spacing: -0.02em; }}
 @media (prefers-reduced-motion: reduce) {{ .zen-copy {{ transition:none; }} .zen-copy:active {{ transform:none; }} }}
 [class*="st-key-safety_"] {{ border-color: color-mix(in srgb, var(--zen-red) 35%, var(--zen-border));
   box-shadow: inset 4px 0 0 var(--zen-red); background:var(--zen-red-bg); }}
-[class*="st-key-safety_"] blockquote, [class*="st-key-safety_"] blockquote p {{ color:inherit !important; opacity:1 !important; }}
 .zen-safety-head {{ color:var(--zen-red); font-weight:650; display:flex; gap:.5rem; align-items:center; }}
-[class*="st-key-handoff_"] .stCode pre {{ white-space:pre-wrap; }}
-[class*="st-key-handoff_"] [data-testid="stCode"] {{ font-size:.875rem; }}
+.zen-safety-body {{ display:grid; gap:1rem; }}
+.zen-intro {{ margin:0; line-height:1.55; }}
+.zen-contacts {{ display:grid; gap:1rem; padding:1rem 0; border-top:1px solid color-mix(in srgb, var(--zen-red) 18%, transparent);
+  border-bottom:1px solid color-mix(in srgb, var(--zen-red) 18%, transparent); }}
+.zen-contact-section {{ display:grid; gap:.625rem; }}
+.zen-contact-section h4 {{ margin:0; padding:0; font-size:.9375rem; font-weight:700; letter-spacing:0; line-height:1.4; }}
+.zen-contact-section p {{ margin:0; line-height:1.5; }}
+.zen-person {{ display:grid; gap:.125rem; line-height:1.45; }}
+.zen-person .who {{ font-weight:600; }}
+.zen-person .role, .zen-person .mail {{ font-size:.9375rem; }}
+.zen-contacts a, .zen-contacts a:visited {{ color:var(--zen-link); font-weight:500; text-decoration:none; overflow-wrap:anywhere; }}
+.zen-contacts a:hover {{ text-decoration:underline; }}
+.zen-source {{ font-size:.8125rem; color:var(--zen-muted); margin:0; }}
+.zen-draft {{ background:var(--zen-quote); border-radius:.75rem; padding:.875rem 1rem; font-size:.9375rem; line-height:1.6;
+  overflow-wrap:anywhere; }}
+.zen-draft .hdr {{ display:grid; gap:.125rem; padding-bottom:.625rem; margin-bottom:.625rem;
+  border-bottom:1px solid var(--zen-border); }}
+.zen-draft .hdr span {{ color:var(--zen-muted); margin-right:.5rem; }}
+.zen-draft .body {{ white-space:pre-wrap; }}
 .zen-hint {{ font-size:.8125rem; color:var(--zen-muted); }}
 .zen-error {{ display:flex; gap:.5rem; align-items:flex-start; color:inherit; padding:.75rem 1rem; border-radius:.75rem;
   border:1px solid var(--zen-border); background:var(--zen-card); }}
@@ -400,6 +416,58 @@ def empty_state() -> None:
 
 # ---------- one reply ----------
 
+def office_phrase(name: str) -> str:
+    """The office as a proper name in a sentence (Markdown): "the **Finance Office**", "the **Hostel Wardens**",
+    "the **Student Support office**", "the **Campus Services office** (Punctualiti)"."""
+    base, sep, extra = (name or "").strip().partition(" (")
+    if base.split()[-1:] not in (["Office"], ["Wardens"], ["Desk"]):
+        base += " office"
+    return f"the **{base}**" + (f" ({extra}" if sep else "")
+
+
+_MD_BOLD = re.compile(r"\*\*(.+?)\*\*")
+_EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+
+
+def contact_html(line: str) -> str:
+    """One copied line as HTML: Markdown marks dropped, the words unchanged, each email address a mailto link."""
+    text = _MD_BOLD.sub(r"\1", re.sub(r"^(?:#+\s*|-\s+)", "", line.strip()))
+    out, last = [], 0
+    for m in _EMAIL.finditer(text):
+        out += [esc(text[last:m.start()]), f'<a href="mailto:{esc(m.group(0))}">{esc(m.group(0))}</a>']
+        last = m.end()
+    return "".join(out) + esc(text[last:])
+
+
+def safety_html(card: dict) -> str:
+    """The contacts: one block per section (bold name, then each person: name, designation, email), built from the
+    lines safety.py copied word for word from the KB file. No address is added or changed here."""
+    sections: list[dict] = []
+    for line in card.get("lines") or []:
+        if line.startswith("## "):
+            sections.append({"name": line[3:].strip(), "items": []})
+        elif not sections:
+            continue
+        elif line.startswith("### "):
+            sections[-1]["items"].append(("person", [line]))
+        elif line.startswith("- ") and sections[-1]["items"] and sections[-1]["items"][-1][0] == "person":
+            sections[-1]["items"][-1][1].append(line)
+        elif sections[-1]["items"] and sections[-1]["items"][-1][0] == "text":
+            sections[-1]["items"][-1][1].append(line)  # e.g. "Send all complaints and queries to:" + its address
+        else:
+            sections[-1]["items"].append(("text", [line]))
+    blocks = []
+    for sec in sections:
+        parts = [f"<h4>{esc(sec['name'])}</h4>"]
+        for kind, lines in sec["items"]:
+            classes = (["who"] if kind == "person" else ["line"]) + [
+                "mail" if "@" in x else "role" for x in lines[1:]]
+            parts.append('<div class="zen-person">' + "".join(
+                f'<span class="{c}">{contact_html(x)}</span>' for c, x in zip(classes, lines)) + "</div>")
+        blocks.append('<div class="zen-contact-section">' + "".join(parts) + "</div>")
+    return '<div class="zen-contacts">' + "".join(blocks) + "</div>"
+
+
 def show_answer(r: dict, n: int) -> None:
     p2, qc = r["p2"], r["quote_check"]
     st.markdown(p2["answer"])
@@ -425,27 +493,29 @@ def show_answer(r: dict, n: int) -> None:
 def show_handoff(r: dict, n: int) -> None:
     p3 = r.get("p3") or {}
     office = r["office_name"]
+    to = office_phrase(office)
     if r["action"] == "safety":
-        st.markdown(f"ZEN AI can't act on this itself. You can also send this email to the **{office}**.")
+        st.markdown(f"ZEN AI can't act on this itself. You can also send this email to {to}.")
     elif r["action"] == "not_found":
         st.markdown(f"I couldn't find this in the official documents, so I won't guess. "
-                    f"You can send this email to the **{office}** instead.")
+                    f"You can send this email to {to} instead.")
     elif p3.get("reason") == handoff.REASON_RECORD:
-        st.markdown(f"This depends on your own record, which ZEN AI cannot see. "
-                    f"You can send this email to the **{office}**.")
+        st.markdown(f"This depends on your own record, which ZEN AI cannot see. You can send this email to {to}.")
     else:
         st.markdown(f"This needs someone at the office to act, which ZEN AI cannot do. "
-                    f"You can send this email to the **{office}**.")
+                    f"You can send this email to {to}.")
     d = p3.get("draft")
     if not d:
-        st.caption(f"I couldn't prepare a draft this time. Please contact the {office} directly.")
+        st.caption(f"I couldn't prepare a draft this time. Please contact {to} directly.")
         return
     with st.container(key=f"handoff_{n}"):
         with st.container(horizontal=True, vertical_alignment="center", gap="small"):
             st.html(f'<div class="zen-card-head">Email draft · {esc(office)}</div>', width="content")
             st.badge("Draft only, nothing is sent", icon=":material/drafts:", color="orange")
         text = f"To: {d['to']}\nSubject: {d['subject']}\n\n{d['body']}"
-        st.code(text, language=None, wrap_lines=True)
+        st.html(f'<div class="zen-draft"><div class="hdr"><div><span>To</span>{esc(d["to"])}</div>'
+                f'<div><span>Subject</span>{esc(d["subject"])}</div></div>'
+                f'<div class="body">{esc((d["body"] or "").strip())}</div></div>')
         with st.container(horizontal=True, vertical_alignment="center", gap="small"):
             st.html(f'<button class="zen-copy" type="button" data-text="{esc(text)}">'
                     '<span aria-hidden="true">⧉</span><span class="lbl">Copy draft</span></button>',
@@ -454,10 +524,18 @@ def show_handoff(r: dict, n: int) -> None:
                     'email.</div>')
 
 
-def show_safety(r: dict, n: int) -> None:
+def show_safety(r: dict, n: int, card: dict | None) -> None:
+    """card: the result's safety_card (for topic 1 it sits on the top-level result); safety.card() re-reads the same
+    KB file (no LLM) when a result has none."""
+    card = card or safety.card()
     with st.container(key=f"safety_{n}"):
         st.html('<div class="zen-safety-head"><span aria-hidden="true">●</span>Please reach out now</div>')
-        st.markdown(r.get("reply_text") or "")
+        if card.get("lines"):
+            st.html(f'<div class="zen-safety-body"><p class="zen-intro">{esc(card["intro"])}</p>{safety_html(card)}'
+                    f'<p class="zen-intro">{esc(card["fallback"])}</p>'
+                    f'<p class="zen-source">Source: {esc(card["source_title"])}</p></div>')
+        else:
+            st.html(f'<p class="zen-intro">{esc(card.get("fallback") or safety.CARD_FALLBACK)}</p>')
     show_handoff(r, n)
 
 
@@ -526,7 +604,7 @@ def show_result(r: dict, key: str) -> None:
         if action == "answer":
             show_answer(tr, card)
         elif action == "safety":
-            show_safety(tr, card)
+            show_safety(tr, card, tr.get("safety_card") or (r.get("safety_card") if i == 0 else None))
         elif action in ("not_found", "handoff"):
             show_handoff(tr, card)
         else:
