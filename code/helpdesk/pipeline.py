@@ -10,9 +10,11 @@ answer(question, p2_version) returns a dict holding every intermediate step:
      filled in, sent as one user message. v1 is plain text (chat_text), v2 and later JSON mode (chat_json)
   e. quote check v2 (code, no LLM, verify_quote): rule "exact" = the quote appears in one retrieved section after
      normalising both sides (quote_forms: markdown ** and __ removed, OCR line-end hyphens joined, whitespace
-     collapsed, case-insensitive). If not, rule "near" accepts it against ONE section when every number of the quote
-     is in that section, >= 90% of its content words are, and it has >= 4 content words (table rows reformatted, OCR
-     lines reordered, OCR typos such as "ona scale"). quote_check["rule"] records which rule verified it.
+     collapsed, case-insensitive). If not, rule "near" accepts it against ONE section when every content word of the
+     quote (negation words kept) is in that section, every number sits next to the same token as in the section, and
+     it has >= 4 content words (table rows reformatted, OCR lines reordered, OCR typos such as "ona scale"). Both
+     rules reject a quote that drops a negation standing just before the matched text in the source.
+     quote_check["rule"] records which rule verified it.
      If P2 says found but the check fails, action becomes not_found and the reason is kept
   f. found = false -> action not_found (the handoff for not_found comes later)
 
@@ -30,6 +32,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections import Counter
 
 from helpdesk import kb_search, router_v2
 from zenai.config import load_config
@@ -115,11 +118,16 @@ def quote_forms(text: str, *, source: bool) -> set[str]:
 NUMBER = re.compile(r"\d+(?:[.,:]\d+)*")
 TABLE_MARKUP = re.compile(r"\||^\s*#+\s*|^\s*-{3,}\s*$|`", re.M)  # table pipes, heading marks, rules, backticks
 NEAR_MIN_WORDS = 4
-NEAR_MIN_SHARE = 0.9
+# Not stop words for the quote check (kb_search drops "no", "not" and "nor" from search tokens).
+NEGATIONS = frozenset({"no", "not", "never", "nor", "cannot", "without"})
+NEGATION_WINDOW = 3
+NUMBER_ABBREV = re.compile(r"\bno\.", re.I)  # "S. No.", "Enrollment No.": the abbreviation of number, not a negation
+NEAR_TOKEN = re.compile(r"\d+(?:[.,:]\d+)*|[a-z0-9]+")  # a number with its separators is one token
 
 
-def quote_numbers(text: str) -> set[str]:
-    return {n.replace(",", "") for n in NUMBER.findall(text or "")}
+def _plain(text: str) -> str:
+    """Lowercased, without markdown emphasis, table pipes, heading marks and rules."""
+    return TABLE_MARKUP.sub(" ", MARKDOWN_EMPHASIS.sub("", text or "")).lower()
 
 
 def content_words(text: str) -> list[str]:
@@ -127,45 +135,131 @@ def content_words(text: str) -> list[str]:
     return kb_search.tokenize(TABLE_MARKUP.sub(" ", MARKDOWN_EMPHASIS.sub("", text or "")))
 
 
+def check_words(text: str) -> list[str]:
+    """Content words for the near rule: content_words() with the NEGATIONS kept."""
+    return [t for t in kb_search.TOKEN.findall(_plain(text)) if t not in kb_search.STOP_WORDS or t in NEGATIONS]
+
+
+def number_stream(text: str) -> list[str]:
+    """Content tokens in order, a number as one token without commas (3,90,000 -> 390000), NEGATIONS kept."""
+    toks = [t.replace(",", "") if t[0].isdigit() else t for t in NEAR_TOKEN.findall(_plain(text))]
+    return [t for t in toks if t not in kb_search.STOP_WORDS or t in NEGATIONS]
+
+
+def number_pairs(stream: list[str]) -> list[tuple[str, set[tuple[str, str]]]]:
+    """[(number, {(token before, number), (number, token after)})] for every number token of a stream."""
+    out = []
+    for i, t in enumerate(stream):
+        if t[0].isdigit():
+            pairs = set()
+            if i > 0:
+                pairs.add((stream[i - 1], t))
+            if i + 1 < len(stream):
+                pairs.add((t, stream[i + 1]))
+            out.append((t, pairs))
+    return out
+
+
+def raw_tokens(text: str) -> list[str]:
+    """Every lowercased letter/digit run, stop words included (for the negation window)."""
+    return kb_search.TOKEN.findall(_plain(NUMBER_ABBREV.sub(" ", text or "")))
+
+
+def dropped_negation(source_before: str, quote: str) -> bool:
+    """True when the NEGATION_WINDOW tokens of the source right before the match hold a negation word and the
+    first NEGATION_WINDOW tokens of the quote do not."""
+    before = raw_tokens(source_before)[-NEGATION_WINDOW:]
+    return any(t in NEGATIONS for t in before) and not any(t in NEGATIONS for t in raw_tokens(quote)[:NEGATION_WINDOW])
+
+
+def best_windows(q_words: list[str], sources: set[str]) -> list[tuple[list[str], list[str]]]:
+    """The windows of the chunk that best match the quote: every run of len(q_words) consecutive content tokens
+    (stop words dropped, negations kept) of every source form, scored by how many of the quote's content words it
+    holds (repeats counted). Returns [(window tokens, the raw tokens before the window)] for every window with the
+    best score."""
+    need = Counter(q_words)
+    scored = []
+    for s in sources:
+        raw = raw_tokens(s)
+        pos = [i for i, t in enumerate(raw) if t not in kb_search.STOP_WORDS or t in NEGATIONS]
+        size = len(q_words)
+        for start in range(max(1, len(pos) - size + 1)):
+            window = [raw[i] for i in pos[start:start + size]]
+            before = raw[:pos[start]] if pos else raw
+            scored.append((sum((Counter(window) & need).values()), window, before))
+    if not scored:
+        return []
+    top = max(score for score, _, _ in scored)
+    return [(window, before) for score, window, before in scored if score == top]
+
+
 def near_match(quote: str, chunk_text: str) -> tuple[bool, str]:
-    """The near rule against ONE chunk: (accepted, why not). All must hold: every number of the quote is in the chunk,
-    at least NEAR_MIN_SHARE of the quote's content words are in the chunk, and the quote has >= NEAR_MIN_WORDS."""
+    """The near rule against ONE chunk: (accepted, why not). All must hold:
+    a. every content word of the quote (check_words: negations kept) is in the chunk;
+    b. every number of the quote is in the chunk next to the same tokens as in the quote: both its pair with the token
+       right before it and its pair with the token right after it (only one where the number starts or ends the
+       quote), pipes and punctuation removed;
+    c. the quote has >= NEAR_MIN_WORDS content words;
+    d. negations: in every chunk window that best matches the quote (best_windows; conservative: all tied windows
+       must agree), the window holds the same number of negation words as the quote, and no negation stands in the
+       NEGATION_WINDOW tokens just before the window unless the quote starts with one."""
     (q,) = quote_forms(quote, source=False)
-    words = content_words(q)
+    words = check_words(q)
     if len(words) < NEAR_MIN_WORDS:
         return False, f"{len(words)} content words (< {NEAR_MIN_WORDS})"
     sources = quote_forms(chunk_text, source=True)  # both line-end hyphen joins
-    missing_numbers = quote_numbers(q) - set().union(*(quote_numbers(s) for s in sources))
-    if missing_numbers:
-        return False, f"numbers not in section: {', '.join(sorted(missing_numbers))}"
-    vocab = set().union(*(content_words(s) for s in sources))
-    share = sum(w in vocab for w in words) / len(words)
-    if share < NEAR_MIN_SHARE:
-        return False, f"{share:.0%} of content words in section (< {NEAR_MIN_SHARE:.0%})"
+    vocab = set().union(*(check_words(s) for s in sources))
+    missing = sorted({w for w in words if w not in vocab})
+    if missing:
+        return False, f"content words not in section: {', '.join(missing)}"
+    chunk_pairs = set()
+    for s in sources:
+        for _, pairs in number_pairs(number_stream(s)):
+            chunk_pairs |= pairs
+    for num, pairs in number_pairs(number_stream(q)):
+        if not pairs <= chunk_pairs:
+            return False, f"number {num} not next to the same words as in the section"
+    q_neg = sum(w in NEGATIONS for w in words)
+    q_starts_negated = any(t in NEGATIONS for t in raw_tokens(q)[:NEGATION_WINDOW])
+    for window, before in best_windows(words, sources):
+        if sum(t in NEGATIONS for t in window) != q_neg:
+            return False, "dropped negation: the matching part of the section has a different number of negations"
+        if any(t in NEGATIONS for t in before[-NEGATION_WINDOW:]) and not q_starts_negated:
+            return False, "dropped negation: the section has a negation just before the quoted text"
     return True, ""
 
 
 def verify_quote(quote: str, hits: list[kb_search.Hit]) -> dict:
     """Quote check v2: {"verified", "chunk_id", "reason", "rule"}. rule "exact": the quote appears in one retrieved
     section after quote_forms() normalising (the original check, always tried first). rule "near": no exact match,
-    but near_match() accepts it against one section. rule None: not verified."""
+    but near_match() accepts it against one section. rule None: not verified. Both rules reject a match that drops a
+    negation of the source (dropped_negation)."""
     (q,) = quote_forms(quote, source=False)
     if not q:
         return {"verified": False, "chunk_id": None, "reason": "empty quote", "rule": None}
+    exact_dropped = False
     for h in hits:
-        if any(q in form for form in quote_forms(h.chunk.text, source=True)):
-            return {"verified": True, "chunk_id": h.chunk.id, "reason": "", "rule": "exact"}
+        for form in quote_forms(h.chunk.text, source=True):
+            start = form.find(q)
+            while start != -1:
+                if not dropped_negation(form[:start], q):
+                    return {"verified": True, "chunk_id": h.chunk.id, "reason": "", "rule": "exact"}
+                exact_dropped = True
+                start = form.find(q, start + 1)
     why_near = []
     for h in hits:
         ok, why = near_match(quote, h.chunk.text)
         if ok:
             return {"verified": True, "chunk_id": h.chunk.id, "reason": "", "rule": "near"}
         why_near.append(why)
-    reason = "quote not found in the retrieved sections"
-    if why_near and why_near[0].endswith(f"(< {NEAR_MIN_WORDS})"):
-        reason += f"; near rule not applicable: {why_near[0]}"
-    elif why_near:
-        reason += " (exact or near)"
+    if exact_dropped or any(w.startswith("dropped negation") for w in why_near):
+        reason = "dropped negation: the source has a negation just before the quoted text"
+    else:
+        reason = "quote not found in the retrieved sections"
+        if why_near and why_near[0].endswith(f"(< {NEAR_MIN_WORDS})"):
+            reason += f"; near rule not applicable: {why_near[0]}"
+        elif why_near:
+            reason += " (exact or near)"
     return {"verified": False, "chunk_id": None, "reason": reason, "rule": None}
 
 

@@ -4,9 +4,9 @@ Run (from code/):  python -m helpdesk.cached_rerun seen     (test-data/questions
                    python -m helpdesk.cached_rerun fresh    (test-data/fresh_questions.csv, base fresh_20261122-214926)
 
 Same pipeline.final_answer() and the final test's scorer (final_test.passed / expected_text / actual_text) as
-helpdesk/final_test.py, with the current code (quote check v2, search routed5_all3). The provider may not send any
+helpdesk/final_test.py, with the current code (current quote check, search routed5_all3). The provider may not send any
 request: a cache miss raises CacheOnlyError, the run stops and nothing is saved. Saves
-test-data/runs/<seen: final_qv2 | fresh: fresh_qv2>_<timestamp>/ (outputs.jsonl, run_meta.json, scorecard.md,
+test-data/runs/<seen: final_qv2tight | fresh: fresh_qv2tight>_<timestamp>/ (outputs.jsonl, run_meta.json, scorecard.md,
 table.csv). Existing run folders and test-data/final_test_table.* are not touched.
 """
 from __future__ import annotations
@@ -23,10 +23,10 @@ from helpdesk.score_p2 import QUOTE_CHECK_TEXT, RUNS, git_info, pct, score
 from zenai.paths import REPO_ROOT, TEST_DATA
 from zenai.providers import ProviderError
 
-SETS = {"seen": {"questions": TEST_DATA / "questions.csv", "base": "final_20261122-201923", "prefix": "final_qv2",
+SETS = {"seen": {"questions": TEST_DATA / "questions.csv", "base": "final_20261122-201923", "prefix": "final_qv2tight",
                  "label": "24 seen questions"},
         "fresh": {"questions": TEST_DATA / "fresh_questions.csv", "base": "fresh_20261122-214926",
-                  "prefix": "fresh_qv2", "label": "10 fresh questions, now seen (used to choose the fix)"}}
+                  "prefix": "fresh_qv2tight", "label": "10 fresh questions, now seen (used to choose the fix)"}}
 
 
 class CacheOnlyError(ProviderError):

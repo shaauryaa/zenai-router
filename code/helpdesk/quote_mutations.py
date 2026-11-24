@@ -12,7 +12,7 @@ mutated quote is a false accept. Mutations (deterministic):
   number_in_section  stress: the quote's first number replaced by another number from the same section
   negation   stress: the first "no"/"not"/"never" removed (these are kb_search stop words)
 A mutation that does not apply to a quote (no number, no negation) is n/a.
-Saves test-data/runs/quote_check_v2_<timestamp>/ (mutations.csv, summary.md, run_meta.json).
+Saves test-data/runs/quote_check_v2_tight_<timestamp>/ (mutations.csv, summary.md, run_meta.json).
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ import re
 from datetime import datetime
 
 from helpdesk import kb_search, pipeline
-from helpdesk.score_p2 import RUNS, git_info
+from helpdesk.score_p2 import QUOTE_CHECK_TEXT, RUNS, git_info
 from zenai.paths import REPO_ROOT
 
 RUNS_IN = ("final_20261122-201923", "fresh_20261122-214926")
@@ -116,21 +116,22 @@ def main() -> None:
                 "false_accepts": [r["id"] for r in tried if r["accepted"] is True]}
 
     totals = {k: tally(k) for k in ("original (not a mutation)", *REQUESTED, *STRESS)}
-    run_id = f"quote_check_v2_{started.strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"quote_check_v2_tight_{started.strftime('%Y%m%d-%H%M%S')}"
     folder = RUNS / run_id
     folder.mkdir(parents=True)
     with open(folder / "mutations.csv", "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
-    meta = {"run_id": run_id, "title": "Quote check v2 false-accept check (mutated verified quotes)",
+    meta = {"run_id": run_id, "title": "Quote check v2 (tightened) false-accept check (mutated verified quotes)",
             "started": started.isoformat(timespec="seconds"), "source_runs": [f"test-data/runs/{r}" for r in RUNS_IN],
             "n_verified_quotes": len(items), "script": "code/helpdesk/quote_mutations.py",
-            "quote_check": "pipeline.verify_quote (v2)", "near_rule": {"min_content_words": pipeline.NEAR_MIN_WORDS,
-                                                                       "min_word_share": pipeline.NEAR_MIN_SHARE},
+            "quote_check": QUOTE_CHECK_TEXT, "near_rule": {"min_content_words": pipeline.NEAR_MIN_WORDS,
+                                                           "word_share": 1.0, "negations": sorted(pipeline.NEGATIONS),
+                                                           "negation_window": pipeline.NEGATION_WINDOW},
             "totals": totals, "git": git_info(), "api_calls": 0}
     (folder / "run_meta.json").write_text(json.dumps(meta, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    lines = [f"# Quote check v2: false-accept check ({run_id})", "",
+    lines = [f"# Quote check v2 (tightened): false-accept check ({run_id})", "",
              f"{len(items)} verified quotes from {', '.join(f'`test-data/runs/{r}`' for r in RUNS_IN)}; each mutated "
              "and checked against the same row's retrieved sections with `pipeline.verify_quote` (v2). No API call. "
              "Mutation definitions: docstring of `code/helpdesk/quote_mutations.py`. A mutated quote that is "

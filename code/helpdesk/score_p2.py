@@ -53,9 +53,10 @@ SEARCH_TEXT = {"route5": "helpdesk.kb_search.search_for_route(question, first to
                "routed5_all3_prog": "helpdesk.kb_search.search_routed_plus_all_prog: as routed5_all3, but an "
                                     "ACADEMICS question naming a programme takes its top 5 routed only from that "
                                     "programme's COURSE_SPECIFIC file(s)"}
-QUOTE_CHECK_TEXT = ("pipeline.verify_quote (quote check v2): rule exact = quote_forms() match (** and __ removed, OCR "
-                    "line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against one section, "
-                    "every number present, >= 90% of content words present, >= 4 content words")
+QUOTE_CHECK_TEXT = ("pipeline.verify_quote (quote check v2, tightened): rule exact = quote_forms() match (** and __ "
+                    "removed, OCR line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against "
+                    "one section, every content word present (negations kept), every number next to the same token, "
+                    ">= 4 content words; both rules reject a dropped negation")
 
 
 def first(field: str) -> str:
