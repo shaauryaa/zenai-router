@@ -11,8 +11,9 @@ answer(question, p2_version) returns a dict holding every intermediate step:
   e. quote check v2 (code, no LLM, verify_quote): rule "exact" = the quote appears in one retrieved section after
      normalising both sides (quote_forms: markdown ** and __ removed, OCR line-end hyphens joined, whitespace
      collapsed, case-insensitive). If not, rule "near" accepts it against ONE section when every content word of the
-     quote (negation words kept) is in that section, every number sits next to the same token as in the section, and
-     it has >= 4 content words (table rows reformatted, OCR lines reordered, OCR typos such as "ona scale"). Both
+     quote (negation words kept) is in that section, every number has the same tokens on both sides as in the
+     section, it has >= 4 content words, and the best-matching part of the section has as many negations as the
+     quote (table rows reformatted, OCR lines reordered, OCR typos such as "ona scale"). Both
      rules reject a quote that drops a negation standing just before the matched text in the source.
      quote_check["rule"] records which rule verified it.
      If P2 says found but the check fails, action becomes not_found and the reason is kept
@@ -25,6 +26,9 @@ Options (Milestone 2 steps; the defaults are the original pipeline):
          from the routed folder + top 3 from all folders
        | "routed5_all3_prog" the same, but for an ACADEMICS question that names a programme (kb_search.programme_files
          on the question and the search_query) the top 5 routed come only from that programme's COURSE_SPECIFIC file(s)
+  own_topic_text=True (final pipeline with two topics): when P1 finds two or more topics, P2 gets the first topic's
+  own text instead of the whole message. Steps c-f for one topic are answer_topic(); final_answer() runs it for
+  topic 2 too (config FINAL["topics"] == 2) and returns both in out["topic_results"].
 
 Provider errors (quota, network) are raised, never turned into answers.
 """
@@ -287,7 +291,8 @@ def parse_json(reply: dict) -> dict:
     return out
 
 
-def answer(question: str, p2_version: str, provider=None, router: str = "v1", search: str = "route5") -> dict:
+def answer(question: str, p2_version: str, provider=None, router: str = "v1", search: str = "route5",
+           own_topic_text: bool = False) -> dict:
     if router not in ROUTERS or search not in SEARCHES:
         raise ValueError(f"router must be one of {ROUTERS}, search one of {SEARCHES}")
     out: dict = {"question": question, "p2_version": p2_version, "router_version": router, "search": search,
@@ -305,69 +310,114 @@ def answer(question: str, p2_version: str, provider=None, router: str = "v1", se
     first = topics[0]
     out["first_topic"] = {"domain": first.domain, "request_type": first.request_type}
     out["llm_calls"] += router_meta["attempts"]
-    if first.request_type is None:
-        out.update(action="handoff", reason="router reply unusable")
-        return out
-    if first.request_type in ROUTER_ACTIONS:
-        out.update(action=ROUTER_ACTIONS[first.request_type], reason=f"router request_type {first.request_type}")
-        return out
+    p2_question = question
+    if own_topic_text and len(topics) > 1:
+        p2_question = (getattr(first, "text", "") or "").strip() or question
+        out["p2_question"] = p2_question
+
+    # c-f for the first topic
+    r = answer_topic(out["router"]["topics"][0], p2_question, p2_version, provider, search)
+    out["llm_calls"] += r.pop("llm_calls")
+    out.update({k: v for k, v in r.items() if k not in ("topic", "question")})
+    return out
+
+
+TOPIC_FIELDS = ("action", "reason", "search_query", "retrieval", "p2_prompt_sha256", "p2_raw", "p2", "quote_check")
+
+
+def answer_topic(topic: dict, question: str, p2_version: str, provider, search: str = "route5") -> dict:
+    """Steps c-f for ONE router topic (a dict as in out["router"]["topics"]): its request_type decides refuse /
+    clarify / handoff, an info topic gets its own search (its search_query, else `question`, and its domain), P2 on
+    `question` and the quote check. Returns {"topic", "question", "llm_calls", "programme_files" (prog search only),
+    *TOPIC_FIELDS}."""
+    r: dict = {"topic": topic, "question": question, "llm_calls": 0, **{k: None for k in TOPIC_FIELDS}}
+    r.update(reason="", retrieval=[])
+    rt, domain = topic.get("request_type"), topic.get("domain")
+    if rt is None:
+        r.update(action="handoff", reason="router reply unusable")
+        return r
+    if rt in ROUTER_ACTIONS:
+        r.update(action=ROUTER_ACTIONS[rt], reason=f"router request_type {rt}")
+        return r
 
     # c. search
     if search == "route5":
         query = question
-        hits = kb_search.search_for_route(query, first.domain, k=5)
+        hits = kb_search.search_for_route(query, domain, k=5)
     else:
-        query = (getattr(first, "search_query", "") or "").strip() or question
+        query = (topic.get("search_query") or "").strip() or question
         if search == "routed5_all3":
-            hits = kb_search.search_routed_plus_all(query, first.domain, routed_k=5, all_k=3)
+            hits = kb_search.search_routed_plus_all(query, domain, routed_k=5, all_k=3)
         else:
-            out["programme_files"] = (kb_search.programme_files(question, query)
-                                      if first.domain == "ACADEMICS" else [])
-            hits = kb_search.search_routed_plus_all_prog(query, first.domain, question, routed_k=5, all_k=3)
-    out["search_query"] = query
-    out["retrieval"] = [{"id": h.chunk.id, "file": h.chunk.file, "title": h.chunk.title, "office": h.chunk.office,
-                         "page": h.chunk.page, "score": h.score} for h in hits]
+            r["programme_files"] = kb_search.programme_files(question, query) if domain == "ACADEMICS" else []
+            hits = kb_search.search_routed_plus_all_prog(query, domain, question, routed_k=5, all_k=3)
+    r["search_query"] = query
+    r["retrieval"] = [{"id": h.chunk.id, "file": h.chunk.file, "title": h.chunk.title, "office": h.chunk.office,
+                       "page": h.chunk.page, "score": h.score} for h in hits]
 
     # d. P2
     prompt = fill(load_template(p2_version), question, format_sections(hits))
-    out["p2_prompt_sha256"] = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+    r["p2_prompt_sha256"] = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
     messages = [{"role": "user", "content": prompt}]
-    out["llm_calls"] += 1
+    r["llm_calls"] += 1
     if p2_version in PLAIN_TEXT_VERSIONS:
         raw = provider.chat_text(messages)
-        out["p2_raw"] = raw
+        r["p2_raw"] = raw
         p2 = parse_plain(raw)
     else:
         try:
             reply = provider.chat_json(messages)
-            out["p2_raw"] = reply
+            r["p2_raw"] = reply
             p2 = parse_json(reply)
         except JSONParseError as e:  # the model's reply was not JSON: a format failure, not a provider error
-            out["p2_raw"] = e.raw
+            r["p2_raw"] = e.raw
             p2 = {"found": False, "answer": e.raw, "quote": "", "doc_title": "", "page": "", "language": "",
                   "format_valid": False, "format_error": str(e)}
-    out["p2"] = p2
+    r["p2"] = p2
 
     # e. quote check
-    out["quote_check"] = qc = verify_quote(p2["quote"], hits)
+    r["quote_check"] = qc = verify_quote(p2["quote"], hits)
 
     # f. decision
-    out["action"], out["reason"] = decide(p2, qc["verified"], qc["reason"], qc["rule"])
-    return out
+    r["action"], r["reason"] = decide(p2, qc["verified"], qc["reason"], qc["rule"])
+    return r
 
 
-FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v2"}
+# The final pipeline (Milestone 2 sprint S2): P1 v2 + programme-aware search + P2 v5 + quote check v2 (tightened) +
+# P3 v2, and the first two topics of a message each answered on their own.
+FINAL = {"router": "v2", "search": "routed5_all3_prog", "p2": "v5", "p3": "v2", "topics": 2}
+# The 22 Nov final pipeline as re-scored from the cache in sprint S1 (one topic, old search, P2 v2).
+S1_FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v2", "topics": 1}
 
 
-def final_answer(question: str, provider=None) -> dict:
-    """The frozen final pipeline: P1 v2 -> search routed5_all3 -> P2 v2 -> quote check, then helpdesk/handoff.py:
-    a P3 handoff draft for not_found and handoff, fixed template text for refuse and clarify, and the multi-topic
-    note when P1 finds two or more topics."""
+def final_answer(question: str, provider=None, config: dict | None = None) -> dict:
+    """The final pipeline (config, default FINAL): P1 -> search -> P2 -> quote check, then helpdesk/handoff.py: a P3
+    handoff draft for not_found and handoff, fixed template text for refuse and clarify.
+    config["topics"] == 1: only the first topic is handled; the multi-topic note lists the others.
+    config["topics"] == 2: with two or more topics, topics 1 and 2 are each handled on their own (P2 and P3 get the
+    topic's own text) and out["topic_results"] lists both; the top-level fields stay topic 1's; a note lists any
+    topic after the second. A one-topic message is handled exactly as with topics == 1, plus topic_results."""
     from helpdesk import handoff  # local import: handoff.py does not import this module
 
+    cfg = config or FINAL
     provider = provider or default_provider()
-    out = answer(question, FINAL["p2"], provider, router=FINAL["router"], search=FINAL["search"])
-    return handoff.finish(out, provider)
+    n = cfg.get("topics", 1)
+    out = answer(question, cfg["p2"], provider, router=cfg["router"], search=cfg["search"], own_topic_text=n >= 2)
+    out = handoff.finish(out, provider, answered=n)
+    if n < 2:
+        return out
+    topics = (out.get("router") or {}).get("topics") or []
+    results = [{"topic": topics[0] if topics else None, "question": out.get("p2_question") or question,
+                "llm_calls": out["llm_calls"],
+                **{k: out.get(k) for k in (*TOPIC_FIELDS, "programme_files", "office", "office_name", "reply_text",
+                                           "p3")}}]
+    for t in topics[1:n]:
+        q = (t.get("text") or "").strip() or question
+        r = handoff.finish_topic(answer_topic(t, q, cfg["p2"], provider, cfg["search"]), provider)
+        out["llm_calls"] += r["llm_calls"]
+        results.append(r)
+    out["topic_results"] = results
+    return out
 
 
 def decide(p2: dict, verified: bool, why: str, rule: str | None = None) -> tuple[str, str]:

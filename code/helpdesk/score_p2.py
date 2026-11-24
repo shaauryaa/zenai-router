@@ -20,6 +20,8 @@ Metrics, per question (multi-topic rows such as Q16 are scored on the first topi
 - format_valid: P2 reply parsed as JSON with all keys and a true/false "found"       (rows that reached P2, v2+)
 - language: the answer is in Hinglish (at least 3 Hinglish function words)                     (Hinglish rows)
 - router_office: the router's first-topic domain == v1_domain          (router_scorable = yes and v1_domain set)
+- topic2_action: the second topic's action == the second expected_action    (rows labelled with two actions, in runs
+  of the two-topic final pipeline, which records out["topic_results"]; not part of Pass)
 """
 from __future__ import annotations
 
@@ -43,7 +45,8 @@ HINGLISH_WORDS = frozenset("""hai hain aap aapko aapke aapka ke ki ka ko mein na
 milegi kar karna karein karke ya aur toh hoga liye kya bhi agar jab tak lekin raha rahi ho hota""".split())
 METRICS = [("action", "Final action correct"), ("key_fact", "Key fact found"), ("quote_verified", "Quote verified"),
            ("doc_cited", "Right document cited"), ("format_valid", "Valid format (JSON)"),
-           ("language", "Language matches (Hinglish rows)"), ("router_office", "Router office correct")]
+           ("language", "Language matches (Hinglish rows)"), ("router_office", "Router office correct"),
+           ("topic2_action", "Topic 2 action correct (two-action rows)")]
 ROW_FIELDS = ("expected_action", "expected_office", "expected_doc", "key_fact", "language", "v1_domain")
 ROUTER_TEXT = {"v1": "zenai/llm_router.py classify() (P1 v1, frozen)",
                "v2": "helpdesk/router_v2.py classify() (P1 v2, prompts/v2/P1_router.md)"}
@@ -101,6 +104,12 @@ def score(row: dict, out: dict) -> dict:
         s["router_office"] = (out.get("first_topic") or {}).get("domain") == first(row["v1_domain"])
     else:
         s["router_office"] = None
+    actions = row["expected_action"].split(";")
+    if len(actions) > 1 and "topic_results" in out:
+        results = out["topic_results"]
+        s["topic2_action"] = len(results) > 1 and results[1]["action"] == actions[1]
+    else:
+        s["topic2_action"] = None
     return s
 
 

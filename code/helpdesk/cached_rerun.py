@@ -3,8 +3,9 @@
 Run (from code/):  python -m helpdesk.cached_rerun seen     (test-data/questions.csv, base final_20261122-201923)
                    python -m helpdesk.cached_rerun fresh    (test-data/fresh_questions.csv, base fresh_20261122-214926)
 
-Same pipeline.final_answer() and the final test's scorer (final_test.passed / expected_text / actual_text) as
-helpdesk/final_test.py, with the current code (current quote check, search routed5_all3). The provider may not send any
+pipeline.final_answer() with config pipeline.S1_FINAL (one topic, search routed5_all3, P2 v2, P3 v2) and the current
+quote check, scored with the final test's scorer (final_test.passed / expected_text / actual_text). Under S1_FINAL
+every P1/P2/P3 request is one the 22 Nov runs already made, so it comes from the cache. The provider may not send any
 request: a cache miss raises CacheOnlyError, the run stops and nothing is saved. Saves
 test-data/runs/<seen: final_qv2tight | fresh: fresh_qv2tight>_<timestamp>/ (outputs.jsonl, run_meta.json, scorecard.md,
 table.csv). Existing run folders and test-data/final_test_table.* are not touched.
@@ -57,7 +58,7 @@ def main(argv: list[str] | None = None) -> None:
     records, table, changes = [], [], []
     for row in rows:
         try:
-            out = pipeline.final_answer(row["question"], provider)
+            out = pipeline.final_answer(row["question"], provider, config=pipeline.S1_FINAL)
         except ProviderError as e:
             sys.exit(f"stopped at {row['id']}: {type(e).__name__}: {e}\nNothing saved.")
         s = score(row, out)
@@ -86,7 +87,7 @@ def main(argv: list[str] | None = None) -> None:
             "started": started.isoformat(timespec="seconds"), "finished": datetime.now().isoformat(timespec="seconds"),
             "questions": cfg["questions"].relative_to(REPO_ROOT).as_posix(), "n_questions": len(records),
             "question_status": "seen (used to choose the fix)" if cfg["prefix"].startswith("fresh") else "seen",
-            "settings": provider.metadata(), "final": pipeline.FINAL, "quote_check": QUOTE_CHECK_TEXT,
+            "settings": provider.metadata(), "final": pipeline.S1_FINAL, "quote_check": QUOTE_CHECK_TEXT,
             "router_prompt_sha256": router_v2.file_sha256(), "p2_prompt_sha256": pipeline.file_sha256("v2"),
             "p3_prompt_file": handoff.PROMPT_FILE.relative_to(REPO_ROOT).as_posix(),
             "p3_prompt_sha256": handoff.file_sha256(),

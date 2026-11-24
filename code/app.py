@@ -1,7 +1,8 @@
 """ZEN AI: Campus Helpdesk (Streamlit). Run from the repo root:  streamlit run code/app.py
 
-The frozen final pipeline (helpdesk.pipeline.final_answer): P1 v2 router -> BM25 search (5 routed + 3 all) -> P2 v2
-grounded answer -> code quote check -> P3 handoff draft (not_found, handoff) or fixed text (refuse, clarify).
+The final pipeline (helpdesk.pipeline.final_answer, pipeline.FINAL): P1 v2 router -> BM25 search (5 routed, or 5 from
+the named programme's rules for an academic question, + 3 all) -> P2 grounded answer -> code quote check -> P3 handoff
+draft (not_found, handoff) or fixed text (refuse, clarify). A message with two topics gets one result card per topic.
 API key: st.secrets["GEMINI_API_KEY"], else the environment (.env locally). Nothing is ever sent by email.
 Look and feel: theme in .streamlit/config.toml (light and dark) plus the small scoped CSS in APP_CSS.
 """
@@ -37,13 +38,13 @@ ACTION_STYLE = {"answer": ("green", ":material/task_alt:"), "not_found": ("orang
 APP_CSS = """
 <style>
 h1 { letter-spacing: -0.022em; line-height: 1.1; }
-.st-key-result_card blockquote {
+[class*="st-key-result_card"] blockquote {
   margin: 0.25rem 0 0; padding: 0.75rem 1rem; border-left: 3px solid #2563EB; border-radius: 0 0.5rem 0.5rem 0;
   background: rgba(127, 127, 140, 0.09);
 }
-.st-key-result_card blockquote, .st-key-result_card blockquote p { color: inherit !important; opacity: 1 !important; }
-.st-key-result_card blockquote p { font-size: 0.95rem; line-height: 1.55; }
-.st-key-result_card .stCode pre { white-space: pre-wrap; }
+[class*="st-key-result_card"] blockquote, [class*="st-key-result_card"] blockquote p { color: inherit !important; opacity: 1 !important; }
+[class*="st-key-result_card"] blockquote p { font-size: 0.95rem; line-height: 1.55; }
+[class*="st-key-result_card"] .stCode pre { white-space: pre-wrap; }
 .stButton button, .stFormSubmitButton button { transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1); }
 .stButton button:active, .stFormSubmitButton button:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
@@ -134,28 +135,30 @@ def show_handoff(r: dict) -> None:
         st.caption(f"I couldn't prepare a draft this time. Please contact the {office} directly.")
 
 
-def show_details(r: dict) -> None:
+def show_details(r: dict, topic: dict | None, all_topics: list[dict], calls_label: str) -> None:
+    """The debug expander for one topic's result. all_topics: every P1 topic, shown as a table (first card only)."""
     with st.expander("How ZEN AI decided", icon=":material/account_tree:"):
-        topics = (r.get("router") or {}).get("topics") or []
-        first = topics[0] if topics else {}
-        st.markdown(f"**Final action:** `{r['action']}` ({r['reason']}). LLM calls for this question: {r['llm_calls']}.")
-        st.markdown("**Step 1. Router (P1 v2)**")
-        if topics:
-            st.markdown(f"Office: `{r['office']}` (router domain `{first.get('domain')}`) · request type "
-                        f"`{first.get('request_type')}` · search query: `{r.get('search_query') or '-'}`")
-            if len(topics) > 1:
+        st.markdown(f"**Final action:** `{r['action']}` ({r['reason']}). {calls_label}: {r['llm_calls']}.")
+        st.markdown(f"**Step 1. Router (P1 {pipeline.FINAL['router']})**")
+        if topic:
+            st.markdown(f"Office: `{r['office']}` (router domain `{topic.get('domain')}`) · request type "
+                        f"`{topic.get('request_type')}` · search query: `{r.get('search_query') or '-'}`")
+            if len(all_topics) > 1:
                 st.dataframe([{k: t.get(k) for k in ("text", "domain", "request_type", "search_query")}
-                              for t in topics], hide_index=True)
+                              for t in all_topics], hide_index=True)
         else:
             st.markdown("Not run (empty question).")
-        st.markdown("**Step 2. Search (BM25: top 5 from the routed folder + top 3 from all folders)**")
+        st.markdown("**Step 2. Search (BM25: top 5 from the routed folder, or from the named programme's rules for an "
+                    "academic question, + top 3 from all folders)**")
+        if r.get("programme_files"):
+            st.markdown("Programme named: searched only " + ", ".join(f"`{f}`" for f in r["programme_files"]))
         if r.get("retrieval"):
             st.dataframe([{"#": n, "document": h["title"], "page": h["page"], "folder": h["office"],
                            "score": h["score"], "section id": h["id"]} for n, h in enumerate(r["retrieval"], 1)],
                          hide_index=True)
         else:
             st.markdown("Not run: the router decided without searching.")
-        st.markdown("**Step 3. Grounded answer (P2 v2), raw reply**")
+        st.markdown(f"**Step 3. Grounded answer (P2 {pipeline.FINAL['p2']}), raw reply**")
         raw = r.get("p2_raw")
         if isinstance(raw, dict):
             st.json(raw)
@@ -184,19 +187,29 @@ def show_details(r: dict) -> None:
 
 
 def show_result(r: dict) -> None:
+    """One result card (and debug expander) per answered topic; the note lists topics that were not answered."""
     if r.get("multi_topic_note"):
         st.warning(r["multi_topic_note"], icon=":material/call_split:")
         st.markdown("Not answered here: " + "; ".join(f"“{t}”" for t in r["other_topics"]))
-    with st.container(border=True, key="result_card"):
-        color, icon = ACTION_STYLE.get(r["action"], ("gray", None))
-        st.badge(ACTION_LABELS.get(r["action"], r["action"]), icon=icon, color=color)
-        if r["action"] == "answer":
-            show_answer(r)
-        elif r["action"] in ("not_found", "handoff"):
-            show_handoff(r)
-        else:
-            st.markdown(r.get("reply_text") or "")
-    show_details(r)
+    all_topics = (r.get("router") or {}).get("topics") or []
+    results = r.get("topic_results") or [{**r, "topic": all_topics[0] if all_topics else None}]
+    several = len(results) > 1
+    for n, tr in enumerate(results, 1):
+        if several:
+            st.subheader(f"Question {n} of {len(results)}", anchor=False)
+            st.caption(f"“{tr.get('question') or ''}”")
+        with st.container(border=True, key=f"result_card_{n}"):
+            color, icon = ACTION_STYLE.get(tr["action"], ("gray", None))
+            st.badge(ACTION_LABELS.get(tr["action"], tr["action"]), icon=icon, color=color)
+            if tr["action"] == "answer":
+                show_answer(tr)
+            elif tr["action"] in ("not_found", "handoff"):
+                show_handoff(tr)
+            else:
+                st.markdown(tr.get("reply_text") or "")
+        label = ("LLM calls for this question" if not several
+                 else "LLM calls (router + this part)" if n == 1 else "LLM calls for this part")
+        show_details(tr, tr.get("topic"), all_topics if n == 1 else [], label)
 
 
 def sidebar() -> None:
@@ -206,7 +219,8 @@ def sidebar() -> None:
         st.markdown(f"**Model:** {cfg['provider']['chat_model']} (temperature {cfg['provider']['temperature']})")
         st.markdown(f"**Prompts in use:**\n- P1 router {pipeline.FINAL['router']}\n"
                     f"- P2 grounded answer {pipeline.FINAL['p2']}\n- P3 handoff draft {pipeline.FINAL['p3']}\n\n"
-                    "**Search:** BM25, top 5 from the routed folder + top 3 from all folders\n\n"
+                    "**Search:** BM25, top 5 from the routed folder (or the named programme's rules) + top 3 from "
+                    "all folders\n\n**Two questions in one message:** each is answered on its own\n\n"
                     "**Quote check:** code, no LLM")
         st.info("No login. Don't enter personal details.", icon=":material/lock:")
         asked = st.session_state.get("asked", 0)

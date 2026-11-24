@@ -1,5 +1,6 @@
 """Final pipeline: P3 handoff draft, refuse/clarify templates, multi-topic note, final test table. No network."""
 from helpdesk import final_test, handoff, pipeline
+from helpdesk.score_p2 import score
 from zenai.paths import PROMPTS
 from zenai.providers import FakeProvider
 
@@ -84,12 +85,91 @@ def test_clarify_names_two_offices():
     assert "Finance Office" in text and "Hostel Wardens" in text
 
 
-def test_multi_topic_note_and_other_topics_kept():
+def test_multi_topic_note_and_other_topics_kept_one_topic_pipeline():
     fake = FakeProvider(chat_replies=[p1(topic("OUT_OF_SCOPE", "not_campus", text="a"), topic("HOSTEL", text="b"))])
-    out = pipeline.final_answer("a and b", fake)
+    out = pipeline.final_answer("a and b", fake, config=pipeline.S1_FINAL)
     assert out["multi_topic_note"] == handoff.MULTI_TOPIC_NOTE and out["other_topics"] == ["b"]
-    out = pipeline.final_answer("a", FakeProvider(chat_replies=[p1(topic("OUT_OF_SCOPE", "not_campus"))]))
+    assert "topic_results" not in out and fake.calls_made == 1
+    out = pipeline.final_answer("a", FakeProvider(chat_replies=[p1(topic("OUT_OF_SCOPE", "not_campus"))]),
+                                config=pipeline.S1_FINAL)
     assert out["multi_topic_note"] == "" and out["other_topics"] == []
+
+
+P2_FOUND = {"found": True, "answer": "Rs. 1,000.", "quote": "made-up quote that is not in any section",
+            "doc_title": "", "page": "", "language": "en"}
+
+
+def test_final_config_is_two_topics_with_new_search_and_p2_v5():
+    assert pipeline.FINAL == {"router": "v2", "search": "routed5_all3_prog", "p2": "v5", "p3": "v2", "topics": 2}
+
+
+def test_two_info_topics_each_get_their_own_search_and_p2():
+    fake = FakeProvider(chat_replies=[
+        p1(topic("FEES", text="How much is the late fee?", sq="late registration fee"),
+           topic("HOSTEL", text="When must I be back at night?", sq="hostel in-time night")),
+        P2_FOUND, DRAFT, P2_NOT_FOUND, DRAFT])  # order: P1, P2 t1, P3 t1, P2 t2, P3 t2
+    out = pipeline.final_answer("How much is the late fee? And when must I be back at night?", fake)
+    t1, t2 = out["topic_results"]
+    assert out["action"] == t1["action"] == "not_found"  # topic 1: quote check failed; top level = topic 1
+    assert out["search_query"] == t1["search_query"] == "late registration fee"
+    assert t2["search_query"] == "hostel in-time night" and t2["action"] == "not_found"
+    assert t2["office"] == "HOSTEL" and t2["p3"]["office"] == "HOSTEL"
+    assert any(h["office"] == "HOSTEL" for h in t2["retrieval"])
+    # each P2 gets its own topic's text, not the whole message
+    p2_prompts = [fake.chat_requests[i][0]["content"] for i in (1, 3)]
+    assert "How much is the late fee?" in p2_prompts[0] and "back at night" not in p2_prompts[0].split("STUDENT")[-1]
+    assert p2_prompts[1].rstrip().endswith("When must I be back at night?")
+    p3_t1 = fake.chat_requests[2][0]["content"]
+    assert out["p3"]["office"] == "FINANCE" and "How much is the late fee?" in p3_t1 and "back at night" not in p3_t1
+    assert out["multi_topic_note"] == "" and out["other_topics"] == []
+    assert out["llm_calls"] == 1 + 1 + 1 + 1 + 1  # P1, P2 x2, P3 for topic 1 (found but unverified), P3 topic 2
+
+
+def test_second_topic_router_actions():
+    fake = FakeProvider(chat_replies=[
+        p1(topic("OUT_OF_SCOPE", "not_campus", text="Who won?"),
+           topic("FEES", "needs_human", text="Waive my fine", reason="Needs the student's own record.")), DRAFT])
+    out = pipeline.final_answer("Who won? Waive my fine", fake)
+    t1, t2 = out["topic_results"]
+    assert out["action"] == "refuse" and out["reply_text"] == handoff.REFUSE_TEXT and t1["action"] == "refuse"
+    assert t2["action"] == "handoff" and t2["p3"]["reason"] == handoff.REASON_RECORD and t2["office"] == "FINANCE"
+    fake = FakeProvider(chat_replies=[p1(topic("FEES", "vague", text="fees?"), topic("HOSTEL", "vague", text="room?"))])
+    out = pipeline.final_answer("fees? room?", fake)
+    t1, t2 = out["topic_results"]
+    assert "Finance Office" in t1["reply_text"] and "Hostel" not in t1["reply_text"]
+    assert "Hostel Wardens" in t2["reply_text"] and fake.calls_made == 1
+
+
+def test_three_topics_note_for_the_rest():
+    fake = FakeProvider(chat_replies=[p1(topic("OUT_OF_SCOPE", "not_campus", text="a"),
+                                         topic("OUT_OF_SCOPE", "not_campus", text="b"),
+                                         topic("HOSTEL", text="c"))])
+    out = pipeline.final_answer("a b c", fake)
+    assert len(out["topic_results"]) == 2 and out["other_topics"] == ["c"]
+    assert out["multi_topic_note"] == handoff.MULTI_TOPIC_NOTE_REST and "first two" in out["multi_topic_note"]
+
+
+def test_one_topic_message_unchanged_in_two_topic_pipeline():
+    fake = FakeProvider(chat_replies=[p1(topic(text="part")), P2_NOT_FOUND, DRAFT])
+    out = pipeline.final_answer("Is there a fee for the gym?", fake)
+    assert len(out["topic_results"]) == 1 and out["topic_results"][0]["action"] == out["action"] == "not_found"
+    assert "p2_question" not in out and fake.chat_requests[1][0]["content"].rstrip().endswith("for the gym?")
+
+
+def test_topic2_metric_and_table_text():
+    row = {"expected_action": "answer;answer", "key_fact": "x;y", "expected_doc": "", "language": "en",
+           "router_scorable": "no", "v1_domain": ""}
+    out = {"action": "answer", "p2_version": "v5", "p2": {}, "quote_check": {}, "first_topic": {},
+           "topic_results": [{"action": "answer"}, {"action": "not_found"}]}
+    assert score(row, out)["topic2_action"] is False
+    out["topic_results"][1]["action"] = "answer"
+    assert score(row, out)["topic2_action"] is True
+    assert score({**row, "expected_action": "answer"}, out)["topic2_action"] is None
+    assert score(row, {k: v for k, v in out.items() if k != "topic_results"})["topic2_action"] is None
+    text = final_test.actual_text({"action": "refuse", "reply_text": "no", "topic_results": [
+        {"action": "refuse"}, {"action": "clarify", "reply_text": "which office?"}]})
+    assert "; topic 2: clarify" in text
+    assert final_test.expected_text(row).endswith("; topic 2 expected answer")
 
 
 def test_final_test_pass_rule():
