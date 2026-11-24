@@ -4,6 +4,10 @@ showErrorDetails = "none"
 # Hide developer menu items (Deploy, rerun settings) from students.
 toolbarMode = "viewer"
 
+[browser]
+# No usage statistics sent to Streamlit (also keeps the browser console clean when that request times out).
+gatherUsageStats = false
+
 [theme]
 # System font stack: native optical sizing and tracking on every platform.
 font = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"

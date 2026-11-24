@@ -26,11 +26,15 @@ from zenai.providers import ProviderError, QuotaError  # noqa: E402
 MAX_QUESTIONS = 20
 FOOTER = "Answers come only from official Bennett University documents. Drafts are never sent automatically."
 # Suggestion cards only fill the message box; nothing runs until the student presses Send or Enter.
+# Each is a test-data/questions.csv question (Q01, Q04, Q13, Q12) that passes in run final_20261124-181511, so its
+# verified answer is already in the provider cache.
 SUGGESTIONS = [
-    ("Fees", ":material/payments:", "How long does it take to get my fee refund after I withdraw from the programme?"),
-    ("Hostel", ":material/bed:", "kya main hostel room mein apna pet, jaise ek billi, rakh sakta hoon?"),
-    ("IT", ":material/wifi:", "How do I reset my university login password?"),
-    ("Academics", ":material/school:", "What is the minimum attendance I need to sit the end-semester exams?"),
+    ("Fees", ":material/payments:",
+     "I'm in first year and thinking of cancelling my admission in mid October. Will I get my full fee back?"),
+    ("Outpass", ":material/door_open:", "Do I need an out pass to go out of campus on a Sunday afternoon?"),
+    ("Hostel", ":material/translate:", "kya mere parents mere hostel room mein aa sakte hain?"),
+    ("Academics", ":material/school:",
+     "How do I raise a request with the Registrar's office online, like for a bonafide certificate?"),
 ]
 OFFICE_CHIPS = [("Fees", "About fees: "), ("Hostel", "About the hostel: "), ("IT", "About IT and wifi: "),
                 ("Academics", "About academics: "), ("Student support", "About student support: ")]
