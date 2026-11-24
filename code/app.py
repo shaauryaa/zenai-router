@@ -4,7 +4,7 @@ The final pipeline (helpdesk.pipeline.final_answer, pipeline.FINAL): P1 v2 route
 the named programme's rules for an academic question, + 3 all) -> P2 grounded answer -> code quote check -> P3 handoff
 draft (not_found, handoff) or fixed text (refuse, clarify). A message with two topics gets one section per topic.
 API key: st.secrets["GEMINI_API_KEY"], else the environment (.env locally). Nothing is ever sent by email.
-Look and feel: theme in .streamlit/config.toml (light and dark) plus the small scoped CSS in app_css(). The UI never
+Look and feel: light-only theme in .streamlit/config.toml plus the small scoped CSS in app_css(). The UI never
 changes what the pipeline does: StepProvider only watches the provider calls to show live progress.
 """
 from __future__ import annotations
@@ -57,16 +57,11 @@ if (!window.__zenCopy) {
 }
 </script>"""
 
-TOKENS = {  # colours the theme cannot express; picked per active theme (st.context.theme.type)
-    "light": {"sky": "#0593C6", "link": "#0479A6", "pink": "#D83995", "muted": "#5B6B78", "card": "#FFFFFF", "border": "#E6EDF2",
-              "bubble": "#E9F6FC", "bubble_text": "#14212B", "quote": "#F5F9FB", "red": "#B42318",
-              "red_bg": "#FDF1EF", "amber": "#B45309", "amber_text": "#8A3B06", "amber_bg": "#FDF3E4", "glow_sky": "rgba(5,147,198,0.20)",
-              "glow_pink": "rgba(216,57,149,0.13)", "active_bg": "rgba(216,57,149,0.08)", "shadow": "rgba(20,33,43,0.05)"},
-    "dark": {"sky": "#3DB8E8", "link": "#3DB8E8", "pink": "#F06BB4", "muted": "#93A3B1", "card": "#131B23", "border": "#22303C",
-             "bubble": "#13293A", "bubble_text": "#E8EEF2", "quote": "#0F171E", "red": "#F87171",
-             "red_bg": "#21121A", "amber": "#F5B544", "amber_text": "#F7C566", "amber_bg": "#2B2010", "glow_sky": "rgba(61,184,232,0.16)",
-             "glow_pink": "rgba(240,107,180,0.11)", "active_bg": "rgba(240,107,180,0.12)", "shadow": "rgba(0,0,0,0.25)"},
-}
+# Colours the theme cannot express (light mode only).
+TOKENS = {"sky": "#0593C6", "link": "#0479A6", "pink": "#D83995", "muted": "#5B6B78", "card": "#FFFFFF", "border": "#E6EDF2",
+          "bubble": "#E9F6FC", "bubble_text": "#14212B", "quote": "#F5F9FB", "red": "#B42318",
+          "red_bg": "#FDF1EF", "amber": "#B45309", "amber_text": "#8A3B06", "amber_bg": "#FDF3E4", "glow_sky": "rgba(5,147,198,0.20)",
+          "glow_pink": "rgba(216,57,149,0.13)", "active_bg": "rgba(216,57,149,0.08)", "shadow": "rgba(20,33,43,0.05)"}
 
 
 def app_css(t: dict) -> str:
@@ -311,14 +306,6 @@ def md_escape(text: str) -> str:
 
 def esc(text) -> str:
     return html.escape(str(text or ""))
-
-
-def theme_tokens() -> dict:
-    try:
-        kind = st.context.theme.type or "light"
-    except Exception:
-        kind = "light"
-    return TOKENS["dark" if kind == "dark" else "light"]
 
 
 # ---------- session state: chats live only in this session ----------
@@ -778,7 +765,7 @@ def main() -> None:
     st.set_page_config(page_title="ZEN AI: Campus Helpdesk", page_icon=":material/school:", layout="centered",
                        initial_sidebar_state="auto")
     init_state()
-    st.html(app_css(theme_tokens()))
+    st.html(app_css(TOKENS))
     st.html(COPY_SCRIPT, unsafe_allow_javascript=True)
     left = MAX_QUESTIONS - st.session_state["asked"]
     with st.bottom:
