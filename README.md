@@ -28,24 +28,35 @@ office for the student to send.
 4. Open **"How ZEN AI decided"** to see every step: the router's office, request type and search query, the
    retrieved sections with their scores, the raw answer JSON, the quote check result and the handoff draft checks.
 
-A message with two questions gets the first one answered and a clear note asking the student to send the other
-separately. Each browser session can ask 20 questions.
+A message with two questions gets both answered, each on its own (a third topic is listed with a note asking the
+student to send it separately). A student who reports something happening to them (ragging, harassment, threats)
+first sees a card of official contacts copied from the documents, then a draft to Student Support. After a
+"needs more detail" reply, a short answer (8 words or fewer) is joined to the previous question. Each browser session
+can ask 20 questions.
 
 ## How it works: the prompt chain
 
 ```
-student question
+student message  (after a clarify, a short reply is joined to the previous question: clarify follow-up)
   -> P1 router (LLM, prompts/final/P1_router.md = P1 v2)
        office, request type (info / needs_human / vague / not_campus), English search query, one entry per topic
+  -> for each of the first two topics, on its own text (two topics; a third is listed in a note):
+       safety report (STUDENT_SUPPORT + needs_human, or an English incident pattern) -> safety card + P3 draft
        not_campus -> refuse (fixed text)   vague or empty -> clarify (fixed text)   needs_human -> handoff
-  -> search (code, BM25 over code/kb/): top 5 sections from the routed office's folder + top 3 from all folders
+  -> programme-aware search (code, BM25 over code/kb/): top 5 sections from the routed office's folder (for an
+       ACADEMICS question naming a programme, only from that programme's rules file) + top 3 from all folders
   -> P2 grounded answer (LLM, prompts/final/P2_grounded_answer.md = P2 v2)
        JSON {found, answer, quote, doc_title, page, language}, using only the retrieved sections
-  -> quote check (code, no LLM): the quote must appear in a retrieved section; if not, the answer is not shown
+  -> quote check v2 (code, no LLM): exact (after removing ** and OCR line-end hyphens, whitespace and case) or
+       near (one section; every content word, every number next to the same word, negations kept, >= 4 words)
        verified -> answer        found = false or not verified -> not_found
-  -> P3 handoff draft (LLM, prompts/final/P3_handoff.md = P3 v2), for not_found and handoff only
+  -> P3 handoff draft (LLM, prompts/final/P3_handoff.md = P3 v2), for not_found, handoff and safety
        JSON {to, subject, body}: polite, English, under 120 words, placeholders, no invented facts
 ```
+
+The safety card is fixed text plus lines copied word for word from
+`code/kb/STUDENT_SUPPORT/anti-ragging-and-sexual-harassment-contacts.md` (no LLM writes a phone number or email). The
+prompt chain has 9 saved prompt versions (P1 v1, v2; P2 v1 to v5; P3 v1, v2); see [docs/iteration_log.md](docs/iteration_log.md).
 
 Model: `gemini-3.5-flash-lite`, temperature 0. Every LLM call goes through one cached, rate-limited client
 (`code/zenai/providers.py`), so re-running a test costs no API calls and gives the same output. Office email
@@ -53,44 +64,63 @@ addresses in drafts are demo addresses on the reserved `zenai-demo.example` doma
 
 ## Results
 
-All numbers come from saved runs in `test-data/runs/` on the 24-question set `test-data/questions.csv`
-(16 answerable, 2 not in the documents, 1 needs the student's record, 2 vague/empty, 3 off-topic or unsafe;
-English, Hinglish, typos and a two-question message).
+All numbers come from saved runs in `test-data/runs/`. Three question sets:
+
+| Set | n | Status | Pass | Run |
+|---|---|---|---|---|
+| `test-data/questions.csv` | 24 | seen: used to choose every change | **22/24 (92%)** | `final_20261124-181511` |
+| `test-data/fresh_questions.csv` (fresh check 1) | 10 | now seen: its failures were used to choose the 24 Nov fixes | 9/10 (90%) | `fresh_20261124-181523` |
+| `test-data/fresh2_questions.csv` (fresh check 2) | 18 | **unseen**: written after the freeze, labels committed before the run | **11/18 (61%)** | `fresh_20261124-183516` |
+
+Pass = correct action, and for answerable rows also the key fact present and the quote verified. Fresh check 2 adds
+row types with their own rules, fixed in `test-data/README.md` before the run: two questions in one message (both
+parts must be right), safety reports (safety card with contacts) and two-turn follow-ups (clarify, then a passing
+answer).
 
 **Final test table** ([test-data/final_test_table.md](test-data/final_test_table.md), run
-`test-data/runs/final_20261122-201923`): **21/24 pass (88%)**. Pass = correct action, and for answerable rows
-also the key fact present and the quote verified.
+`test-data/runs/final_20261124-181511`, the frozen pipeline): **22/24 pass (92%)**. The 22 Nov table (21/24) is kept in
+`test-data/final_test_table_22nov.md`.
 
-| Metric (final pipeline) | Score |
+| Metric (final pipeline, 24 seen questions) | Score |
 |---|---|
-| Final action correct | 22/24 (92%) |
+| Final action correct | 23/24 (96%) |
 | Key fact found | 14/16 (88%) |
-| Quote verified in source | 14/16 (88%) |
-| Right document cited | 14/16 (88%) |
+| Quote verified in source | 15/16 (94%) |
+| Right document cited | 15/16 (94%) |
 | Valid JSON from P2 | 18/18 (100%) |
 | Hinglish answer for Hinglish question | 2/2 |
 | Router office correct | 17/17 (100%) |
 
-The three failures: Q10 (answered from a different page of the anti-ragging rules, so the expected key fact is
-missing), Q15 (correct answer rejected by the quote check because the scanned source reads "ona scale"), Q16 (the
-search query for the wifi part missed the password page). How each prompt version and pipeline step moved these
-numbers (P2 v1 to v4, router v1 to v2, search, quote check) is in [docs/iteration_log.md](docs/iteration_log.md).
+The two failures: Q10 (answered from page 3 of the anti-ragging rules, not page 5, so the expected key fact is
+missing) and Q16 (the two-question wifi/curfew message: the wifi part's search missed IT Policy p.11 and the curfew
+part also ended as not_found).
 
-The final run was made before its code was committed (its header says "e56efbf6a5 (uncommitted changes)"); that
-code is in commit 0f619fa, and the prompt sha256 values saved in the run's `run_meta.json` equal the committed prompt
-files.
+**Fresh check 2 on unseen questions** ([test-data/fresh2_check.md](test-data/fresh2_check.md)): **11/18 (61%)**:
+one-question rows 5/10, two-question rows 3/4, safety rows 2/2, follow-up rows 1/2. Failures: P2 declined with the
+rule retrieved (F13); P2 answered "90 days" from the 2019-20 handbook instead of 45 days from the IT Policy, with a
+verified quote (F15); router request type sent a question to a person (F16) or answered a vague turn 1 (F28); the
+same rule quoted from another page (F17); a search miss (F18); a correct answer rejected by the quote check on OCR
+text (F22 part 2). No price or fee was invented. On the 34 earlier questions the pipeline scored 22/24 and 9/10; on
+unseen questions it scores 61%, which is the number to trust.
 
-**Fresh check on unseen questions** ([test-data/fresh_check.md](test-data/fresh_check.md), run
-`test-data/runs/fresh_20261122-214926`): **6/10 pass (60%)**. The team wrote these 10 questions after the prompts and
-search were frozen. Their labels were committed before the run (commit "Add fresh check questions"), and nothing was
-tuned afterwards. Of the 4 failures, 2 are correct answers that the quote check rejected because the quote did not
-copy table or scanned (OCR) text exactly (F02, F07). One is a search miss (F06). In the last, P2 said "not found"
-although the answer was in the retrieved sections (F01). None gave a wrong answer: each became a handoff draft.
+How each prompt version and pipeline step moved these numbers is in [docs/iteration_log.md](docs/iteration_log.md).
 
-**Limitations.** The 24-question numbers are optimistic, because the same questions were used to choose each change
-and to measure it. On unseen questions the pass rate drops from 88% to 60%. The word-for-word quote check blocks some
-correct answers from tables and scanned pages. Some hostel answers come from the Student Handbook for 2019-20, the
-newest handbook in the documents.
+**Limitations.**
+- A verified quote does not mean a correct answer. The quote check proves the sentence is in a retrieved document,
+  not that it answers the question: F15 shows "90 days" from the 2019-20 handbook with a verified quote, while the
+  IT Policy (retrieved first) says 45 days. Some hostel answers come from that 2019-20 handbook, the newest in the
+  documents.
+- Better search recall did not mean better answers. A dual-query search raised page hit@8 from 13/16 to 14/16 but
+  dropped the seen pass rate from 22/24 to 19/24, and Q09 said "yes" to a make-up end-semester exam the rules forbid,
+  because the right page moved lower in the top 8. It was rejected.
+- F01 (fresh check 1, examination charges, no programme named) still ends as not_found: the fee page gives different
+  amounts per programme. P2 v5, written for it, lowered the seen pass rate to 19/24 and was rejected.
+- Q10 answers from a different page of the anti-ragging rules than the label (key fact missing); Q16's wifi part
+  still misses IT Policy p.11.
+- The 24 seen questions and fresh check 1 were used to choose changes, so their numbers are optimistic. Each run is
+  one run at temperature 0.
+- The quote check still rejects some correct answers from OCR and table text (F22 part 2), and the safety trigger's
+  incident patterns are English only (Hinglish reports rely on the router).
 
 **Not built in Milestone 2.** The FastAPI server, case approval and email sending, staff queues and the Next.js web
 app are planned only. `code/server/`, `code/web/` and `code/answer/` are empty placeholders, and `docs/API.md` is the
@@ -122,7 +152,7 @@ For Streamlit Community Cloud the key goes in the app's secrets as `GEMINI_API_K
 |---|---|
 | `code/` | All code. `app.py` (Streamlit app), `helpdesk/` (pipeline, router P1 v2, search, P3 handoff, scorers, `final_test.py`), `kb/` (the official documents as Markdown, one folder per office, with an `INDEX.md` each), `zenai/` (cached LLM client and the earlier router), `config/` (offices and demo mailboxes), `tests/` |
 | `prompts/` | Every prompt version with its settings and the reason for each change: `v1/` to `v4/`, and `final/` (P1 router, P2 grounded answer, P3 handoff) |
-| `test-data/` | `questions.csv` (the 24 test questions with expected action, document, page and key fact), `final_test_table.csv/.md`, `fresh_questions.csv` and `fresh_check.md` (10 unseen questions and their result), `runs/` (one folder per recorded run: outputs, scorecard, settings), `kb_manifest.csv` (every document and its source) |
+| `test-data/` | `questions.csv` (the 24 test questions with expected action, document, page and key fact), `final_test_table.csv/.md` (24 Nov; `_22nov` the earlier table), `fresh_questions.csv` and `fresh_check.md` (fresh check 1), `fresh2_questions.csv` and `fresh2_check.md` (fresh check 2, 18 unseen questions), `runs/` (one folder per recorded run: outputs, scorecard, settings), `kb_manifest.csv` (every document and its source) |
 | `docs/` | `iteration_log.md` (prompt iterations and errors), `POLICY.md` (routing rules), `RETRIEVAL.md`, `API.md` |
 
 Builds on our earlier routing prototype (Sept to Oct 2026); its code and results are kept in code/ and test-data/results/.

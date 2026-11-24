@@ -5,7 +5,7 @@ test-data/questions.csv (24 questions), model gemini-3.5-flash-lite, temperature
 definitions are in `code/helpdesk/score_p2.py`. Commands: `python -m helpdesk.score_p2 <P2 version> --router v1|v2
 --search route5|routed5_all3 --name <name>`, `--rescore <run> --name <name>` (offline) and `python -m helpdesk.route_eval`.
 
-Prompt versions saved and logged: 8 (P1 v1, v2; P2 v1, v2, v3, v4; P3 v1, v2). Full text of each is at the end of this file.
+Prompt versions saved and logged: 9 (P1 v1, v2; P2 v1, v2, v3, v4, v5; P3 v1, v2). P2 v5 was rejected (Table 3). Full text of each is at the end of this file.
 
 ## Limitations
 
@@ -16,7 +16,9 @@ run at temperature 0, so a single question flipping (for example Q09 between ste
 sensitivity to prompt wording and is not strong evidence on its own. The P1 v2 routing number on test_set.csv is on a
 seen set (see below).
 
-Fresh check after the freeze (10 new team-written questions, `test-data/fresh_check.md`, run `fresh_20261122-214926`, no tuning after it): pass 6/10 (60%) against 21/24 (88%) on the seen set; failures: 2 correct answers rejected by the quote check on table/OCR text (F02, F07), 1 search miss (F06), 1 P2 found=false with the fact retrieved (F01); no wrong or invented answer.
+Fresh check 2 after the 24 Nov freeze (18 new team-written questions: one-question, two-question, safety and follow-up rows; `test-data/fresh2_check.md`, run `fresh_20261124-183516`, labels and scoring rules committed before the run, no tuning after it): pass 11/18 (61%) against 22/24 (92%) on the seen set. One wrong answer was shown with a verified quote (F15: 90 days from the 2019-20 handbook instead of 45 days from the IT Policy), so a verified quote does not mean a correct answer.
+
+Fresh check 1 after the 22 Nov freeze (10 new team-written questions, `test-data/fresh_check.md`, run `fresh_20261122-214926`, no tuning after it): pass 6/10 (60%) against 21/24 (88%) on the seen set; failures: 2 correct answers rejected by the quote check on table/OCR text (F02, F07), 1 search miss (F06), 1 P2 found=false with the fact retrieved (F01); no wrong or invented answer.
 
 ## Table 1: P2 versions
 
@@ -69,6 +71,40 @@ What each step did (from the per-question tables in each scorecard.md):
 
 Final configuration: P1 v2 + search routed5_all3 + P2 v2 (step 3). P1 v2 is in `prompts/final/P1_router.md`, P1 v1
 stays in `prompts/v1/P1_router.md` and `code/zenai/llm_router.py`.
+
+## Table 3: 24 Nov sprint (S1-S4), changes after the 22 Nov freeze
+
+Chosen from the failures of the 22 Nov final run and of fresh check 1 (F01-F10), so both sets are seen from here on.
+Fresh check 2 (F11-F28, `test-data/fresh2_check.md`) was written after these changes and is the unseen measure.
+
+| Change | Kept? | Evidence (old -> new) | Runs |
+|---|---|---|---|
+| Quote check v2: exact rule (after `**`/`__` removed, OCR line-end hyphens joined, whitespace and case) or near rule (one section, every content word present) | kept, then tightened | Pass seen 21/24 -> 22/24, fresh 1 6/10 -> 7/10 (cache only, old search). Mutation check (18 verified quotes, each mutated; a mutated quote accepted is a false accept): see the table below. The loose near rule accepted 11 of 44 requested mutations | `final_qv2_20261124-145853`, `fresh_qv2_20261124-145857`, `quote_check_v2_20261124-145802` |
+| Quote check v2 tightened: near rule also needs every number next to the same token, negations kept, >= 4 content words; both rules reject a dropped negation | kept | False accepts 11/44 -> 0/44 (requested), stress 15 -> 0; pass unchanged (seen 22/24, fresh 1 7/10) | `quote_check_v2_tight_20261124-172251`, `final_qv2tight_20261124-172407`, `fresh_qv2tight_20261124-172410` |
+| Programme-aware search (routed5_all3_prog): an ACADEMICS question naming a programme takes its 5 routed sections only from that programme's COURSE_SPECIFIC file(s) | kept | Recall on saved P1 queries, no API call. Seen: doc hit@8 15/16 -> 16/16, page hit@8 12/15 -> 13/15, fact hit@8 14/16 -> 14/16. Fresh 1: page hit@8 4/5 -> 5/5. Changed rows: Q09 (SCSET UG rules now retrieved), F06 (BA Liberal Arts p.17 now retrieved) | `search_recall_20261124-150057` |
+| P2 v5 = v2 + one rule for values that differ by programme (list up to 3, ask which programme) | **rejected** | Written for F01. Seen pass 22/24 (P2 v2, same search, `final_20261124-174710`) -> 19/24 with v5: Q07 and Q15 became not_found and Q12's answer lost its key fact. P2 stays v2; v5 kept in `prompts/v5/` (full text at the end) | `final_20261124-173053` |
+| Two topics: the first two topics of a message each get their own search, P2 (on the topic's own text) and quote check, or their own P3 draft; a third topic is listed | kept | Seen: Q16 topic 2 0/1 (both topics not_found). Fresh 2: topic 2 action 3/4, two-question rows 3/4 (F22 part 2 rejected by the quote check) | `final_20261124-181511`, `fresh_20261124-183516` |
+| Scorer change (24 Nov, commit 128d69b): key fact matched through `fact_norm` on both sides | kept | Old rule: `norm(key_fact) in norm(answer + quote)` (curly quotes straightened, whitespace collapsed, lowercased). New rule: the same plus table pipes and colons turned into spaces on both sides (the table row "Year 2 [pipe] 3,90,000" == "Year 2: 3,90,000"); the old "wrong answers shown" count is split into incomplete (answer shown, key fact missing) and needs_review (answer shown, expected action not answer), both outside Pass. Rows changed: F02 key fact False -> True, Pass False -> True (fresh 1: 8/10 -> 9/10); seen 22/24 -> 22/24, no row changed (Q10, the old "wrong answer shown", is now listed as incomplete) | `final_rescored_20261124-175707`, `fresh_rescored_20261124-175708` |
+| Dual-query search (search_query + topic text, reciprocal rank fusion) | **rejected** | Page hit@8 13/16 -> 14/16, but seen pass 22/24 -> 19/24 and a wrong "yes" on Q09. Details below | `search_recall_dual_20261124-180009`, `final_20261124-181011` |
+| Safety card: a first-person incident report (router STUDENT_SUPPORT + needs_human, or an English incident pattern) gets a fixed card of contacts copied word for word from the KB, then a P3 draft to Student Support; no search, no P2 | kept | Seen pass unchanged 22/24 (no seen row is a report). Fresh 2: safety rows 2/2 (F25 English, F26 Hinglish, both through the router trigger; 1 contact line on the card) | `final_20261124-181511`, `fresh_20261124-183516` |
+| Clarify follow-up: after a clarify, a reply of 8 words or fewer is joined to the previous question (`helpdesk/followup.py`, used by the app and by the fresh check runner) | kept | Fresh 2: follow-up rows 1/2. F27 "fees?" -> clarify, then joined and answered (upto 7%). F28 "exam rules" was answered (not clarify) from one programme's rules, so the reply ran on its own | `fresh_20261124-183516` |
+
+Quote check v2 mutation check, loose vs tightened (same 18 verified quotes from `final_20261122-201923` and
+`fresh_20261122-214926`; "requested" = the mutations the check must reject, "stress" = harder cases):
+
+| Mutation | Kind | Tried | Wrongly accepted, loose (`quote_check_v2_20261124-145802`) | Wrongly accepted, tightened (`quote_check_v2_tight_20261124-172251`) |
+|---|---|---|---|---|
+| original quote (should be accepted) | baseline | 18 | 18 accepted | 18 accepted |
+| number changed | requested | 8 | 2 (near) | 0 |
+| word replaced | requested | 18 | 9 (near) | 0 |
+| quote from another document | requested | 18 | 0 | 0 |
+| number replaced by another number in the section | stress | 8 | 8 (near) | 0 |
+| negation dropped | stress | 7 | 7 (2 exact, 5 near) | 0 |
+| **Requested total** | | 44 | **11/44** | **0/44** |
+
+Frozen 24 Nov (tag `m2-final-24nov`): P1 v2 + routed5_all3_prog + P2 v2 + quote check v2 (tightened) + P3 v2, two
+topics, safety card, clarify follow-up. Seen 22/24 (`final_20261124-181511`), fresh 1 (now seen) 9/10
+(`fresh_20261124-181523`), fresh 2 (unseen) 11/18 (`fresh_20261124-183516`).
 
 ### Sprint S4 (24 Nov): dual-query search tried and rejected
 
@@ -393,4 +429,26 @@ Rules:
 
 Reply in JSON only, in exactly this format:
 {"to": "...", "subject": "...", "body": "..."}
+```
+
+## Full text of P2 v5 (rejected)
+
+`prompts/v5/P2_grounded_answer.md`, template part (sha256 of the file 78d90344adf6):
+
+```text
+You are ZEN AI, the helpdesk assistant for Bennett University students.
+Answer the student's question using ONLY the documents below.
+Rules:
+- Quote the exact sentence or line you used and name its document and section.
+- If the documents do not contain the answer, say "I couldn't find this in the official documents" and name the office the student should contact (Fees & Finance, Academics, Hostel, IT Support, Campus Services).
+- Do not guess dates, amounts or rules.
+- If the sections give different values for different programmes or categories and the question does not say which applies, give the value for each one the sections list (at most 3), say which programme each is for, quote the line for the first one, and end the answer by asking which programme the student is in.
+- Reply in the student's language (English or Hinglish), in under 120 words.
+Reply in JSON only, in exactly this format:
+{"found": true/false, "answer": "...", "quote": "exact sentence copied from the sections", "doc_title": "...", "page": "...", "language": "en|hinglish"}
+If the documents do not contain the answer, set "found" to false, put the "I couldn't find this" reply in "answer" and leave "quote", "doc_title" and "page" empty.
+DOCUMENTS:
+{sections}
+STUDENT QUESTION:
+{question}
 ```
