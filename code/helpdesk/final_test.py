@@ -1,9 +1,12 @@
 """Final test table: the final pipeline (helpdesk.pipeline.final_answer with pipeline.FINAL: P1 -> search -> P2 ->
 quote check -> P3 handoff draft / templates, two topics) on all 24 rows of test-data/questions.csv.
 
-Run (from code/):  python -m helpdesk.final_test [--no-table] [--max-calls N]
+Run (from code/):  python -m helpdesk.final_test [--no-table] [--max-calls N] [--questions CSV --label TEXT]
 --no-table saves only the run folder (test-data/final_test_table.* untouched); --max-calls stops (nothing saved)
 before a question that could take the run past N API calls (3 per topic: P1, P2, P3).
+--questions (path from the repo root) runs the same pipeline and scorer on another question file (a fresh check, e.g.
+test-data/fresh_questions.csv); the run folder is then fresh_<timestamp>, --label is recorded as the questions'
+status, and test-data/final_test_table.* are never touched.
 
 Writes test-data/final_test_table.csv and test-data/final_test_table.md with the columns
     Test no. | Input (short) | Type | Expected output | Actual output (short) | Pass/Fail
@@ -101,12 +104,22 @@ def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="python -m helpdesk.final_test")
     ap.add_argument("--no-table", action="store_true", help="save only the run folder, not test-data/final_test_table.*")
     ap.add_argument("--max-calls", type=int, help="stop (nothing saved) before a question that could exceed N API calls")
+    ap.add_argument("--questions", help="another question file, path from the repo root (a fresh check); implies --no-table")
+    ap.add_argument("--label", default="", help="status of the questions, e.g. 'fresh check 1, now seen'")
     args = ap.parse_args(argv)
+    fresh = args.questions is not None
+    questions = (REPO_ROOT / args.questions).resolve() if fresh else QUESTIONS
+    if fresh:
+        args.no_table = True
+        with open(questions, encoding="utf-8", newline="") as f:
+            rows = list(csv.DictReader(f))
+    else:
+        rows = read_rows()
     provider = pipeline.default_provider()
     per_question = 3 * pipeline.FINAL.get("topics", 1)
     started = datetime.now()
     records, table = [], []
-    for row in read_rows():
+    for row in rows:
         if args.max_calls is not None and provider.stats()["calls_made"] + per_question > args.max_calls:
             sys.exit(f"stopped before {row['id']}: the budget of {args.max_calls} API calls could be exceeded. "
                      "Nothing saved.")
@@ -127,7 +140,7 @@ def main(argv: list[str] | None = None) -> None:
 
     n_pass = sum(r["pass"] for r in records)
     stats = provider.stats()
-    run_id = f"final_{started.strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"{'fresh' if fresh else 'final'}_{started.strftime('%Y%m%d-%H%M%S')}"
     totals = {k: {"k": sum(v for v in (r["scores"][k] for r in records) if v is not None),
                   "n": sum(r["scores"][k] is not None for r in records)} for k in records[0]["scores"]}
     fin = pipeline.FINAL
@@ -136,7 +149,8 @@ def main(argv: list[str] | None = None) -> None:
                       f"v2 (tightened) + P3 {fin['p3']}"
                       + (f", {fin['topics']} topics answered" if fin.get("topics", 1) > 1 else "")),
             "started": started.isoformat(timespec="seconds"), "finished": datetime.now().isoformat(timespec="seconds"),
-            "questions": QUESTIONS.relative_to(REPO_ROOT).as_posix(), "n_questions": len(records),
+            "runner": "code/helpdesk/final_test.py", "questions": questions.relative_to(REPO_ROOT).as_posix(),
+            "question_status": args.label or ("" if fresh else "seen"), "n_questions": len(records),
             "settings": provider.metadata(), "final": pipeline.FINAL,
             "router_prompt_file": router_v2.PROMPT_FILE.relative_to(REPO_ROOT).as_posix(),
             "router_prompt_sha256": router_v2.file_sha256(),
@@ -154,7 +168,8 @@ def main(argv: list[str] | None = None) -> None:
         for rec in records:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     (folder / "run_meta.json").write_text(json.dumps(meta, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    header = (f"# Final test table ({run_id})\n\n{meta['title']}. Model {meta['settings'].get('chat_model')}, "
+    header = (f"# {'Fresh check' if fresh else 'Final test table'} ({run_id})\n\n{meta['title']}. "
+              + (f"Questions: {args.label}. " if args.label else "") + f"Model {meta['settings'].get('chat_model')}, "
               f"temperature {meta['settings'].get('temperature')}; commit {meta['git']['commit'][:10]}"
               f"{' (uncommitted changes)' if meta['git']['dirty'] else ''}; API calls {meta['api_calls']}, cache hits "
               f"{meta['cache_hits']}. Questions: `{meta['questions']}`.\n\nPass = {meta['pass_rule']}. Two-topic rows "

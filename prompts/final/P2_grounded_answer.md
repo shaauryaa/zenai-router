@@ -1,5 +1,7 @@
 # P2 grounded answer, FINAL = v2 (copy of prompts/v2/P2_grounded_answer.md)
 
+P2 v5 (prompts/v5/P2_grounded_answer.md) was tried on 24 Nov and rejected (run test-data/runs/final_20261124-173053); FINAL stays v2 (from 24 Nov with search routed5_all3_prog and two topics).
+
 Chosen after Milestone 2 step 4: with router P1 v2 and the 5+3 search, P2 v2 scored 22/24 final actions (run test-data/runs/step3_P1v2_search8_P2v2_20261122-192957) and P2 v4 21/24 (run test-data/runs/step4_P1v2_search8_P2v4_20261122-193227). In the final pipeline `{sections}` holds the 8 chunks from `kb_search.search_routed_plus_all(P1 v2 search_query, P1 v2 domain)`. No further tuning on test-data/questions.csv.
 
 Original v2 file below.

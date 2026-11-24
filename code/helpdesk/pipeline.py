@@ -383,9 +383,10 @@ def answer_topic(topic: dict, question: str, p2_version: str, provider, search: 
     return r
 
 
-# The final pipeline (Milestone 2 sprint S2): P1 v2 + programme-aware search + P2 v5 + quote check v2 (tightened) +
-# P3 v2, and the first two topics of a message each answered on their own.
-FINAL = {"router": "v2", "search": "routed5_all3_prog", "p2": "v5", "p3": "v2", "topics": 2}
+# The final pipeline (Milestone 2 sprint S3, frozen 24 Nov): P1 v2 + programme-aware search + P2 v2 + quote check v2
+# (tightened) + P3 v2, and the first two topics of a message each answered on their own. P2 v5 was tried and rejected
+# (run test-data/runs/final_20261124-173053); prompts/v5/ is kept as a recorded version.
+FINAL = {"router": "v2", "search": "routed5_all3_prog", "p2": "v2", "p3": "v2", "topics": 2}
 # The 22 Nov final pipeline as re-scored from the cache in sprint S1 (one topic, old search, P2 v2).
 S1_FINAL = {"router": "v2", "search": "routed5_all3", "p2": "v2", "p3": "v2", "topics": 1}
 
