@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # code/ on the path, w
 
 import streamlit as st  # noqa: E402
 
-from helpdesk import handoff, kb_search, pipeline  # noqa: E402
+from helpdesk import followup, handoff, kb_search, pipeline  # noqa: E402
 from zenai.config import load_config  # noqa: E402
 from zenai.providers import ProviderError, QuotaError  # noqa: E402
 
@@ -268,12 +268,16 @@ def main() -> None:
         ask(question.strip())
     sidebar()
     if st.session_state.get("result"):
+        if st.session_state.get("followup_of"):
+            st.caption(followup.FOLLOWUP_NOTE.format(previous=st.session_state["followup_of"]),
+                       help="Your last question needed more detail, so this short reply was added to it.")
         show_result(st.session_state["result"])
 
 
 def ask(question: str) -> None:
     """Run one question into st.session_state["result"], or show a friendly message (never a stack trace)."""
     st.session_state.pop("result", None)
+    st.session_state.pop("followup_of", None)
     if not load_api_key():
         st.error("The helpdesk is not configured yet (the API key is missing). Please try again later.")
         return
@@ -281,9 +285,12 @@ def ask(question: str) -> None:
         st.warning(f"You've reached the limit of {MAX_QUESTIONS} questions for this session. Please come back later.")
         return
     st.session_state["asked"] += 1
+    run_on, previous = followup.resolve(st.session_state.get("last_turn"), question)
     try:
         with st.spinner("Checking the official documents..."):
-            st.session_state["result"] = run_question(question)
+            st.session_state["result"] = run_question(run_on)
+        st.session_state["last_turn"] = followup.remember(st.session_state["result"], run_on)
+        st.session_state["followup_of"] = previous
     except QuotaError:
         st.error("ZEN AI has used up its question quota for now. Please try again later (the quota resets daily).")
     except ProviderError:
