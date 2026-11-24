@@ -1,0 +1,26 @@
+set,id,domain,search_query,topic_text,expected_doc,expected_page,searched_in_run,old_doc,old_page,old_fact,new_doc,new_page,new_fact
+seen,Q01,FEES,fee refund policy admission cancellation deadline,I'm in first year and thinking of cancelling my admission in mid October. Will I get my full fee back?,FINANCE/fee-refund-policy-2026-27.md,1,True,True,True,True,True,True,True
+seen,Q02,FEES,scholarship renewal criteria backlog second year,I got an admission scholarship. Will it continue in second year if I have a backlog?,FINANCE/scholarship-policy-2026-27.md,4,True,True,True,True,True,True,True
+seen,Q03,FEES,late registration fee policy and amount,I missed the fee payment deadline. How much is the late registration fee?,FINANCE/late-fee-payment-rules.md,,True,True,,True,True,,True
+seen,Q04,HOSTEL,hostel out pass rules for leaving campus outing,Do I need an out pass to go out of campus on a Sunday afternoon?,HOSTEL/hostel-standing-orders.md,3,True,True,True,True,True,True,True
+seen,Q05,HOSTEL,hostel room vacation procedure and fee refund policy,When is my room counted as vacated for the hostel charges refund?,HOSTEL/hostel-sports-refund-policy-2025-26.md,1,True,True,True,True,True,True,True
+seen,Q06,IT,password sharing policy security IT support,Someone called me saying they are from IT support and asked for my ERP password. Should I tell them?,IT/it-policy.md,11,True,True,True,True,True,True,True
+seen,Q07,IT,guest wifi access procedure for visitors on campus,My parents are visiting campus next week. How can they get wifi?,IT/it-policy.md,189,True,True,True,True,True,True,True
+seen,Q08,ACADEMICS,minimum attendance requirement policy for B.Tech courses,What is the minimum attendance I need in a course in B.Tech?,COURSE_SPECIFIC/seas-btech-ordinances-rules.md,28,True,True,True,True,True,True,True
+seen,Q09,ACADEMICS,make-up exam policy and eligibility for missed end-sem exams due to illness,I'm in CSE (SCSET) and fell sick during my end-sem exam. Can I take a make-up exam?,COURSE_SPECIFIC/scset-academic-rules-ug.md,9,True,True,True,True,True,True,True
+seen,Q10,STUDENT_SUPPORT,anti ragging committee reporting procedure contacts,Who can a student report ragging to at Bennett?,STUDENT_SUPPORT/anti-ragging.md,5,True,True,False,False,True,False,False
+seen,Q11,STUDENT_SUPPORT,sexual harassment complaint procedure and committee contact,How do I file a sexual harassment complaint?,STUDENT_SUPPORT/posh-policy.md,4,True,True,True,True,True,True,True
+seen,Q12,ACADEMICS,procedure to request registrar documents online bonafide certificate,"How do I raise a request with the Registrar's office online, like for a bonafide certificate?",CAMPUS_SERVICES/circular-student-queries-online.md,1,True,True,True,True,True,True,True
+seen,Q13,HOSTEL,hostel visitor policy and parents entry rules in rooms,kya mere parents mere hostel room mein aa sakte hain?,HOSTEL/hostel-standing-orders.md,2,True,True,True,True,True,True,True
+seen,Q14,FEES,fee refund timeline after admission cancellation policy,admission cancel karne ke baad refund kitne din mein milta hai?,FINANCE/fee-refund-policy-2026-27.md,1,True,True,True,True,True,True,True
+seen,Q15,FEES,academic scholarship CGPA requirement SCSET,wat cgpa do i need to get the 10% academic scholarshp in scset?,FINANCE/scholarship-policy-2026-27.md,5,True,True,True,True,True,True,True
+seen,Q16 t1,IT,wifi network account sharing policy,Can I share my wifi login with my roommate?,IT/it-policy.md,11,True,True,False,False,True,False,False
+seen,Q16 t2,HOSTEL,hostel curfew in-time rules,And what time do we have to be back on campus at night?,HOSTEL/hostel-standing-orders.md,3,True,True,False,False,True,True,True
+fresh 1,F01,FEES,annual examination fee structure and payment procedure,"How much are the examination charges each year, and how do I pay them?",FINANCE/bennett-fee-structure.md,,True,True,,True,True,,True
+fresh 1,F02,FEES,tuition fee structure second year BTech Computer Science Engineering,What is the tuition fee for the second year of B.Tech Computer Science Engineering?,FINANCE/bennett-fee-structure.md,,True,True,,True,True,,True
+fresh 1,F03,CAMPUS_SERVICES,mess dinner timings for hostel residents,What are the dinner timings for hostel residents?,HOSTEL/student-handbook.md,13,True,True,True,True,True,True,True
+fresh 1,F04,HOSTEL,allowed items and prohibited appliances in hostel rooms policy,Which items am I allowed to keep in my hostel room?,HOSTEL/student-handbook.md,13,True,True,True,True,True,True,True
+fresh 1,F05,IT,minimum password length policy network account IT,What is the minimum length of my university login password?,IT/it-policy.md,144,True,True,True,True,True,True,True
+fresh 1,F06,ACADEMICS,supplementary exams schedule academic calendar,When are the supplementary exams held?,COURSE_SPECIFIC/ba-liberal-arts-rulebook.md,17,True,True,True,True,True,True,True
+fresh 1,F07,ACADEMICS,processing time for bonafide certificate,bonafide certificate banwane mein kitna time lagta hai?,CAMPUS_SERVICES/circular-student-queries-online.md,1,True,True,True,False,True,True,False
+fresh 1,F08,FEES,hostel fee structure triple sharing room per year,waht is the hostl fee for a triple sharing room per year?,FINANCE/bennett-fee-structure.md,,True,True,,True,True,,True

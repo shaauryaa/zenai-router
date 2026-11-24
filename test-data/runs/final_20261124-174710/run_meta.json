@@ -1,0 +1,78 @@
+{
+ "run_id": "final_20261124-174710",
+ "title": "Final pipeline: P1 v2 + search routed5_all3_prog + P2 v2 + quote check v2 (tightened) + P3 v2, 2 topics answered",
+ "started": "2026-11-24T17:47:10",
+ "finished": "2026-11-24T17:47:18",
+ "runner": "code/helpdesk/final_test.py",
+ "questions": "test-data/questions.csv",
+ "question_status": "seen",
+ "n_questions": 24,
+ "settings": {
+  "provider": "gemini",
+  "chat_model": "gemini-3.5-flash-lite",
+  "embed_model": "gemini-embedding-2",
+  "temperature": 0,
+  "reasoning_effort_requested": "minimal",
+  "reasoning_effort_sent": "minimal",
+  "json_mode": "response_format"
+ },
+ "final": {
+  "router": "v2",
+  "search": "routed5_all3_prog",
+  "p2": "v2",
+  "p3": "v2",
+  "topics": 2
+ },
+ "router_prompt_file": "prompts/v2/P1_router.md",
+ "router_prompt_sha256": "0d8fd3c7a1bf4e99c5fdb78cbd6a4fc7cb6c999830be98c8fdb6994897412726",
+ "p2_prompt_file": "prompts/v2/P2_grounded_answer.md",
+ "p2_prompt_sha256": "0e45708c06c8798ccbac881dd62b8cf757c8ef567a2e75d8a388728d1c64e57e",
+ "quote_check": "pipeline.verify_quote (quote check v2, tightened): rule exact = quote_forms() match (** and __ removed, OCR line-end hyphens joined, whitespace collapsed, lowercased); else rule near = against one section, every content word present (negations kept), every number next to the same token, >= 4 content words; both rules reject a dropped negation",
+ "p3_prompt_file": "prompts/final/P3_handoff.md",
+ "p3_prompt_sha256": "43865836044b076834d00a6bc0bd7925ef998f641575154308d34e5e12f75f48",
+ "pass_rule": "action correct, and for rows with a key_fact also key fact found and quote verified",
+ "pass": {
+  "k": 22,
+  "n": 24
+ },
+ "totals": {
+  "action": {
+   "k": 23,
+   "n": 24
+  },
+  "key_fact": {
+   "k": 14,
+   "n": 16
+  },
+  "quote_verified": {
+   "k": 15,
+   "n": 16
+  },
+  "doc_cited": {
+   "k": 15,
+   "n": 16
+  },
+  "format_valid": {
+   "k": 18,
+   "n": 18
+  },
+  "language": {
+   "k": 2,
+   "n": 2
+  },
+  "router_office": {
+   "k": 17,
+   "n": 17
+  },
+  "topic2_action": {
+   "k": 0,
+   "n": 1
+  }
+ },
+ "git": {
+  "commit": "5fe1d679f70a512763b6bb3b3914d7bf0f842255",
+  "dirty": false
+ },
+ "api_calls": 4,
+ "cache_hits": 43
+}

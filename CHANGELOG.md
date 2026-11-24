@@ -82,3 +82,36 @@ App polish and P3 v2:
   0 API calls: P1/P2 and P3 replies from the cache). Pass stays 21/24. `pipeline.FINAL["p3"]` is now "v2".
 
 Fresh check: 10 new team-written questions (test-data/fresh_questions.csv, committed before the run) on the frozen final pipeline, run test-data/runs/fresh_20261122-214926/ (30 API calls): pass 6/10 (60%) vs 21/24 on the seen set; failures F01 (P2 found=false), F02 and F07 (quote check on table/OCR text), F06 (search miss); details in test-data/fresh_check.md. Prompts, search and code unchanged.
+
+## 2026-11-24
+
+Sprint S1-S4 after the 22 Nov freeze, chosen from the failures of the 22 Nov final run and fresh check 1 (so both are
+seen sets now); every change and its evidence is in docs/iteration_log.md (Table 3).
+- Quote check v2 (`pipeline.verify_quote`): exact rule (normalised) or near rule (one section, every content word),
+  then tightened (numbers next to the same token, negations kept, >= 4 content words). Mutation check: false accepts
+  11/44 (loose) -> 0/44 (tightened); runs `quote_check_v2_20261124-145802`, `quote_check_v2_tight_20261124-172251`.
+- Programme-aware search `routed5_all3_prog` (an ACADEMICS question naming a programme searches only that programme's
+  rules for its 5 routed sections): seen page hit@8 12/15 -> 13/15, fresh 1 4/5 -> 5/5 (`search_recall_20261124-150057`).
+- P2 v5 (`prompts/v5/`, one rule for values that differ by programme): seen pass 22/24 -> 19/24, rejected; P2 stays v2.
+  Prompt versions saved: 9.
+- Two topics: the first two topics of a message are each answered (or handed off) on their own; a third is listed.
+- Scorer (commit 128d69b): key facts matched through `fact_norm` on both sides (table pipes and colons as spaces);
+  "wrong answers shown" split into incomplete and needs_review. Re-scored offline: fresh 1 8/10 -> 9/10 (F02), seen
+  22/24 unchanged.
+- Dual-query search (reciprocal rank fusion): page hit@8 13/16 -> 14/16 but seen pass 22/24 -> 19/24 (wrong "yes" on
+  Q09); rejected, kept as an unused option.
+- Safety card (`helpdesk/safety.py`): contacts copied word for word from the KB, then a P3 draft to Student Support.
+- Clarify follow-up (`helpdesk/followup.py`): after a clarify, a reply of 8 words or fewer is joined to the previous
+  question in the app.
+- Final pipeline frozen (tag `m2-final-24nov`): P1 v2 + routed5_all3_prog + P2 v2 + quote check v2 (tightened) + P3
+  v2, two topics, safety card, clarify follow-up. Final test table `test-data/final_test_table.md` from run
+  `final_20261124-181511`: 22/24 (the 22 Nov table, 21/24, kept as `final_test_table_22nov.md` / `.csv`).
+
+Fresh check 2: 18 team-written questions F11-F28 (`test-data/fresh2_questions.csv`; one-question, two-question,
+safety and follow-up rows), labels and scoring rules (`test-data/README.md`) committed before the run.
+`python -m helpdesk.final_test --questions` now scores two-question rows (both parts), safety rows (card with
+contacts) and follow-up rows (turn 1 clarify, turn 2 through `helpdesk.followup`); questions.csv scoring unchanged.
+Run `test-data/runs/fresh_20261124-183516`: 11/18 (61%); one-question 5/10, two-question 3/4, safety 2/2, follow-up
+1/2. 79 API calls (a first attempt stopped on a provider HTTP 503 at F23 and saved nothing; the second invocation
+replayed F11-F22 from the cache). Failure causes in `test-data/fresh2_check.md`. README Results and Limitations
+updated (seen 24, fresh 1 now seen, fresh 2 unseen).
