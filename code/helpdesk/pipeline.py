@@ -26,6 +26,9 @@ Options (Milestone 2 steps; the defaults are the original pipeline):
          from the routed folder + top 3 from all folders
        | "routed5_all3_prog" the same, but for an ACADEMICS question that names a programme (kb_search.programme_files
          on the question and the search_query) the top 5 routed come only from that programme's COURSE_SPECIFIC file(s)
+       | "dual_prog" kb_search.search_dual_prog: the search_query AND the topic's own text (P1 topic "text", else
+         the question) each ranked by BM25, merged by reciprocal rank fusion, then the same 5 routed + 3 all split
+         and programme filter as routed5_all3_prog
   own_topic_text=True (final pipeline with two topics): when P1 finds two or more topics, P2 gets the first topic's
   own text instead of the whole message. Steps c-f for one topic are answer_topic(); final_answer() runs it for
   topic 2 too (config FINAL["topics"] == 2) and returns both in out["topic_results"].
@@ -51,7 +54,7 @@ FIRST_QUOTE = re.compile(r"[\"“](.+?)[\"”]", re.S)
 JSON_KEYS = ("found", "answer", "quote", "doc_title", "page", "language")
 ROUTER_ACTIONS = {"not_campus": "refuse", "vague": "clarify", "needs_human": "handoff"}
 ROUTERS = ("v1", "v2")
-SEARCHES = ("route5", "routed5_all3", "routed5_all3_prog")
+SEARCHES = ("route5", "routed5_all3", "routed5_all3_prog", "dual_prog")
 
 _PROVIDER: Provider | None = None
 
@@ -348,6 +351,10 @@ def answer_topic(topic: dict, question: str, p2_version: str, provider, search: 
         query = (topic.get("search_query") or "").strip() or question
         if search == "routed5_all3":
             hits = kb_search.search_routed_plus_all(query, domain, routed_k=5, all_k=3)
+        elif search == "dual_prog":
+            r["programme_files"] = kb_search.programme_files(question, query) if domain == "ACADEMICS" else []
+            r["topic_text_query"] = (topic.get("text") or "").strip() or question
+            hits = kb_search.search_dual_prog(query, r["topic_text_query"], domain, question, routed_k=5, all_k=3)
         else:
             r["programme_files"] = kb_search.programme_files(question, query) if domain == "ACADEMICS" else []
             hits = kb_search.search_routed_plus_all_prog(query, domain, question, routed_k=5, all_k=3)
@@ -410,7 +417,7 @@ def final_answer(question: str, provider=None, config: dict | None = None) -> di
     topics = (out.get("router") or {}).get("topics") or []
     results = [{"topic": topics[0] if topics else None, "question": out.get("p2_question") or question,
                 "llm_calls": out["llm_calls"],
-                **{k: out.get(k) for k in (*TOPIC_FIELDS, "programme_files", "office", "office_name", "reply_text",
+                **{k: out.get(k) for k in (*TOPIC_FIELDS, "programme_files", "topic_text_query", "office", "office_name", "reply_text",
                                            "p3")}}]
     for t in topics[1:n]:
         q = (t.get("text") or "").strip() or question

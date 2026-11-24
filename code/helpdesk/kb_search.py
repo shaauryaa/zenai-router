@@ -26,6 +26,7 @@ from rank_bm25 import BM25Okapi
 from zenai.paths import KB, KB_SEARCH_CACHE
 
 MAX_WORDS = 350
+RRF_K = 60  # reciprocal rank fusion constant (search_dual_prog)
 INDEX_VERSION = 2  # bump when chunking or tokenising changes, so old caches are ignored
 PAGE_HEADING = re.compile(r"^## Page (\d+)[ \t]*$", re.M)
 TOKEN = re.compile(r"[a-z0-9]+")
@@ -263,6 +264,39 @@ class KBIndex:
             return self.search_routed_plus_all(query, domain, routed_k=routed_k, all_k=all_k)
         return self._routed_plus_all(query, lambda c: c.file in files, routed_k, all_k)
 
+    def _fused(self, queries: list[str]) -> list[tuple[float, int]]:
+        """Reciprocal rank fusion of the BM25 rankings of several queries: each chunk scores the sum over queries of
+        1 / (RRF_K + rank), rank 1 = best, counting only chunks with BM25 score > 0. Queries with the same tokens
+        count once. (score, chunk index), best first."""
+        scores: dict[int, float] = {}
+        seen: set[tuple[str, ...]] = set()
+        for q in queries:
+            key = tuple(tokenize(q or ""))
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            for rank, (_, i) in enumerate(self._ranked(q), 1):
+                scores[i] = scores.get(i, 0.0) + 1.0 / (RRF_K + rank)
+        return sorted(((s, i) for i, s in scores.items()), reverse=True)
+
+    def search_dual_prog(self, query: str, topic_text: str, domain: str | None, question: str = "",
+                         routed_k: int = 5, all_k: int = 3) -> list[Hit]:
+        """Dual-query search (Milestone 2 sprint S4): the router's search_query AND the topic's own text, merged by
+        reciprocal rank fusion (_fused), then the same split as search_routed_plus_all_prog: top routed_k from the
+        routed folder(s) (only the named programme's file(s) for an ACADEMICS question naming one, programme_files on
+        `question` and `query` as before) + top all_k of the rest; OUT_OF_SCOPE or None takes the top
+        routed_k + all_k from all folders. Hit.score is the fused score."""
+        ranked = self._fused([query, topic_text])
+        if domain is None or domain == "OUT_OF_SCOPE":
+            return [Hit(self.chunks[i], round(s, 6)) for s, i in ranked[:routed_k + all_k]]
+        if domain not in DOMAIN_OFFICES:
+            raise ValueError(f"unknown router domain {domain!r}")
+        files = programme_files(question, query) if domain == "ACADEMICS" else []
+        in_routed = (lambda c: c.file in files) if files else (lambda c: c.office in DOMAIN_OFFICES[domain])
+        routed = [x for x in ranked if in_routed(self.chunks[x[1]])][:routed_k]
+        others = [x for x in ranked if x not in routed][:all_k]
+        return [Hit(self.chunks[i], round(s, 6)) for s, i in sorted(routed + others, reverse=True)]
+
 
 _DEFAULT: KBIndex | None = None
 
@@ -290,6 +324,11 @@ def search_routed_plus_all(query: str, domain: str | None, routed_k: int = 5, al
 def search_routed_plus_all_prog(query: str, domain: str | None, question: str = "", routed_k: int = 5,
                                 all_k: int = 3) -> list[Hit]:
     return default_index().search_routed_plus_all_prog(query, domain, question, routed_k=routed_k, all_k=all_k)
+
+
+def search_dual_prog(query: str, topic_text: str, domain: str | None, question: str = "", routed_k: int = 5,
+                     all_k: int = 3) -> list[Hit]:
+    return default_index().search_dual_prog(query, topic_text, domain, question, routed_k=routed_k, all_k=all_k)
 
 
 def main(argv: list[str] | None = None) -> None:

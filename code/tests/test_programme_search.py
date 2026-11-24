@@ -50,7 +50,7 @@ def test_prog_search_restricts_routed_part_only_for_academics():
 
 
 def test_pipeline_search_options():
-    assert pipeline.SEARCHES == ("route5", "routed5_all3", "routed5_all3_prog")
+    assert pipeline.SEARCHES == ("route5", "routed5_all3", "routed5_all3_prog", "dual_prog")
     reply = {"topics": [{"text": "q", "domain": "ACADEMICS", "request_type": "info",
                          "search_query": "attendance requirement", "reason": "r"}]}
     p2 = {"found": False, "answer": "no", "quote": "", "doc_title": "", "page": "", "language": "en"}
