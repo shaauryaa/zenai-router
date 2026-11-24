@@ -8,6 +8,32 @@ office for the student to send.
 
 **Prototype:** https://zenai-campusdesk.streamlit.app/
 
+## Features
+
+- **Every answer quotes its source.** An answer is shown only after code finds its quote in an official document;
+  the student sees the exact sentence, the document, the page and a link.
+- **English and Hinglish**, and up to **two questions in one message**, each answered on its own.
+- **Safety card**: a student who reports ragging or harassment sees official contacts at once, copied word for word
+  from the documents, then a draft to Student Support.
+- **Email draft to the right office** when the documents don't cover a question. Draft only: nothing is ever sent.
+- **Source badges** that help the student double-check: a number in the answer that the quote doesn't show, another
+  programme's rules, or a document from before 2022.
+- **"How ZEN AI decided"** panel: router output, retrieved sections, raw answer JSON and the quote check, per answer.
+- Chat interface with suggestion cards and office shortcuts; no login, no chats stored.
+
+## Results at a glance
+
+| Result | Number | Source |
+|---|---|---|
+| Fake (mutated) quotes accepted by quote check v2 | **0 of 59** (26 of 59 before tightening) | `test-data/runs/quote_check_v2_tight_20261124-172251` |
+| Seen test set (24 questions) | **22/24 (92%)** | `test-data/runs/final_20261124-181511` |
+| Unseen fresh check 2 (18 questions, written after the freeze) | **11/18 (61%)**: one question 5/10, two questions 3/4, safety 2/2, follow-ups 1/2 | `test-data/runs/fresh_20261124-183516` |
+| Wrong answers shown on unseen questions (human-checked) | **1 of 18** (F15) | `test-data/fresh2_check.md` |
+| Software tests | **284 passed** | `cd code && pytest -q` |
+
+Milestone 2 documents: [docs/M2_PE-B81-26_ZENAIHelpdesk.pdf](docs/M2_PE-B81-26_ZENAIHelpdesk.pdf) and the Business
+Model Canvas [docs/codingwoofs_BMC.pdf](docs/codingwoofs_BMC.pdf).
+
 **Team:** codingwoofs (Team ID PE-B81-26). SCSE4041 Prompt Engineering, problem C1, batch B81-93, faculty: Indrajeet Gupta.
 
 | Member | Enrollment no. | Main task |
@@ -111,39 +137,32 @@ separate wrong answers from incomplete ones. The run was retried once: the first
 
 How each prompt version and pipeline step moved these numbers is in [docs/iteration_log.md](docs/iteration_log.md).
 
-**Limitations.**
-- A verified quote does not mean a correct answer. The quote check proves the sentence is in a retrieved document,
-  not that it answers the question: F15 shows "90 days" from the 2019-20 handbook with a verified quote, while the
-  IT Policy (retrieved first) says 45 days. Some hostel answers come from that 2019-20 handbook, the newest in the
-  documents.
-- Better search recall did not mean better answers. A dual-query search raised page hit@8 from 13/16 to 14/16 but
-  dropped the seen pass rate from 22/24 to 19/24, and Q09 said "yes" to a make-up end-semester exam the rules forbid,
-  because the right page moved lower in the top 8. It was rejected.
-- F01 (fresh check 1, examination charges, no programme named) still ends as not_found: the fee page gives different
-  amounts per programme. P2 v5, written for it, lowered the seen pass rate to 19/24 and was rejected.
-- Q10 answers from a different page of the anti-ragging rules than the label (key fact missing); Q16's wifi part
-  still misses IT Policy p.11.
-- The 24 seen questions and fresh check 1 were used to choose changes, so their numbers are optimistic. Each run is
-  one run at temperature 0.
-- The quote check still rejects some correct answers from OCR and table text (F22 part 2), and the safety trigger's
-  incident patterns are English only (Hinglish reports rely on the router).
-- A verified quote can stop short of the number the answer states (e.g. B.Tech attendance quoted as '...minimum
-  attendance of'): the quote check confirms the quote is in the document, not that it supports every part of the
-  answer.
-- Error analysis of fresh check 2 ([docs/iteration_log.md](docs/iteration_log.md), "Error analysis: fresh check 2"),
-  with the next steps, all planned and not built:
-  - conflicting documents (F15): the 2019-20 handbook and the 2024 IT Policy disagree, and P2 used the older one.
-    Next step: prefer the newest document when two disagree;
-  - an OCR character in the quote (F22 part 2): P2 copied a "�" into its quote. Next step: strip OCR replacement
-    characters before the quote check (the source's OCR bullets may still block an exact match);
-  - a programme-dependent question not treated as vague (F28 turn 1, "exam rules"), answered from one programme's
-    rules. Next step: flag programme-dependent questions as vague;
-  - P2 declined with the page retrieved (F13), the router sent a rules question to a person (F16), and a search miss
-    (F18): no fix chosen yet.
+## Roadmap (Milestone 3)
 
-**Not built in Milestone 2.** The FastAPI server, case approval and email sending, staff queues and the Next.js web
-app are planned only. `code/server/`, `code/web/` and `code/answer/` are empty placeholders, and `docs/API.md` is the
-planned contract. The prototype is the Streamlit app above.
+Each item comes from a measured failure in the runs above (error analysis: [docs/iteration_log.md](docs/iteration_log.md),
+"Error analysis: fresh check 2"). None is built yet; the pipeline stays frozen at tag `m2-final-24nov`.
+
+- **Prefer the newest official document when two documents conflict** (F15): rank retrieved sections by the document
+  date in `INDEX.md`, so the 2024 IT Policy (45 days) wins over the 2019-20 handbook (90 days). A verified quote proves
+  the sentence is in a document, so the next check is whether it is the current one.
+- **Ask which programme a student is in when rules differ by programme** (F28 turn 1, F01): route ACADEMICS and fee
+  questions that name no programme to a clarify. (P2 v5 tried to list every programme's value in the answer and
+  lowered the seen pass rate from 22/24 to 19/24, so the fix moves to the router.)
+- **Extend the quote to the full sentence so it always shows the number quoted in the answer**: widen the matched span
+  to sentence boundaries in the quote check (today a quote can stop at "...minimum attendance of", and the app flags it
+  with a "number not in quote" badge).
+- **Accept correct quotes from OCR and table text** (F22 part 2): strip OCR replacement characters and bullets before
+  the quote check.
+- **Lift recall without moving the right page down** (F18, Q16): re-rank the top 8 rather than widen the search (the
+  dual-query search raised page hit@8 from 13/16 to 14/16 but lowered the seen pass rate from 22/24 to 19/24, so it
+  was rejected).
+- **Sharpen the router and P2 on two known rows** (F16: a rules question sent to a person; F13: P2 declined with the
+  rule retrieved), and add Hinglish incident patterns to the safety trigger (Hinglish reports rely on the router today).
+- **Measure on new unseen questions** after each change: the 24 seen questions and fresh check 1 were used to choose
+  changes, so fresh check 2 (11/18) is the number to beat.
+- **Staff side**: the FastAPI server, case approval and email sending, staff queues and the Next.js web app
+  (`code/server/`, `code/web/`, `code/answer/` are placeholders; `docs/API.md` is the planned contract). The prototype
+  is the Streamlit app above.
 
 ## Run it locally
 
@@ -170,8 +189,8 @@ For Streamlit Community Cloud the key goes in the app's secrets as `GEMINI_API_K
 | Folder | What is in it |
 |---|---|
 | `code/` | All code. `app.py` (Streamlit app), `helpdesk/` (pipeline, router P1 v2, search, P3 handoff, scorers, `final_test.py`), `kb/` (the official documents as Markdown, one folder per office, with an `INDEX.md` each), `zenai/` (cached LLM client and the earlier router), `config/` (offices and demo mailboxes), `tests/` |
-| `prompts/` | Every prompt version with its settings and the reason for each change: `v1/` to `v4/`, and `final/` (P1 router, P2 grounded answer, P3 handoff) |
+| `prompts/` | Every prompt version with its settings and the reason for each change: `v1/` to `v5/`, and `final/` (P1 router, P2 grounded answer, P3 handoff) |
 | `test-data/` | `questions.csv` (the 24 test questions with expected action, document, page and key fact), `final_test_table.csv/.md` (24 Nov; `_22nov` the earlier table), `fresh_questions.csv` and `fresh_check.md` (fresh check 1), `fresh2_questions.csv` and `fresh2_check.md` (fresh check 2, 18 unseen questions), `runs/` (one folder per recorded run: outputs, scorecard, settings), `kb_manifest.csv` (every document and its source) |
-| `docs/` | `iteration_log.md` (prompt iterations and errors), `POLICY.md` (routing rules), `RETRIEVAL.md`, `API.md` |
+| `docs/` | `M2_PE-B81-26_ZENAIHelpdesk.pdf` (Milestone 2 document), `codingwoofs_BMC.pdf` (Business Model Canvas), `diagrams/` (the five design diagrams and `draw_diagrams.py`), `iteration_log.md` (prompt iterations and errors), `POLICY.md` (routing rules), `RETRIEVAL.md`, `API.md` |
 
 Builds on our earlier routing prototype (Sept to Oct 2026); its code and results are kept in code/ and test-data/results/.
