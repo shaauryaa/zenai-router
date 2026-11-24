@@ -115,3 +115,16 @@ Run `test-data/runs/fresh_20261124-183516`: 11/18 (61%); one-question 5/10, two-
 1/2. 79 API calls (a first attempt stopped on a provider HTTP 503 at F23 and saved nothing; the second invocation
 replayed F11-F22 from the cache). Failure causes in `test-data/fresh2_check.md`. README Results and Limitations
 updated (seen 24, fresh 1 now seen, fresh 2 unseen).
+
+Helpdesk app redesigned as a chat interface (`code/app.py`, `.streamlit/config.toml`): chat history, 4 suggestion
+cards (seen questions Q01, Q04, Q13, Q12 that pass in `final_20261124-181511`), 5 office shortcuts, the safety card and
+email draft restyled, a copy button for the draft, light mode only. Source badges (display only; the pipeline's result
+is never changed; `code/tests/test_app_badges.py`): a number in the answer that the quote doesn't show, a source for
+another programme than the one named, and a document dated before 2022.
+
+Milestone 2 documents: the five design diagrams redrawn for the final pipeline (`docs/diagrams/draw_diagrams.py`:
+programme-aware search, quote check v2, two questions, safety card, follow-up, chat UI);
+`docs/M2_PE-B81-26_ZENAIHelpdesk.pdf` (10 pages, sections 1-7) and the Business Model Canvas `docs/codingwoofs_BMC.pdf`.
+README leads with features and results; its Limitations section is now "Roadmap (Milestone 3)" with the same items as
+planned improvements. Software tests: 284 passed. No API key in the repository or its git history (searched every
+commit for key patterns; `.env` was never committed).
