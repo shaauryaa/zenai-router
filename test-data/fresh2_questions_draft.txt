@@ -1,0 +1,104 @@
+ZEN AI HELPDESK - 10 MORE FRESH TEST QUESTIONS, SET 2 (DRAFT, NOT RUN YET)
+=========================================================================
+
+Purpose: a second fresh check for the evaluator review. Same rules as set 1 (test-data/fresh_questions_draft.txt):
+written after the pipeline was frozen, not used to choose or change any prompt, search setting or quote check. Do
+not edit the prompts or search after seeing results on them; report whatever comes out.
+
+Every expected answer was checked by hand against the text in code/kb/ (document, page and the exact words are
+given). None repeats a topic from test-data/questions.csv or from set 1.
+
+Mix: 6 normal (fees 2, hostel 2, IT 1, exams 1), 2 Hinglish or typos, 2 the documents cannot answer.
+
+
+NORMAL QUESTIONS (6)
+--------------------
+
+F1. (Normal, English)
+Question: I'm paying my fee after the late registration window has closed. How much is the late fee and who has to approve it?
+Expected action: answer
+Expected office / document: FINANCE / late-fee-payment-rules.md (original .md, no pages; marked unverified in INDEX.md)
+Expected answer: Rs. 5,000, and only in exceptional circumstances with the Registrar's prior approval.
+Key fact (exact words in source): "late registration fee of ₹5,000"
+Note: same document as the 1,000-rupee row in questions.csv, but a different clause. An answer of Rs. 1,000 is a failure.
+
+F2. (Normal, English)
+Question: My brother is already studying at Bennett. Can I get a scholarship because of that?
+Expected action: answer
+Expected office / document: FINANCE / scholarship-policy-2026-27.md, page 3 (Sibling Scholarship)
+Expected answer: Yes, a Sibling Scholarship of 10% for the duration of the siblings' overlap, for real brother/sister (same parents, not cousins).
+Key fact: "A scholarship amount of 10% is offered to the eligible students as Sibling Scholarship"
+
+H1. (Normal, English)
+Question: Can I use an electric iron in my hostel room?
+Expected action: answer
+Expected office / document: HOSTEL / hostel-standing-orders.md, page 1
+Expected answer: No. Electrical irons, heaters, DVD players, TVs and similar appliances are not permitted in hostel rooms.
+Key fact: "Electrical appliances like electrical irons, heaters"
+
+H2. (Normal, English)
+Question: If the university cancels my hostel allotment because I broke the code of conduct, do I get my hostel fees back?
+Expected action: answer
+Expected office / document: HOSTEL / hostel-sports-refund-policy-2025-26.md, page 1
+Expected answer: No. No refund is permissible if the admission or hostel allocation is cancelled for disciplinary action or a code-of-conduct breach.
+Key fact: "NO REFUND of fees is permissible"
+
+I1. (Normal, English)
+Question: After how many days does my university login password expire?
+Expected action: answer
+Expected office / document: IT / it-policy.md, page 144
+Expected answer: 45 days (maximum password age).
+Key fact: "Maximum Password age shall be set to 45 days"
+Note: same page as the password-length question in set 1; the numbers sit next to each other, so a wrong number is a failure.
+
+E1. (Normal, English; course-specific)
+Question: I'm a BBA student and I was debarred for low attendance. Can I still take the supplementary exam for that course?
+Expected action: answer
+Expected office / document: ACADEMICS (COURSE_SPECIFIC) / bba-rules.md, page 16
+Expected answer: No. A student given an X grade for attendance shortage cannot take the supplementary exam and must register for the course again in the regular semester as a back-log course.
+Key fact: "shall not be allowed to take the supplementary Examination"
+Note: course-specific, so it must come from the BBA rules, not another programme's rulebook.
+
+
+HINGLISH / TYPOS (2)
+--------------------
+
+X1. (Edge, Hinglish)
+Question: hostel mein wifi ki data limit hoti hai kya?
+Expected action: answer (reply in Hinglish if the model manages it; an English reply is still a correct action)
+Expected office / document: IT / student-handbook.md, page 34 (the document sits in the HOSTEL folder)
+Expected answer: No limit on bandwidth or data for valid academic reasons; for large non-academic use, the Bennett Mobile Plan.
+Key fact: "There is no limit on the bandwidth or data usage for valid academic reasons"
+Note: tests the search across folders: the router will likely pick IT, the answer is in the HOSTEL folder.
+
+X2. (Edge, typos)
+Question: can i keep a pet dog in the hostle?
+Expected action: answer
+Expected office / document: HOSTEL / hostel-standing-orders.md, page 2
+Expected answer: No. Students may not keep pets in the hostel.
+Key fact: "keep pets"
+Note: the source sentence is "No student is allowed to engage private servant or keep pets."
+
+
+NOT IN THE DOCUMENTS (2)
+------------------------
+
+N1. (Edge, English)
+Question: How much does it cost to apply for re-evaluation of my answer sheet?
+Expected action: not_found (then a handoff draft)
+Expected office for the draft: ACADEMICS
+Why: none of re-evaluation, revaluation or re-checking appears anywhere in code/kb/. Any fee in the answer is invented, so it is a failure.
+
+N2. (Edge, English)
+Question: What does a cup of coffee cost at the campus cafe?
+Expected action: not_found (then a handoff draft)
+Expected office for the draft: CAMPUS_SERVICES
+Why: the documents describe the dining hours and say the menu is set with the service provider, but give no prices; "coffee" does not appear in the hostel, campus services, finance, IT or student support folders.
+
+
+HOW TO SCORE (same rule as test-data/final_test_table.md)
+---------------------------------------------------------
+Pass = correct action, and for the 8 answer rows also the key fact found and the quote verified.
+Not-found rows pass if the action is not_found and a handoff draft is produced (no invented prices or fees).
+Do not change any expected value to make a row pass; failures stay in the table.
+Expected totals if everything works: 8 answers, 2 not_found.
