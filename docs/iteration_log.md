@@ -70,6 +70,17 @@ What each step did (from the per-question tables in each scorecard.md):
 Final configuration: P1 v2 + search routed5_all3 + P2 v2 (step 3). P1 v2 is in `prompts/final/P1_router.md`, P1 v1
 stays in `prompts/v1/P1_router.md` and `code/zenai/llm_router.py`.
 
+### Sprint S4 (24 Nov): dual-query search tried and rejected
+
+Dual-query search (`search="dual_prog"`: BM25 on P1's search_query and on the topic's own text, merged by reciprocal
+rank fusion, same 5 routed + 3 all split and programme filter) raised page hit@8 on the seen rows from 13/16 to
+14/16 (`search_recall_dual_20261124-180009`), but lowered the seen pass rate from 22/24 to 19/24
+(`final_20261124-181011`) and produced one wrong answer: Q09 said "yes" to a make-up end-semester exam, which the
+rules forbid. It was rejected; the code stays as an unused option. Recall@8 doesn't capture rank order: Q07 and
+Q09 kept their expected page in the top 8, but lower down, and P2's reply changed. With the search reverted to
+routed5_all3_prog, the seen and fresh check 1 runs reproduce the checkpoint retrieval exactly
+(`final_20261124-181511`: 22/24; `fresh_20261124-181523`: 9/10 with the S4 scorer).
+
 ## Questions still wrong in the final configuration (step 3)
 
 | id | expected | got | cause |
